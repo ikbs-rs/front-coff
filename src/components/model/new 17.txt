@@ -1,0 +1,31 @@
+#instalacija
+set ORDS_HOME=C:\TOOLS\ords
+set ORDS_CONFIG=C:\TOOLS\ords\config
+set ORDS_LOGS=%ORDS_CONFIG%\logs
+
+c:\app\ords\bin\ords.exe --config %ORDS_CONFIG% install repair --interactive --log-folder %ORDS_LOGS%
+
+
+# konekcije
+set ORDS_HOME=C:\TOOLS\ords
+set ORDS_CONFIG=C:\TOOLS\ords\config
+set ORDS_LOGS=%ORDS_CONFIG%\logs
+set DB_HOSTNAME=localhost
+set DB_PORT=1521
+set DB_SERVICE=emsdb.ems.local
+set SYSDBA_USER=SYS
+
+ords.exe --config %ORDS_CONFIG% install --log-folder %ORDS_LOGS% --admin-user %SYSDBA_USER% --db-hostname %DB_HOSTNAME% --db-port %DB_PORT% --db-servicename %DB_SERVICE% --feature-db-api true --feature-rest-enabled-sql true --feature-sdw true --gateway-mode proxied --gateway-user APEX_PUBLIC_USER --proxy-user  
+  
+#BRISANJE  
+set ORDS_HOME=C:\TOOLS\ords
+set ORDS_CONFIG=C:\TOOLS\ords\config
+
+ords.exe --config %ORDS_CONFIG% uninstall --interactive
+
+ords --config C:\TOOLS\ords\config install --interactive --log-folder C:\TOOLS\ords\config\logs
+
+# Startovanje
+ords --config C:\TOOLS\ords\config serve
+
+nssm install ordsTest "C:\TOOLS\ords\ords_start.bat"

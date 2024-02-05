@@ -1,0 +1,64 @@
+{
+    "name": "roma-react",
+    "version": "9.0.0",
+    "homepage": "",
+    "private": true,
+    "dependencies": {
+        "@fullcalendar/core": "^6.1.4",
+        "@fullcalendar/daygrid": "^6.1.4",
+        "@fullcalendar/interaction": "^6.1.4",
+        "@fullcalendar/react": "^6.1.4",
+        "@fullcalendar/timegrid": "^6.1.4",
+        "@reduxjs/toolkit": "^1.9.5",
+        "axios": "^1.4.0",
+        "chart.js": "4.2.1",
+        "moment": "^2.29.4",
+        "prettier": "2.8.4",
+        "primeflex": "^3.3.0",
+        "primeicons": "^6.0.1",
+        "primereact": "^9.2.0",
+        "query-string": "^8.1.0",
+        "react": "18.2.0",
+        "react-dom": "18.2.0",
+        "react-dropzone": "^14.2.3",
+        "react-helmet": "^6.1.0",
+        "react-hook-form": "^7.44.3",
+        "react-input-mask": "^2.0.4",
+        "react-redux": "^8.0.5",
+        "react-router-dom": "6.8.2",
+        "react-scripts": "5.0.1",
+        "sass": "^1.58.3",
+        "web-vitals": "^3.1.1"
+    },
+    "scripts": {
+        "start": "copy .\\src\\configs\\env.test.local .\\src\\configs\\env.js && set PORT=8354 && react-scripts start /tic/",
+        "dev": "copy .\\src\\configs\\env.dev.local .\\src\\configs\\env.js && set PORT=8354 && react-scripts start /tic/",
+        "local": "copy .\\src\\configs\\env.local.local .\\src\\configs\\env.js && set PORT=8351 && react-scripts start /start/",
+        "bdev": "copy .\\src\\configs\\env.bdev.local .\\src\\configs\\env.js && set PORT=8354 && react-scripts start /tic/",
+        "sdev": "copy .\\src\\configs\\env.sdev.local .\\src\\configs\\env.js && set PORT=8354 && react-scripts start /tic/",
+        "boban": "copy .\\src\\configs\\env.boban.local .\\src\\configs\\env.js && set PORT=8354 && react-scripts start /tic/",
+        "prod": "copy .\\src\\configs\\env.prod.local .\\src\\configs\\env.js && set PORT=8354 && react-scripts start /tic/",
+        "build": "copy .\\src\\configs\\env.prod.local .\\src\\configs\\env.js && set GENERATE_SOURCEMAP=false && react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject",
+        "format": "prettier --write \"src/**/*.{js,ts,tsx}\""
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    }
+}
