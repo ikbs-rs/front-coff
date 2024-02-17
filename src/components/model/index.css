@@ -131,3 +131,21 @@
 .highlight-row-29 {
   background-color: #63d89fba !important; /* Dodajte svoju željenu boju za plavu */
 }
+
+.card-container {
+  display: flex;
+}
+
+.card {
+  flex: 1;
+}
+
+/* Prilagodite ovu vrednost prema vašim potrebama */
+.card:first-child {
+  flex: 0 0 80%;
+}
+
+/* Prilagodite ovu vrednost prema vašim potrebama */
+.card:last-child {
+  flex: 0 0 20%;
+}

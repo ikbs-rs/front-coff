@@ -1,7 +1,7 @@
 {
     "name": "roma-react",
     "version": "9.0.0",
-    "homepage": "",
+    "homepage": "coff",
     "private": true,
     "dependencies": {
         "@fullcalendar/core": "^6.1.4",
@@ -31,13 +31,14 @@
         "web-vitals": "^3.1.1"
     },
     "scripts": {
-        "start": "copy .\\src\\configs\\env.test.local .\\src\\configs\\env.js && set PORT=8354 && react-scripts start /tic/",
-        "dev": "copy .\\src\\configs\\env.dev.local .\\src\\configs\\env.js && set PORT=8354 && react-scripts start /tic/",
-        "local": "copy .\\src\\configs\\env.local.local .\\src\\configs\\env.js && set PORT=8351 && react-scripts start /start/",
-        "bdev": "copy .\\src\\configs\\env.bdev.local .\\src\\configs\\env.js && set PORT=8354 && react-scripts start /tic/",
-        "sdev": "copy .\\src\\configs\\env.sdev.local .\\src\\configs\\env.js && set PORT=8354 && react-scripts start /tic/",
-        "boban": "copy .\\src\\configs\\env.boban.local .\\src\\configs\\env.js && set PORT=8354 && react-scripts start /tic/",
-        "prod": "copy .\\src\\configs\\env.prod.local .\\src\\configs\\env.js && set PORT=8354 && react-scripts start /tic/",
+        "start": "copy .\\src\\configs\\env.test.local .\\src\\configs\\env.js && set PORT=8356 && react-scripts start /coff/",
+        "dev": "copy .\\src\\configs\\env.dev.local .\\src\\configs\\env.js && set PORT=8356 && react-scripts start /coff/",
+        "devBrztest": "copy .\\src\\configs\\env.brztest.local .\\src\\configs\\env.js && set PORT=8356 && react-scripts start /coff/",
+        "local": "copy .\\src\\configs\\env.local.local .\\src\\configs\\env.js && set PORT=8356 && react-scripts start /coff/",
+        "bdev": "copy .\\src\\configs\\env.bdev.local .\\src\\configs\\env.js && set PORT=8356 && react-scripts start /coff/",
+        "sdev": "copy .\\src\\configs\\env.sdev.local .\\src\\configs\\env.js && set PORT=8356 && react-scripts start /coff/",
+        "boban": "copy .\\src\\configs\\env.boban.local .\\src\\configs\\env.js && set PORT=8356 && react-scripts start /coff/",
+        "prod": "copy .\\src\\configs\\env.prod.local .\\src\\configs\\env.js && set PORT=8356 && react-scripts start /coff/",
         "build": "copy .\\src\\configs\\env.prod.local .\\src\\configs\\env.js && set GENERATE_SOURCEMAP=false && react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",

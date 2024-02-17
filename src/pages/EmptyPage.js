@@ -9,14 +9,14 @@ const EmptyPage = () => {
             <div className="grid">
                 <div className="col-12">
                     <div className="card">
-                        <h5>{translations[selectedLanguage].Ticketing_system} </h5>
+                        <h5>{translations[selectedLanguage].coffee} </h5>
                         <p>{translations[selectedLanguage]._eptyPage}</p>
                     </div>
                 </div>
             </div>
-            <div>
+            {/* <div>
                 <EmpA />
-            </div>
+            </div> */}
         </>
     );
 };

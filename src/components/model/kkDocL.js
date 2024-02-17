@@ -8,9 +8,9 @@ import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import { Toast } from "primereact/toast";
 import './index.css';
-import { TicDocService } from "../../service/model/TicDocService";
+import { KkDocService } from "../../service/model/KkDocService";
 import { TicDocvrService } from "../../service/model/TicDocvrService";
-import TicDoc from './ticDoc';
+import TicDoc from './kkDoc';
 import { EmptyEntities } from '../../service/model/EmptyEntities';
 import { Dialog } from 'primereact/dialog';
 import { translations } from "../../configs/translations";
@@ -19,7 +19,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { useSearchParams } from 'react-router-dom';
 import DeleteDialog from '../dialog/DeleteDialog';
 
-export default function TicDocL(props) {
+export default function KkDocL(props) {
 
   const [searchParams] = useSearchParams();
   const docVr = searchParams.get('docVr');
@@ -55,7 +55,7 @@ export default function TicDocL(props) {
       try {
         ++i
         if (i < 2) {
-          const ticDocService = new TicDocService();
+          const ticDocService = new KkDocService();
           const data = await ticDocService.getTicListaByItem('doc', 'listabynum', 'tic_docbynum_v', 'aa.docvr', ddTicDocvrItem.code);
           setTicDocs(data);
           initFilters();
@@ -71,7 +71,7 @@ export default function TicDocL(props) {
   useEffect(() => {
     async function fetchData() {
       try {
-        const ticDocService = new TicDocService();
+        const ticDocService = new KkDocService();
         const data = await ticDocService.getCmnListaByItem('obj', 'listabytxt', 'cmn_obj_tp_v', 't.code', 'O');
 
         setTicDocobjs(data);
@@ -240,19 +240,6 @@ export default function TicDocL(props) {
     return (
       <div className="flex card-container">
         <div className="flex flex-wrap gap-1">
-          <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
-        </div>
-        <div className="flex flex-wrap gap-1">
-          <Button label={translations[selectedLanguage].Map} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
-        </div>        
-        <div className="flex flex-wrap gap-1">
-          <Button label={translations[selectedLanguage].Storno} icon="pi pi-trash" onClick={showDeleteDialog} className="p-button-outlined p-button-danger" raised />
-        </div>
-
-        <div className="flex-grow-1" />
-        <b>{translations[selectedLanguage].DocList}</b>
-        <div className="flex-grow-1"></div>
-        <div className="flex flex-wrap gap-1">
           <span className="p-input-icon-left">
             <i className="pi pi-search" />
             <InputText
@@ -342,31 +329,6 @@ export default function TicDocL(props) {
   return (
     <div className="card">
       <Toast ref={toast} />
-      <div className="p-fluid formgrid grid">
-        <div className="field col-12 md:col-3">
-          <label htmlFor="docvr">{translations[selectedLanguage].docvr_}</label>
-          <Dropdown id="docvr"
-            value={ddTicDocvrItem}
-            options={ddTicDocvrItems}
-            onChange={(e) => onInputChange(e, "options", 'docvr')}
-            optionLabel="name"
-            placeholder="Select One"
-          />
-        </div>
-        {/* 
-        <div className="field col-12 md:col-4">
-          <label htmlFor="docobj">{translations[selectedLanguage].ndocobj}</label>
-          <Dropdown id="docobj"
-            value={ddTicDocobjItem}
-            options={ddTicDocobjItems}
-            onChange={(e) => onInputChange(e, "options", 'docobj')}
-            required
-            optionLabel="name"
-            placeholder="Select One"
-          />
-        </div>       
-         */}
-      </div>
       <DataTable
         dataKey="id"
         selectionMode="single"
@@ -380,13 +342,13 @@ export default function TicDocL(props) {
         scrollable
         sortField="date"
         sortOrder={1}
-        scrollHeight="750px"
+        scrollHeight="650px"
         virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}
         paginator
         rows={10}
-        rowsPerPageOptions={[5, 10, 25, 50]}
+        rowsPerPageOptions={[15, 25, 50]}
         onSelectionChange={(e) => setTicDoc(e.value)}
         onRowSelect={onRowSelect}
         onRowUnselect={onRowUnselect}
@@ -396,86 +358,24 @@ export default function TicDocL(props) {
           body={actionTemplate}
           exportable={false}
           headerClassName="w-10rem"
-          style={{ minWidth: '4rem' }}
-        />
-        <Column
-          field="ndocvr"
-          header={translations[selectedLanguage].ndocvr}
-          sortable
-          filter
-          style={{ width: "15%" }}
-        ></Column>
-        {/* <Column
-          field="ndocobj"
-          header={translations[selectedLanguage].ndocobj}
-          sortable
-          filter
-          style={{ width: "15%" }}
-        ></Column> */}
-        <Column
-          field="year"
-          header={translations[selectedLanguage].year}
-          sortable
-          filter
-          style={{ width: "10%" }}
-        ></Column>
-        <Column
-          field="broj"
-          header={translations[selectedLanguage].broj}
-          sortable
-          filter
-          style={{ width: "10%" }}
-        ></Column>
-        <Column
-          field="storno"
-          filterField="storno"
-          dataType="numeric"
-          header={translations[selectedLanguage].storno}
-          sortable
-          filter
-          filterElement={stornoFilterTemplate}
           style={{ width: "5%" }}
-          bodyClassName="text-center"
-          body={stornoBodyTemplate}
-        ></Column>
-        <Column
-          field="date"
-          header={translations[selectedLanguage].date}
-          sortable
-          filter
-          style={{ width: "10%" }}
-          body={(rowData) => formatDateColumn(rowData, "date")}
-        ></Column>
-        {/* <Column
-          field="cpar"
-          header={translations[selectedLanguage].cpar}
-          sortable
-          filter
-          style={{ width: "10%" }}
-        ></Column> */}
-        <Column
-          field="nevent"
-          header={translations[selectedLanguage].nevent}
-          sortable
-          filter
-          style={{ width: "10%" }}
-        ></Column>
+        />
         <Column
           field="npar"
           header={translations[selectedLanguage].npar}
           sortable
           filter
-          style={{ width: "15%" }}
+          style={{ width: "55%" }}
         ></Column>
         <Column
-          field="quantity"
+          field="ctp"
           header={translations[selectedLanguage].quantity}
           sortable
           filter
           style={{ width: "15%" }}
         ></Column>
         <Column
-          field="amount"
+          field="vreme"
           header={translations[selectedLanguage].amount}
           sortable
           filter

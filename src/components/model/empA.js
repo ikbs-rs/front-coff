@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Ripple } from 'primereact/ripple';
 import { DataView } from 'primereact/dataview';
 import { translations } from '../../configs/translations';
 import Event from './ticEventProdajaL';
-import Doc from './ticDocL';
+import Doc from './kkDocL';
 
 export default function EmpA() {
     const navigate = useNavigate();
     const selectedLanguage = localStorage.getItem('sl') || 'en';
     const [products, setProducts] = useState([]);
     const [layout] = useState('grid');
-    const rootDir = '/tic'
+    const rootDir = '/coff'
 
     const localProducts = [
         {
@@ -61,10 +62,11 @@ export default function EmpA() {
 
     const gridItem = (product) => {
         return (
-            <div className="col-12 sm:col-6 lg:col-12 xl:col-4 p-2 clickable-item" onClick={() => f1(product.id)}>
+            <div className="col-12 sm:col-6 lg:col-12 xl:col-3 p-2 clickable-item" onClick={() => f1(product.id)}>
                 <div className="p-4 border-1 surface-border surface-card border-round">
                     <div className="flex flex-column align-items-center gap-3 py-5">
                         <img className="w-9 shadow-2 border-round" src={`${rootDir}/images/${product.image}`} alt={product.name} />
+                        <Ripple />
                         <div className="text-2xl font-bold">{translations[selectedLanguage]?.[product.name] || product.name}</div>
                     </div>
                 </div>

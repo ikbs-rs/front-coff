@@ -15,7 +15,8 @@ import Condtp from './components/model/ticCondtpL';
 import DiscountTp from './components/model/ticDiscounttpL';
 import PrivilegeTp from './components/model/ticPrivilegetpL';
 import Privilege from './components/model/ticPrivilegeL';
-import Doc from './components/model/ticDocL';
+import Doc from './components/model/kkDocL';
+import Coff from './components/model/coffee';
 import DocTp from './components/model/ticDoctpL';
 import DocVr from './components/model/ticDocvrL';
 import EventAtttp from './components/model/ticEventatttpL';
@@ -37,8 +38,6 @@ import Sal from './components/model/ticSal';
 
 import Event from './components/model/ticEventL';
 import EventProdaja from './components/model/ticEventProdajaL';
-import Transaction from './components/model/ticTransactionL';
-import Delivery from './components/model/ticDocdeliveryL';
 import EmptyPage from './pages/EmptyPage';
 import ObjW from './components/model/ticCmnW';
 
@@ -83,98 +82,36 @@ const App = () => {
 
      const menu = [
         {
-            label: translations[selectedLanguage].Code_books,
+            label: translations[selectedLanguage].HR_books,
             icon: 'pi pi-fw pi-bars',
             items: [
-                //{ label: translations[selectedLanguage].Sales_channels, icon: 'pi pi-fw pi-calendar', to: '/action' },
-                {
-                    label: translations[selectedLanguage].Settings_seats,
-                    icon: 'pi pi-fw pi-bars',
-                    items: [
-                        { label: translations[selectedLanguage].Seat_type, icon: 'pi pi-fw pi-calendar', to: '/seattp' },
-                       // { label: translations[selectedLanguage].Seats, icon: 'pi pi-fw pi-calendar', to: '/seat'  },
-                        { label: translations[selectedLanguage].Properties_seat, icon: 'pi pi-fw pi-calendar' , to: '/seattpatt'}
-                    ]
-                },
-                {
-                    label: translations[selectedLanguage].Privileges,
-                    icon: 'pi pi-fw pi-bars',
-                    items: [
-                        { label: translations[selectedLanguage].Privilege_type, icon: 'pi pi-fw pi-calendar', to: '/privilegetp' },
-                        { label: translations[selectedLanguage].Privileges, icon: 'pi pi-fw pi-calendar', to: '/privilege'  },
-                        { label: translations[selectedLanguage].Discount_type, icon: 'pi pi-fw pi-calendar' , to: '/discounttp'},
-                        { label: translations[selectedLanguage].Discount, icon: 'pi pi-fw pi-calendar' , to: '/discount'},
-                        { label: translations[selectedLanguage].Conditional, icon: 'pi pi-fw pi-calendar' , to: '/condtp'}
-                    ]
-                },
-                {
-                    label: translations[selectedLanguage].Objects_administration,
-                    icon: 'pi pi-cog',
-                    items: [
-                        { action: 'objtpMenu', label: translations[selectedLanguage].Objects_type, icon: 'pi pi-clone', to: '/objtp' },
-                        { action: 'pobjMenu', label: translations[selectedLanguage].ObjectsXPK, icon: 'pi pi-fw pi-clone', to: '/objpk/XPK' },
-                        { action: 'pobjMenu', label: translations[selectedLanguage].ObjectsXPM, icon: 'pi pi-fw pi-clone', to: '/objpm/XPM' },
-                        { action: 'pobjMenu', label: translations[selectedLanguage].ObjectsXTCTP, icon: 'pi pi-fw pi-clone', to: '/objtctp/XTCTP' },
-                        { action: 'pobjMenu', label: translations[selectedLanguage].ObjectsXDOC, icon: 'pi pi-fw pi-clone', to: '/objdoc/XDOC' },
-                        { action: 'pobjMenu', label: translations[selectedLanguage].ObjectsXBL, icon: 'pi pi-fw pi-clone', to: '/objdoc/XBL' },
-                        { action: 'pobjMenu', label: translations[selectedLanguage].Objects, icon: 'pi pi-fw pi-clone', to: '/obj/-1' },                      
-                        { action: 'objattMenu', label: translations[selectedLanguage].Properties_object, icon: 'pi pi-fw pi-clone', to: '/objatt' },
-                        { action: 'objatttpMenu', label: translations[selectedLanguage].Group_of_properties, icon: 'pi pi-fw pi-clone', to: '/objatttp' },
-                        //{ action: 'linkMenu', label: translations[selectedLanguage].Type_of_relationship, icon: 'pi pi-fw pi-exclamation-triangle', to: '/link' },
-                        //{ action: 'objtreeMenu', label: translations[selectedLanguage].ObjectsTree, icon: 'pi pi-fw pi-clone', to: '/objtree' },
-                        // { action: 'objconMenu', label: translations[selectedLanguage].ObjCon, icon: 'pi pi-fw pi-clone', to: '/objcon' },
-                        // { action: 'objdMenu', label: translations[selectedLanguage].ObjectsD, icon: 'pi pi-fw pi-clone', to: '/objd' },
-                    ]
-                },
-                {
-                    label: translations[selectedLanguage].Events_administration,
-                    icon: 'pi pi-fw pi-cog',
-                    items: [
-                        { label: translations[selectedLanguage].Eventctg, icon: 'pi pi-fw pi-th-large', to: '/eventctg' },
-                        { label: translations[selectedLanguage].Event_type, icon: 'pi pi-fw pi-table', to: '/eventtp' },
-                        { label: translations[selectedLanguage].Eventatt_type, icon: 'pi pi-fw pi-table', to: '/eventatttp' },
-                        { label: translations[selectedLanguage].Properties_event, icon: 'pi pi-fw pi-align-right', to: '/eventatt'  },
-                        { label: translations[selectedLanguage].Agenda_type, icon: 'pi pi-fw pi-table' , to: '/agendatp'},
-                        { label: translations[selectedLanguage].Agenda, icon: 'pi pi-fw pi-align-justify' , to: '/agenda'},
-                        { label: translations[selectedLanguage].Season, icon: 'pi pi-fw pi-sun' , to: '/season'}
-                    ]
-                },
-                {
-                    label: translations[selectedLanguage].Processing_elements,
-                    icon: 'pi pi-wrench',
-                    items: [
-                        { label: translations[selectedLanguage].Item_type, icon: 'pi pi-database', to: '/arttp' },
-                        { label: translations[selectedLanguage].Groups_of_items, icon: 'pi pi-fw pi-clone', to: '/artgrp' },
-                        { label: translations[selectedLanguage].Item, icon: 'pi pi-fw pi-clone', to: '/art' },
-                        { label: translations[selectedLanguage].Price_types, icon: 'pi pi-fw pi-clone', to: '/cenatp' },
-                        { label: translations[selectedLanguage].Price, icon: 'pi pi-fw pi-exclamation-triangle', to: '/cena' }
-                    ]
-                },
-                {
-                    label: translations[selectedLanguage].Documents_administration,
-                    icon: 'pi pi-fw pi-bars',
-                    items: [
-                        { label: translations[selectedLanguage].Species_documents, icon: 'pi pi-fw pi-calendar' , to: '/docvr'},
-                        { label: translations[selectedLanguage].Document_types, icon: 'pi pi-fw pi-calendar' , to: '/doctp'}
-                    ]
-                }
+
+                { label: translations[selectedLanguage].Zap_type, icon: 'pi pi-fw pi-calendar', to: '/zaptp' },
+                { label: translations[selectedLanguage].Zap, icon: 'pi pi-fw pi-calendar', to: '/zap'  },
+                { label: translations[selectedLanguage].Org, icon: 'pi pi-fw pi-calendar', to: '/org'  },
+                { label: translations[selectedLanguage].Sis, icon: 'pi pi-fw pi-calendar', to: '/sis'  },
             ]
         },
         {
-            // label: translations[selectedLanguage].Processing,
-            // icon: 'pi pi-fw pi-bars',
-            // items: [
-            //     {
-                    label: translations[selectedLanguage].Event_processing,
-                    icon: 'pi pi-prime',
-                    items: [
-                        { label: translations[selectedLanguage].Events, icon: 'pi pi-database', to: '/event' },
-                        { label: translations[selectedLanguage].Document, icon: 'pi pi-fw pi-clone', to: '/doc' },
-                        { label: translations[selectedLanguage].Transaction, icon: 'pi pi-fw pi-book', to: '/transaction' },
-                        { label: translations[selectedLanguage].Delivery, icon: 'pi pi-fw pi-truck', to: '/delivery' },
-                    ]
-            //     }
-            // ]
+            label: translations[selectedLanguage].Administration_elements,
+            icon: 'pi pi-wrench',
+            items: [
+                { label: translations[selectedLanguage].Item_type, icon: 'pi pi-database', to: '/arttp' },
+                { label: translations[selectedLanguage].Groups_of_items, icon: 'pi pi-fw pi-clone', to: '/artgrp' },
+                { label: translations[selectedLanguage].Item, icon: 'pi pi-fw pi-clone', to: '/art' },
+                { label: translations[selectedLanguage].Price_types, icon: 'pi pi-fw pi-clone', to: '/cenatp' },
+                { label: translations[selectedLanguage].Price, icon: 'pi pi-fw pi-exclamation-triangle', to: '/cena' },
+                { label: translations[selectedLanguage].Document_types, icon: 'pi pi-fw pi-calendar' , to: '/doctp'},
+                { label: translations[selectedLanguage].Species_documents, icon: 'pi pi-fw pi-calendar' , to: '/docvr'},
+            ]
+        },
+        {
+            label: translations[selectedLanguage].Processing,
+            icon: 'pi pi-prime',
+            items: [
+                { label: translations[selectedLanguage].Document, icon: 'pi pi-fw pi-clone', to: '/doc' },
+                { label: translations[selectedLanguage].coffee, icon: 'pi pi-fw pi-clone', to: '/coff' },
+            ]
         },
         {
             label: translations[selectedLanguage].Reporting,
@@ -535,6 +472,7 @@ const App = () => {
                         <Route path="/event" element={<Event />} />
                         <Route path="/eventprodaja" element={<EventProdaja />} />
                         <Route path="/doc" element={<Doc />} />
+                        <Route path="/coff" element={<Coff />} />
                         <Route path="/doctp" element={<DocTp />} />
                         <Route path="/docvr" element={<DocVr />} />
                         <Route path="/eventtp" element={<EventTP />} />
@@ -550,8 +488,6 @@ const App = () => {
                         <Route path="/cena" element={<Cena />} />
                         <Route path="/cenatp" element={<CenaTp />} />
                         <Route path="/docvr" element={<DocVr />} />
-                        <Route path="/transaction" element={<Transaction />} />
-                        <Route path="/delivery" element={<Delivery />} />
 
                         <Route path="/atest" element={<Atest />} />
                         <Route path="/sal" element={<Sal />} />

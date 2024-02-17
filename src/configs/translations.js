@@ -314,7 +314,7 @@ export const translations = {
         Yes: "Da"
     },
     sr_cyr: {
-        _eptyPage: "Тикетинг систем служи за подршку свим пословним функцијама тикетинг система.",
+        _eptyPage: "Модул Бифе служи за подршку свим пословним функцијама бифеа ЕМС ад.",
         Ticketing_system: "Тикетинг систем",
         Action: "Акција",
         Actions: "Акције",
@@ -748,6 +748,13 @@ export const translations = {
         select_connection: "Изаберите везу",
         No_connection: "Без везе",
         minfee: "Лимит",
+        HR_books: "ХР шифарници",
+        Zap_type: "Тип запосленог",
+        Zap: "Запослени",
+        Org: "Орг. структура",
+        Sis: "Систематизација",
+        Administration_elements: "Администрација елемената",
+        coffee: "Бифе"
     }
   };
   

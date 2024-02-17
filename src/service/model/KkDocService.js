@@ -2,17 +2,17 @@ import axios from 'axios';
 import env from "../../configs/env"
 import Token from "../../utilities/Token";
 
-export class TicDocService {
+export class KkDocService {
   async getLista(objId) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
-    const url = `${env.TIC_BACK_URL}/tic/doc/_v/lista/?stm=tic_doc_v&sl=${selectedLanguage}`;
+    const url = `${env.kk_BACK_URL}/kk/doc/_v/lista/?stm=kk_doc_v&sl=${selectedLanguage}`;
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token
     };
 
     try {
-      //console.log("**********TicDocService*************",url)
+      //console.log("**********KkDocService*************",url)
       const response = await axios.get(url, { headers });
       return response.data.item;
     } catch (error) {
@@ -23,14 +23,14 @@ export class TicDocService {
 
   async getTransactionLista(objId) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
-    const url = `${env.TIC_BACK_URL}/tic/doc/_v/lista/?stm=tic_transaction_v&sl=${selectedLanguage}`;
+    const url = `${env.kk_BACK_URL}/kk/doc/_v/lista/?stm=kk_transaction_v&sl=${selectedLanguage}`;
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token
     };
 
     try {
-      //console.log("**********TicDocService*************",url)
+      //console.log("**********KkDocService*************",url)
       const response = await axios.get(url, { headers });
       return response.data.item;
     } catch (error) {
@@ -42,7 +42,7 @@ export class TicDocService {
   async getTicListaByItem(tab, route, view, item, objId) {
     
     const selectedLanguage = localStorage.getItem('sl') || 'en'
-    const url = `${env.TIC_BACK_URL}/tic/${tab}/_v/${route}/?stm=${view}&item=${item}&id=${objId}&sl=${selectedLanguage}`;
+    const url = `${env.kk_BACK_URL}/kk/${tab}/_v/${route}/?stm=${view}&item=${item}&id=${objId}&sl=${selectedLanguage}`;
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token
@@ -78,7 +78,7 @@ export class TicDocService {
 
   async getCmnListaByItem2(tab, route, view, item1, objId1, item2, objId2) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
-    const url = `${env.TIC_BACK_URL}/tic/${tab}/_v/${route}/?stm=${view}&item1=${item1}&id1=${objId1}&item2=${item2}&id2=${objId2}&sl=${selectedLanguage}`;
+    const url = `${env.kk_BACK_URL}/kk/${tab}/_v/${route}/?stm=${view}&item1=${item1}&id1=${objId1}&item2=${item2}&id2=${objId2}&sl=${selectedLanguage}`;
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token
@@ -94,9 +94,9 @@ export class TicDocService {
     }
   }
 
-  async getTicDocs() {
+  async getKkDocs() {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
-    const url = `${env.TIC_BACK_URL}/tic/doc/?sl=${selectedLanguage}`;
+    const url = `${env.kk_BACK_URL}/kk/doc/?sl=${selectedLanguage}`;
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token
@@ -111,9 +111,9 @@ export class TicDocService {
     }
   }
 
-  async getTicDoc(objId) {
+  async getKkDoc(objId) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
-    const url = `${env.TIC_BACK_URL}/tic/doc/${objId}/?sl=${selectedLanguage}`;
+    const url = `${env.kk_BACK_URL}/kk/doc/${objId}/?sl=${selectedLanguage}`;
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token
@@ -129,7 +129,7 @@ export class TicDocService {
   }
 
 
-  async postTicDoc(newObj) {
+  async postKkDoc(newObj) {
     try {
       const selectedLanguage = localStorage.getItem('sl') || 'en'
       if (newObj.date.trim() === '' || newObj.npar.trim() === '' || newObj.pib === null) {
@@ -137,7 +137,7 @@ export class TicDocService {
           "Items must be filled!"
         );
       }
-      const url = `${env.TIC_BACK_URL}/tic/doc/?sl=${selectedLanguage}`;
+      const url = `${env.kk_BACK_URL}/kk/doc/?sl=${selectedLanguage}`;
       const tokenLocal = await Token.getTokensLS();
       const headers = {
         'Content-Type': 'application/json',
@@ -154,7 +154,7 @@ export class TicDocService {
 
   }
 
-  async putTicDoc(newObj) {
+  async putKkDoc(newObj) {
     try {
       const selectedLanguage = localStorage.getItem('sl') || 'en'
       if (newObj.date.trim() === '' || newObj.npar.trim() === '' || newObj.pib === null) {
@@ -162,7 +162,7 @@ export class TicDocService {
           "Items must be filled!"
         );
       }
-      const url = `${env.TIC_BACK_URL}/tic/doc/?sl=${selectedLanguage}`;
+      const url = `${env.kk_BACK_URL}/kk/doc/?sl=${selectedLanguage}`;
       const tokenLocal = await Token.getTokensLS();
       const headers = {
         'Content-Type': 'application/json',
@@ -180,9 +180,9 @@ export class TicDocService {
 
   }
 
-  async deleteTicDoc(newObj) {
+  async deleteKkDoc(newObj) {
     try {
-      const url = `${env.TIC_BACK_URL}/tic/doc/${newObj.id}`;
+      const url = `${env.kk_BACK_URL}/kk/doc/${newObj.id}`;
       const tokenLocal = await Token.getTokensLS();
       const headers = {
         'Authorization': tokenLocal.token

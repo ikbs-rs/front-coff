@@ -27,7 +27,7 @@ const AppTopbar = (props) => {
             </button>
 
             <button type="button" className="p-link layout-topbar-logo" onClick={() => navigate('/')}>
-                <span className="layout-profile-name" style={{ color: "#ffffff", fontSize: 16 }}>{translations[selectedLanguage].Ticketing_system}</span>
+                <span className="layout-profile-name" style={{ color: "#ffffff", fontSize: 16 }}>{translations[selectedLanguage].coffee}</span>
             </button>
 
             <ul className="topbar-menu" style={{paddingTop: '9px'}}>
