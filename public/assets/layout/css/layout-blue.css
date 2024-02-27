@@ -1275,8 +1275,8 @@ a {
 }
 .layout-wrapper .layout-menu-container {
   position: fixed;
-  height: calc(100% - 70px);
-  top: 70px;
+  height: calc(100% - 0px);
+  /* top: 70px; */
   overflow: auto;
   z-index: 999;
 }
@@ -1657,14 +1657,14 @@ a {
   color: #0f97c7;
 }
 .layout-wrapper .layout-main {
-  padding-top: 70px;
+  /* padding-top: 70px; */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   min-height: 100vh;
 }
 .layout-wrapper .layout-main .layout-content {
-  padding: 16px;
+  /* padding: 16px; */
   flex: 1 1 0;
 }
 
@@ -2187,6 +2187,8 @@ a {
 
 .card {
   background: #ffffff;
+  padding-left: 0px;
+  padding-top: 0px;
   padding: 1rem;
   box-sizing: border-box;
   margin-bottom: 1rem;

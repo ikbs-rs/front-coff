@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { classNames } from 'primereact/utils';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
 
 import AppTopbar from './AppTopbar';
 import AppFooter from './AppFooter';
-import AppConfig from './AppConfig';
+// import AppConfig from './AppConfig';
 import AppMenu from './AppMenu';
 import AppRightMenu from './AppRightMenu';
 import './index.css';
@@ -56,10 +56,11 @@ import TicArtgrp from './components/model/ticArtgrp';
 
 const App = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const urlParams = new URLSearchParams(window.location.search);
     let selectedLanguage = localStorage.getItem('sl')
     //let selectedLanguage = urlParams.get('sl');
-    const [layoutMode, setLayoutMode] = useState('static');
+    const [layoutMode, setLayoutMode] = useState('slim');
     const [lightMenu, setLightMenu] = useState(false);
     const [overlayMenuActive, setOverlayMenuActive] = useState(false);
     const [staticMenuMobileActive, setStaticMenuMobileActive] = useState(false);
@@ -81,9 +82,10 @@ const App = () => {
     const inlineUserRef = useRef();
 
      const menu = [
+        { label: translations[selectedLanguage].Home, icon: 'pi pi-fw pi-home', to: `/` },
         {
             label: translations[selectedLanguage].HR_books,
-            icon: 'pi pi-fw pi-bars',
+            icon: 'pi pi-fw pi-database',
             items: [
 
                 { label: translations[selectedLanguage].Zap_type, icon: 'pi pi-fw pi-calendar', to: '/zaptp' },
@@ -107,7 +109,7 @@ const App = () => {
         },
         {
             label: translations[selectedLanguage].Processing,
-            icon: 'pi pi-prime',
+            icon: 'pi pi-cog',
             items: [
                 { label: translations[selectedLanguage].Document, icon: 'pi pi-fw pi-clone', to: '/doc' },
                 { label: translations[selectedLanguage].coffee, icon: 'pi pi-fw pi-clone', to: '/coff' },
@@ -115,7 +117,7 @@ const App = () => {
         },
         {
             label: translations[selectedLanguage].Reporting,
-            icon: 'pi pi-fw pi-bars',
+            icon: 'pi pi-fw pi-print',
             items: [
                 {
                     label: translations[selectedLanguage].Reports,
@@ -135,7 +137,7 @@ const App = () => {
         },        
         {
             label: translations[selectedLanguage].Moduleselection,
-            icon: 'pi pi-fw pi-compass',
+            icon: 'pi pi-fw pi-power-off',
             items: [
                 { label: translations[selectedLanguage].Back, icon: 'pi pi-sign-out', url: `${env.START_URL}?sl=${selectedLanguage}` }
             ]
@@ -148,6 +150,7 @@ const App = () => {
     let rightMenuClick;
     let userMenuClick;
     let configClick = false;
+   
 
     useEffect(() => {      
       if (selectedLanguage) {
@@ -305,6 +308,7 @@ const App = () => {
     };
 
     const onMenuItemClick = (event) => {
+        console.log("000000000000000000000000000000000000000000000000")
         if (!event.item.items) {
             hideOverlayMenu();
         }
@@ -314,6 +318,7 @@ const App = () => {
     };
 
     const onRootMenuItemClick = () => {
+        console.log("1111111111111111111111111111111111111111111111")
         setMenuActive((prevMenuActive) => !prevMenuActive);
         setInlineUserMenuActive(false);
     };
@@ -388,7 +393,7 @@ const App = () => {
     return (
         <div className={layoutClassName} onClick={onDocumentClick}>
             <Tooltip ref={copyTooltipRef} target=".block-action-copy" position="bottom" content="Copied to clipboard" event="focus" />
-
+{/* 
             <AppTopbar
                 topbarMenuActive={topbarMenuActive}
                 activeTopbarItem={activeTopbarItem}
@@ -397,7 +402,7 @@ const App = () => {
                 onMenuButtonClick={onMenuButtonClick}
                 onTopbarMenuButtonClick={onTopbarMenuButtonClick}
                 onTopbarItemClick={onTopbarItemClick}
-            />
+            /> */}
 
             <AppRightMenu rightPanelMenuActive={rightPanelMenuActive} onRightMenuClick={onRightMenuClick}></AppRightMenu>
 
@@ -493,7 +498,7 @@ const App = () => {
                         <Route path="/sal" element={<Sal />} />
                     </Routes>
                 </div>
-
+{/* 
                 <AppConfig
                     configActive={configActive}
                     onConfigClick={onConfigClick}
@@ -514,7 +519,7 @@ const App = () => {
                     onLayoutModeChange={onLayoutModeChange}
                     lightMenu={lightMenu}
                     onMenuColorChange={onMenuColorChange}
-                ></AppConfig>
+                ></AppConfig> */}
 
                 <AppFooter />
             </div>

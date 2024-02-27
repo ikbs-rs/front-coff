@@ -754,7 +754,8 @@ export const translations = {
         Org: "Орг. структура",
         Sis: "Систематизација",
         Administration_elements: "Администрација елемената",
-        coffee: "Бифе"
+        coffee: "Бифе",
+        Home: "Почетак",
     }
   };
   
