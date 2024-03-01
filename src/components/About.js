@@ -21,17 +21,17 @@ const About = () => {
             </div>
           </div>
           <div className="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content">
-            <h3>Voluptatem dignissimos provident quasi corporis voluptates sit assumenda.</h3>
+            <h3>ОДГОВОРНО УПРАВЉАЊЕ ЕЛЕКТРОМАГНЕТНИМ ПОЉЕМ.</h3>
             <p className="fst-italic">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            Већ почетком деветнаестог века било је познато да електрична струја око себе ствара магнетно поље...
             </p>
             <ul>
-              <li><i className="bi bi-check-circle"></i> Ullamco laboris nisi ut aliquip ex ea commodo consequat.</li>
-              <li><i className="bi bi-check-circle"></i> Duis aute irure dolor in reprehenderit in voluptate velit.</li>
-              <li><i className="bi bi-check-circle"></i> Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate trideta storacalaperda mastiro dolore eu fugiat nulla pariatur.</li>
+              <li><i className="bi bi-check-circle"></i> Шта је електромагнетно поље?</li>
+              <li><i className="bi bi-check-circle"></i> Шта су извори и како се ствара електромагнетно поље?</li>
+              <li><i className="bi bi-check-circle"></i> Природна електрична и магнетна поља. Електрична и магнетна поља која ствара човек.</li>
             </ul>
             <p>
-              Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+            Намена овог текста је да на здраворазумски, професионалан и стручан начин одговори на често постављана питања, реши недоумице, изврши едукацију и успостави поверење, засновано на чињеницама, пракси и знању.
             </p>
           </div>
         </div>

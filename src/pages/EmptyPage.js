@@ -57,7 +57,7 @@ const EmptyPage = () => {
                     </div>                  
                 </div>
             </div>
-            <div ref={menuRef} className="menuheight"><Menu /></div>    
+            {/* <div ref={menuRef} className="menuheight"><Menu /></div>     */}
                     
         </>
     );
