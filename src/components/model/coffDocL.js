@@ -7,44 +7,39 @@ import { Button } from "primereact/button";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import { Toast } from "primereact/toast";
-import { CoffDocsService } from "../../service/model/CoffDocsService";
-import Order from './Order';
+import './index.css';
+import { CoffDocService } from "../../service/model/CoffDocService";
+import CoffDoc from './coffDoc';
 import { EmptyEntities } from '../../service/model/EmptyEntities';
 import { Dialog } from 'primereact/dialog';
-import './index.css';
 import { translations } from "../../configs/translations";
-import DateFunction from "../../utilities/DateFunction";
 
-
-export default function OrderlistL(props) {
-
-  const objName = "tic_cena"
-  const selectedLanguage = localStorage.getItem('sl') || 'en'
-  const emptyCoffDocs = EmptyEntities[objName]
+export default function CoffDocL(props) {
+  console.log(props, "@@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDocL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+  let i = 0
+  const objName = "coff_doc"
+  const selectedLanguage = localStorage.getItem('sl')||'en'
+  const emptyCoffDoc = EmptyEntities[objName]
+  emptyCoffDoc.doctp = props.doctp
   const [showMyComponent, setShowMyComponent] = useState(true);
-  const [ticCenas, setCoffDocss] = useState([]);
-  const [ticCena, setCoffDocs] = useState(emptyCoffDocs);
+  const [coffDocs, setCoffDocs] = useState([]);
+  const [coffDoc, setCoffDoc] = useState(emptyCoffDoc);
   const [filters, setFilters] = useState('');
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [loading, setLoading] = useState(false);
   const toast = useRef(null);
-  const [visible, setVisible] = useState(false);
-  const [cenaTip, setLocTip] = useState('');
-  let i = 0
-  const handleCancelClick = () => {
-    props.setCoffDocsLVisible(false);
-  };
+  const [coffDocVisible, setCoffDocVisible] = useState(false);
+  const [docTip, setDocTip] = useState('');
 
   useEffect(() => {
     async function fetchData() {
       try {
         ++i
-        if (i < 2) {
-          const ticCenaService = new CoffDocsService();
-          const data = await ticCenaService.getLista();
-          setCoffDocss(data);
-
-          initFilters();
+        if (i<2) {  
+        const coffDocService = new CoffDocService();
+        const data = await coffDocService.getCoffDocsTp(props.doctp);
+        setCoffDocs(data);
+        initFilters();
         }
       } catch (error) {
         console.error(error);
@@ -52,35 +47,36 @@ export default function OrderlistL(props) {
       }
     }
     fetchData();
-  }, []);
+  }, [props.datarefresh]);
 
   const handleDialogClose = (newObj) => {
     const localObj = { newObj };
 
-    let _ticCenas = [...ticCenas];
-    let _ticCena = { ...localObj.newObj.obj };
+    let _coffDocs = [...coffDocs];
+    let _coffDoc = { ...localObj.newObj.obj };
+
     //setSubmitted(true);
-    if (localObj.newObj.cenaTip === "CREATE") {
-      _ticCenas.push(_ticCena);
-    } else if (localObj.newObj.cenaTip === "UPDATE") {
+    if (localObj.newObj.docTip === "CREATE") {
+      _coffDocs.push(_coffDoc);
+    } else if (localObj.newObj.docTip === "UPDATE") {
       const index = findIndexById(localObj.newObj.obj.id);
-      _ticCenas[index] = _ticCena;
-    } else if ((localObj.newObj.cenaTip === "DELETE")) {
-      _ticCenas = ticCenas.filter((val) => val.id !== localObj.newObj.obj.id);
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDocs Delete', life: 3000 });
+      _coffDocs[index] = _coffDoc;
+    } else if ((localObj.newObj.docTip === "DELETE")) {
+      _coffDocs = coffDocs.filter((val) => val.id !== localObj.newObj.obj.id);
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDoc Delete', life: 3000 });
     } else {
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDocs ?', life: 3000 });
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDoc ?', life: 3000 });
     }
-    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.cenaTip}`, life: 3000 });
-    setCoffDocss(_ticCenas);
-    setCoffDocs(emptyCoffDocs);
+    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.docTip}`, life: 3000 });
+    setCoffDocs(_coffDocs);
+    setCoffDoc(emptyCoffDoc);
   };
 
   const findIndexById = (id) => {
     let index = -1;
 
-    for (let i = 0; i < ticCenas.length; i++) {
-      if (ticCenas[i].id === id) {
+    for (let i = 0; i < coffDocs.length; i++) {
+      if (coffDocs[i].id === id) {
         index = i;
         break;
       }
@@ -90,15 +86,14 @@ export default function OrderlistL(props) {
   };
 
   const openNew = () => {
-    setCoffDocsDialog(emptyCoffDocs);
+    setCoffDocDialog(emptyCoffDoc);
   };
 
   const onRowSelect = (event) => {
-    //ticCena.begda = event.data.begda
     toast.current.show({
       severity: "info",
       summary: "Action Selected",
-      detail: `Id: ${event.data.id} Name: ${event.data.text}`,
+      detail: `Id: ${event.data.id} Name: ${event.data.textx}`,
       life: 3000,
     });
   };
@@ -107,7 +102,7 @@ export default function OrderlistL(props) {
     toast.current.show({
       severity: "warn",
       summary: "Action Unselected",
-      detail: `Id: ${event.data.id} Name: ${event.data.text}`,
+      detail: `Id: ${event.data.id} Name: ${event.data.textx}`,
       life: 3000,
     });
   };
@@ -115,19 +110,11 @@ export default function OrderlistL(props) {
   const initFilters = () => {
     setFilters({
       global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-      ctp: {
-        operator: FilterOperator.AND,
-        constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
-      },
-      ntp: {
-        operator: FilterOperator.AND,
-        constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
-      },
       code: {
         operator: FilterOperator.AND,
         constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
       },
-      text: {
+      textx: {
         operator: FilterOperator.AND,
         constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }],
       },
@@ -154,14 +141,29 @@ export default function OrderlistL(props) {
     return (
       <div className="flex card-container">
         <div className="flex flex-wrap gap-1">
-          <Button label={translations[selectedLanguage].Copy} icon="pi pi-copy"  severity="danger" onClick={openNew} text raised />
+          <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
         </div>
+        <div className="flex-grow-1" />
+        <b>{translations[selectedLanguage].DocsList}</b>
+        <div className="flex-grow-1"></div>
         <div className="flex flex-wrap gap-1">
-          <Button label={translations[selectedLanguage].Add} icon="pi pi-plus" onClick={openNew} severity="warning" text raised />
-        </div>        
-        <div className="flex-grow-1"></div>
-        <b>{translations[selectedLanguage].OrderList}</b>
-        <div className="flex-grow-1"></div>
+          <span className="p-input-icon-left">
+            <i className="pi pi-search" />
+            <InputText
+              value={globalFilterValue}
+              onChange={onGlobalFilterChange}
+              placeholder={translations[selectedLanguage].KeywordSearch}
+            />
+          </span>
+          <Button
+            type="button"
+            icon="pi pi-filter-slash"
+            label={translations[selectedLanguage].Clear}
+            outlined
+            onClick={clearFilter}
+            text raised
+          />
+        </div>
       </div>
     );
   };
@@ -193,22 +195,18 @@ export default function OrderlistL(props) {
     );
   };
 
-  const formatDateColumn = (rowData, field) => {
-    return DateFunction.formatDate(rowData[field]);
-  };
-
   // <--- Dialog
-  const setCoffDocsDialog = (ticCena) => {
-    setVisible(true)
-    setLocTip("CREATE")
-    setCoffDocs({ ...ticCena });
+  const setCoffDocDialog = (coffDoc) => {
+    setCoffDocVisible(true)
+    setDocTip("CREATE")
+    setCoffDoc({ ...coffDoc });
   }
   //  Dialog --->
 
   const header = renderHeader();
   // heder za filter/>
 
-  const locTemplate = (rowData) => {
+  const actionTemplate = (rowData) => {
     return (
       <div className="flex flex-wrap gap-1">
 
@@ -217,8 +215,8 @@ export default function OrderlistL(props) {
           icon="pi pi-pencil"
           style={{ width: '24px', height: '24px' }}
           onClick={() => {
-            setCoffDocsDialog(rowData)
-            setLocTip("UPDATE")
+            setCoffDocDialog(rowData)
+            setDocTip("UPDATE")
           }}
           text
           raised ></Button>
@@ -227,104 +225,101 @@ export default function OrderlistL(props) {
     );
   };
 
+  const handleDataUpdate = (updatedTab) => {
+    props.onDataUpdate(updatedTab);
+    // setDataTab(updatedTab);
+  };
   return (
     <div className="card">
       <Toast ref={toast} />
       <DataTable
-        id="OrderlistL"
+        id="coffDocL"
         dataKey="id"
         selectionMode="single"
-        selection={ticCena}
+        selection={coffDoc}
         loading={loading}
-        value={ticCenas}
+        value={coffDocs}
         header={header}
         showGridlines
         removableSort
         filters={filters}
         scrollable
-        scrollHeight="650px"
+        sortField="code"        
+        sortOrder={1}
+        scrollHeight="750px"
         virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}
         paginator
         rows={10}
         rowsPerPageOptions={[5, 10, 25, 50]}
-        onSelectionChange={(e) => setCoffDocs(e.value)}
+        onSelectionChange={(e) => setCoffDoc(e.value)}
         onRowSelect={onRowSelect}
         onRowUnselect={onRowUnselect}
-      >
+      >       
         <Column
           //bodyClassName="text-center"
-          body={locTemplate}
+          body={actionTemplate}
           exportable={false}
           headerClassName="w-10rem"
           style={{ minWidth: '4rem' }}
-        />
+        />        
         <Column
-          field="code"
-          header={translations[selectedLanguage].Code}
+          field="ndoctp"
+          header={translations[selectedLanguage].ndoctp}
           sortable
           filter
-          style={{ width: "15%" }}
+          style={{ width: "20%" }}
         ></Column>
         <Column
-          field="text"
-          header={translations[selectedLanguage].Text}
+          field="mesto"
+          header={translations[selectedLanguage].Mestoporudzbina}
           sortable
           filter
           style={{ width: "30%" }}
         ></Column>
         <Column
-          field="ctp"
-          header={translations[selectedLanguage].Code}
+          field="potpisnik"
+          header={translations[selectedLanguage].potpisnik}
           sortable
           filter
-          style={{ width: "15%" }}
-        ></Column>
+          style={{ width: "20%" }}
+        ></Column>  
         <Column
-          field="ntp"
-          header={translations[selectedLanguage].Text}
+          field="vreme"
+          header={translations[selectedLanguage].Vreme}
           sortable
           filter
-          style={{ width: "35%" }}
-        ></Column>
+          style={{ width: "20%" }}
+        ></Column>   
         <Column
-          field="valid"
-          filterField="valid"
-          dataType="numeric"
-          header={translations[selectedLanguage].Valid}
+          field="status"
+          header={translations[selectedLanguage].status}
           sortable
           filter
-          filterElement={validFilterTemplate}
           style={{ width: "10%" }}
-          bodyClassName="text-center"
-          body={validBodyTemplate}
-        ></Column>
+        ></Column>                    
       </DataTable>
       <Dialog
-        header={translations[selectedLanguage].Cena}
-        visible={visible}
-        style={{ width: '40%' }}
+        header={translations[selectedLanguage].Docs}
+        visible={coffDocVisible}
+        style={{ width: '70%' }}
         onHide={() => {
-          setVisible(false);
+          setCoffDocVisible(false);
           setShowMyComponent(false);
         }}
       >
         {showMyComponent && (
-          <Order
+          <CoffDoc
             parameter={"inputTextValue"}
-            ticCena={ticCena}
+            coffDoc={coffDoc}
             handleDialogClose={handleDialogClose}
-            setVisible={setVisible}
+            setCoffDocVisible={setCoffDocVisible}
             dialog={true}
-            cenaTip={cenaTip}
+            docTip={docTip}
+            stVisible={true}
           />
         )}
-        <div className="p-dialog-header-icons" style={{ display: 'none' }}>
-          <button className="p-dialog-header-close p-link">
-            <span className="p-dialog-header-close-icon pi pi-times"></span>
-          </button>
-        </div>
       </Dialog>
     </div>
   );

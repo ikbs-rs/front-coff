@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import OrderL from '../components/model/OrderL';
-import OrderlistL from '../components/model/OrderlistL';
+import CoffDocL from '../components/model/coffDocL';
+// import OrderlistL from '../components/model/ticArttpL';
 
-const Tab = () => {
+const Tab = (props) => {
+
+    const currCoffOrder = localStorage.getItem('currCoffOrder')
+
+    
     const [activeTab, setActiveTab] = useState('tab-1');
 
     const handleTabClick = (tabId) => {
@@ -16,14 +21,17 @@ const Tab = () => {
             }, 100);
         } else if (tabId === 'tab-2') {
             setTimeout(() => {
-                const element = document.getElementById('OrderlistL').querySelector('.p-virtualscroller.p-virtualscroller-inline');
+                const element = document.getElementById('coffDocL').querySelector('.p-virtualscroller.p-virtualscroller-inline');
                 if (element) {
                     element.style.height = '650px';
                 }
             }, 100);
         }        
     };
-
+    const handleDataUpdate = (updatedTab) => {
+        props.onDataUpdate(updatedTab); 
+        // setDataTab(updatedTab);
+    };
     return (
         <section id="specials" className="specials ">
             <div className="container" data-aos="fade-up">
@@ -42,14 +50,14 @@ const Tab = () => {
                                     Креирај
                                 </button>
                             </li>
-                            <li className="nav-item">
+                            {/* <li className="nav-item">
                                 <button
                                     className={`nav-link ${activeTab === 'tab-2' ? 'active' : ''}`}
                                     onClick={() => handleTabClick('tab-2')}
                                 >
                                     Листа поруџбина
                                 </button>
-                            </li>
+                            </li> */}
                             <li className="nav-item">
                                 <button
                                     className={`nav-link ${activeTab === 'tab-3' ? 'active' : ''}`}
@@ -58,23 +66,22 @@ const Tab = () => {
                                     Правилник
                                 </button>
                             </li>
-                            {/* Dodajte ostale tabove na isti način */}
                         </ul>
                         <div className="tab-content">
                             <div className={`tab-pane ${activeTab === 'tab-1' ? 'active' : ''}`} id="tab-1">
                                 <div className="row">
                                     <div className="col-lg-12 details order-1 order-lg-1">
-                                        < OrderL />
+                                        < OrderL  currCoffOrder={currCoffOrder} datarefresh={props.dataTab} onDataUpdate={handleDataUpdate}/>
                                     </div>
                                 </div>
                             </div>
-                            <div className={`tab-pane ${activeTab === 'tab-2' ? 'active' : ''}`} id="tab-2">
+                            {/* <div className={`tab-pane ${activeTab === 'tab-2' ? 'active' : ''}`} id="tab-2">
                                 <div className="row">
                                     <div className="col-lg-12 details order-1 order-lg-1">
-                                        < OrderlistL />
+                                        < CoffDocL  doctp={1}/>
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
                             <div className={`tab-pane ${activeTab === 'tab-3' ? 'active' : ''}`} id="tab-3">
                                 <div className="row">
                                     <div className="col-lg-8 details order-2 order-lg-1">
@@ -87,11 +94,10 @@ const Tab = () => {
                                     </div>
                                 </div>
                             </div>
-                            {/* Dodajte ostale tab panele na isti način */}
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> 
         </section>
     );
 };

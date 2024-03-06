@@ -7,8 +7,8 @@ import { Button } from "primereact/button";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import { Toast } from "primereact/toast";
-import { TicDocvrService } from "../../service/model/TicDocvrService";
-import TicDocvr from './ticDocvr';
+import { CoffDocsService } from "../../service/model/CoffDocsService";
+import Order from './Order';
 import { EmptyEntities } from '../../service/model/EmptyEntities';
 import { Dialog } from 'primereact/dialog';
 import './index.css';
@@ -16,23 +16,24 @@ import { translations } from "../../configs/translations";
 import DateFunction from "../../utilities/DateFunction";
 
 
-export default function TicDocvrL(props) {
-
-  const objName = "tic_docvr"
+export default function OrderL(props) {
+  console.log(props, "****************************OrderL*********************************")
+  const objName = "coff_docs"
   const selectedLanguage = localStorage.getItem('sl') || 'en'
-  const emptyTicDocvr = EmptyEntities[objName]
+  const currDocId = localStorage.getItem('currCoffOrder') || '-1'
+  const emptyCoffDocs = EmptyEntities[objName]
   const [showMyComponent, setShowMyComponent] = useState(true);
-  const [ticDocvrs, setTicDocvrs] = useState([]);
-  const [ticDocvr, setTicDocvr] = useState(emptyTicDocvr);
+  const [coffDocss, setCoffDocss] = useState([]);
+  const [coffDocs, setCoffDocs] = useState(emptyCoffDocs);
   const [filters, setFilters] = useState('');
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [loading, setLoading] = useState(false);
   const toast = useRef(null);
   const [visible, setVisible] = useState(false);
-  const [docvrTip, setDocvrTip] = useState('');
+  const [cenaTip, setLocTip] = useState('');
   let i = 0
   const handleCancelClick = () => {
-    props.setTicDocvrLVisible(false);
+    props.setCoffDocsLVisible(false);
   };
 
   useEffect(() => {
@@ -40,9 +41,9 @@ export default function TicDocvrL(props) {
       try {
         ++i
         if (i < 2) {
-          const ticDocvrService = new TicDocvrService();
-          const data = await ticDocvrService.getLista();
-          setTicDocvrs(data);
+          const coffDocsService = new CoffDocsService();
+          const data = await coffDocsService.getLista();
+          setCoffDocss(data);
 
           initFilters();
         }
@@ -57,30 +58,30 @@ export default function TicDocvrL(props) {
   const handleDialogClose = (newObj) => {
     const localObj = { newObj };
 
-    let _ticDocvrs = [...ticDocvrs];
-    let _ticDocvr = { ...localObj.newObj.obj };
+    let _coffDocss = [...coffDocss];
+    let _coffDocs = { ...localObj.newObj.obj };
     //setSubmitted(true);
-    if (localObj.newObj.docvrTip === "CREATE") {
-      _ticDocvrs.push(_ticDocvr);
-    } else if (localObj.newObj.docvrTip === "UPDATE") {
+    if (localObj.newObj.cenaTip === "CREATE") {
+      _coffDocss.push(_coffDocs);
+    } else if (localObj.newObj.cenaTip === "UPDATE") {
       const index = findIndexById(localObj.newObj.obj.id);
-      _ticDocvrs[index] = _ticDocvr;
-    } else if ((localObj.newObj.docvrTip === "DELETE")) {
-      _ticDocvrs = ticDocvrs.filter((val) => val.id !== localObj.newObj.obj.id);
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'TicDocvr Delete', life: 3000 });
+      _coffDocss[index] = _coffDocs;
+    } else if ((localObj.newObj.cenaTip === "DELETE")) {
+      _coffDocss = coffDocss.filter((val) => val.id !== localObj.newObj.obj.id);
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDocs Delete', life: 3000 });
     } else {
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'TicDocvr ?', life: 3000 });
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDocs ?', life: 3000 });
     }
-    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.docvrTip}`, life: 3000 });
-    setTicDocvrs(_ticDocvrs);
-    setTicDocvr(emptyTicDocvr);
+    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.cenaTip}`, life: 3000 });
+    setCoffDocss(_coffDocss);
+    setCoffDocs(emptyCoffDocs);
   };
 
   const findIndexById = (id) => {
     let index = -1;
 
-    for (let i = 0; i < ticDocvrs.length; i++) {
-      if (ticDocvrs[i].id === id) {
+    for (let i = 0; i < coffDocss.length; i++) {
+      if (coffDocss[i].id === id) {
         index = i;
         break;
       }
@@ -90,11 +91,11 @@ export default function TicDocvrL(props) {
   };
 
   const openNew = () => {
-    setTicDocvrDialog(emptyTicDocvr);
+    setCoffDocsDialog(emptyCoffDocs);
   };
 
   const onRowSelect = (event) => {
-    //ticDocvr.begda = event.data.begda
+    //coffDocs.begda = event.data.begda
     toast.current.show({
       severity: "info",
       summary: "Action Selected",
@@ -153,39 +154,18 @@ export default function TicDocvrL(props) {
   const renderHeader = () => {
     return (
       <div className="flex card-container">
-        <div className="flex flex-wrap gap-1" />
-        <Button label={translations[selectedLanguage].Cancel} icon="pi pi-times" onClick={handleCancelClick} text raised
-        />
         <div className="flex flex-wrap gap-1">
           <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
         </div>
         <div className="flex-grow-1"></div>
-        <b>{translations[selectedLanguage].DocvrList}</b>
+        <b>{translations[selectedLanguage].OrderList}</b>
         <div className="flex-grow-1"></div>
-        <div className="flex flex-wrap gap-1">
-          <span className="p-input-icon-left">
-            <i className="pi pi-search" />
-            <InputText
-              value={globalFilterValue}
-              onChange={onGlobalFilterChange}
-              placeholder={translations[selectedLanguage].KeywordSearch}
-            />
-          </span>
-          <Button
-            type="button"
-            icon="pi pi-filter-slash"
-            label={translations[selectedLanguage].Clear}
-            outlined
-            onClick={clearFilter}
-            text raised
-          />
-        </div>
       </div>
     );
   };
 
   const validBodyTemplate = (rowData) => {
-    const valid = rowData.valid == 1?true:false
+    const valid = rowData.valid == 1 ? true : false
     return (
       <i
         className={classNames("pi", {
@@ -200,7 +180,7 @@ export default function TicDocvrL(props) {
     return (
       <div className="flex align-items-center gap-2">
         <label htmlFor="verified-filter" className="font-bold">
-        {translations[selectedLanguage].Valid}
+          {translations[selectedLanguage].Valid}
         </label>
         <TriStateCheckbox
           inputId="verified-filter"
@@ -216,10 +196,10 @@ export default function TicDocvrL(props) {
   };
 
   // <--- Dialog
-  const setTicDocvrDialog = (ticDocvr) => {
+  const setCoffDocsDialog = (coffDocs) => {
     setVisible(true)
-    setDocvrTip("CREATE")
-    setTicDocvr({ ...ticDocvr });
+    setLocTip("CREATE")
+    setCoffDocs({ ...coffDocs });
   }
   //  Dialog --->
 
@@ -235,8 +215,8 @@ export default function TicDocvrL(props) {
           icon="pi pi-pencil"
           style={{ width: '24px', height: '24px' }}
           onClick={() => {
-            setTicDocvrDialog(rowData)
-            setDocvrTip("UPDATE")
+            setCoffDocsDialog(rowData)
+            setLocTip("UPDATE")
           }}
           text
           raised ></Button>
@@ -248,25 +228,55 @@ export default function TicDocvrL(props) {
   return (
     <div className="card">
       <Toast ref={toast} />
+      {/* <div className="col-12"> */}
+        <div >
+          <div className="p-fluid formgrid grid">
+            <div className="field col-12 md:col-6">
+              <label htmlFor="code">{translations[selectedLanguage].Code}</label>
+              <InputText id="code"
+                value={"props.ticEvent.code"}
+                disabled={true}
+              />
+            </div>
+            <div className="field col-12 md:col-6">
+              <label htmlFor="text">{translations[selectedLanguage].Text}</label>
+              <InputText
+                id="text"
+                value={"props.ticEvent.textx"}
+                disabled={true}
+              />
+            </div>
+
+            <div className="field col-12 md:col-6">
+              <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
+            </div>
+            <div className="field col-12 md:col-6">
+              <Button label={translations[selectedLanguage].Update} icon="pi pi-cog" severity="success" onClick={openNew} text raised />
+            </div>
+
+          </div>
+        </div>
+      {/* </div> */}
       <DataTable
+        id="OrderL"
         dataKey="id"
         selectionMode="single"
-        selection={ticDocvr}
+        selection={coffDocs}
         loading={loading}
-        value={ticDocvrs}
-        header={header}
+        value={coffDocss}
+        // header={header}
         showGridlines
         removableSort
         filters={filters}
         scrollable
-        scrollHeight="550px"
+        scrollHeight="650px"
         virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}
         paginator
         rows={10}
         rowsPerPageOptions={[5, 10, 25, 50]}
-        onSelectionChange={(e) => setTicDocvr(e.value)}
+        onSelectionChange={(e) => setCoffDocs(e.value)}
         onRowSelect={onRowSelect}
         onRowUnselect={onRowUnselect}
       >
@@ -319,22 +329,22 @@ export default function TicDocvrL(props) {
         ></Column>
       </DataTable>
       <Dialog
-        header={translations[selectedLanguage].Docvr}
+        header={translations[selectedLanguage].Cena}
         visible={visible}
-        style={{ width: '60%' }}
+        style={{ width: '40%' }}
         onHide={() => {
           setVisible(false);
           setShowMyComponent(false);
         }}
       >
         {showMyComponent && (
-          <TicDocvr
+          <Order
             parameter={"inputTextValue"}
-            ticDocvr={ticDocvr}
+            coffDocs={coffDocs}
             handleDialogClose={handleDialogClose}
             setVisible={setVisible}
             dialog={true}
-            docvrTip={docvrTip}
+            cenaTip={cenaTip}
           />
         )}
         <div className="p-dialog-header-icons" style={{ display: 'none' }}>

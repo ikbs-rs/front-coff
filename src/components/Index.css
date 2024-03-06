@@ -54,6 +54,9 @@ a:hover {
   text-decoration: none;
 }
 
+.row.order-container .aos-init .aos-animate {
+  min-height: 1000px;
+}
 /*************POCETAK****************/
 aa {
   font-size: 15px;
@@ -1248,7 +1251,7 @@ section {
 }
 
 .menuheight {
-  height: 1060px;
+  /* height: 1060px; */
   background-color: #1a1814;
 }
 

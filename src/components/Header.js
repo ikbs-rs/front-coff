@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import './Index.css';
 
-const Header = ({ scrollToSection, heroSectionRef, aboutRef, menuRef, orderRef }) => {
+const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef, docRef }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -55,20 +55,27 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, menuRef, orderRef }
                 toggleMobileMenu();
               }
             }}>Почетна</a></li>
-            <li><a href="/menu" onClick={(e) => {
+            <li><a href="status/" onClick={(e) => {
               e.preventDefault();
-              scrollToSection(menuRef);
+              scrollToSection(statusRef);
               if (mobileMenuOpen) {
                 toggleMobileMenu();
               }
-            }}>Мени</a></li>
+            }}>Статус</a></li>
             <li><a href="/order" onClick={(e) => {
               e.preventDefault();
               scrollToSection(orderRef);
               if (mobileMenuOpen) {
                 toggleMobileMenu();
               }
-            }}>Поруџбина</a></li>            
+            }}>Поруџбина</a></li>   
+            <li><a href="/doc" onClick={(e) => {
+              e.preventDefault();
+              scrollToSection(docRef);
+              if (mobileMenuOpen) {
+                toggleMobileMenu();
+              }
+            }}>Преглед</a></li>                     
             {/* <li className={`dropdown`} onClick={handleDropdownClick}>
               <a href="#">
                 Администрација<i className="bi bi-chevron-down"></i>

@@ -3,6 +3,7 @@ import { translations } from '../configs/translations';
 import Header from '../components/Header';
 import HeroSection from '../components/HeroSection';
 import About from '../components/About';
+import AboutDoc from '../components/AboutDoc';
 import Menu from '../components/Menu';
 import Tab from '../components/Tab';
 import Footer from '../components/Footer';
@@ -19,10 +20,12 @@ const EmptyPage = () => {
     const aboutRef = useRef(null);
     const menuRef = useRef(null);
     const orderRef = useRef(null);
+    const docRef = useRef(null);
+    const statusRef = useRef(null);
 
     const navigate = useNavigate();
     const location = useLocation();
-
+    const [dataTab, setDataTab] = useState('1');
 
     useEffect(() => {
         // Postavljanje atributa na <body> tag
@@ -40,25 +43,33 @@ const EmptyPage = () => {
         });
     };
 
+    const handleDataUpdate = (updatedTab) => {
+        setDataTab(updatedTab);
+    };
+
+
     return (
         <>
             <TopBar />
-            <Header scrollToSection={scrollToSection} heroSectionRef={heroSectionRef} aboutRef={aboutRef} menuRef={menuRef} orderRef={orderRef} />
+            <Header scrollToSection={scrollToSection} heroSectionRef={heroSectionRef} aboutRef={aboutRef} menuRef={menuRef} orderRef={orderRef} statusRef={statusRef} docRef={docRef}/>
             <div ref={heroSectionRef}><HeroSection scrollToSection={scrollToSection} menuRef={menuRef} orderedRef={orderRef} /></div>
-            <div ><About /></div>   
-            <div ref={menuRef} className=""><StatsCounter/> </div>              
+            <div ref={aboutRef}><About /></div>
+            
             <div ref={orderRef} className="menuheight">
                 <div className="row " data-aos="fade-up" data-aos-delay="100" >
                     <div className={`col-lg-8 menu-item `}>
-                        <Ordermenu />
+                        <Ordermenu onDataUpdate={handleDataUpdate} />
                     </div>
-                    <div className={`col-lg-4 menu-item `}>                        
-                        <Tab />
-                    </div>                  
+                    <div className={`col-lg-4 menu-item `}>
+                        <Tab dataTab={dataTab} onDataUpdate={handleDataUpdate} />
+                    </div>
                 </div>
             </div>
+            <div ref={statusRef} className=""><StatsCounter /> </div>
+            <div ref={aboutRef}><About /></div>
+            <div ref={docRef} ><AboutDoc dataTab={dataTab} onDataUpdate={handleDataUpdate}/></div>
             {/* <div ref={menuRef} className="menuheight"><Menu /></div>     */}
-                    
+
         </>
     );
 };

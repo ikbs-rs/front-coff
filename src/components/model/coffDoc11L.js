@@ -8,9 +8,8 @@ import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import { Toast } from "primereact/toast";
 import './index.css';
-import { KkDocService } from "../../service/model/KkDocService";
-import { TicDocvrService } from "../../service/model/TicDocvrService";
-import TicDoc from './kkDoc';
+import { CoffDocService } from "../../service/model/CoffDocService";
+import CoffDoc from './coffDoc';
 import { EmptyEntities } from '../../service/model/EmptyEntities';
 import { Dialog } from 'primereact/dialog';
 import { translations } from "../../configs/translations";
@@ -19,19 +18,19 @@ import { Dropdown } from 'primereact/dropdown';
 import { useSearchParams } from 'react-router-dom';
 import DeleteDialog from '../dialog/DeleteDialog';
 
-export default function KkDocL(props) {
+export default function CoffDocL(props) {
 
   const [searchParams] = useSearchParams();
   const docVr = searchParams.get('docVr');
   //console.log(docVr, "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*")
   let i = 0
-  const objName = "tic_doc"
+  const objName = "coff_doc"
   const selectedLanguage = localStorage.getItem('sl') || 'en'
-  const emptyTicDoc = EmptyEntities[objName]
-  emptyTicDoc.docobj = 1;
+  const emptyCoffDoc = EmptyEntities[objName]
+  emptyCoffDoc.docobj = 1;
   const [showMyComponent, setShowMyComponent] = useState(true);
-  const [ticDocs, setTicDocs] = useState([]);
-  const [ticDoc, setTicDoc] = useState(emptyTicDoc);
+  const [ticDocs, setCoffDocs] = useState([]);
+  const [ticDoc, setCoffDoc] = useState(emptyCoffDoc);
 
   const [filters, setFilters] = useState('');
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -40,24 +39,24 @@ export default function KkDocL(props) {
   const [visible, setVisible] = useState(false);
   const [docTip, setDocTip] = useState('');
 
-  const [ticDocvrs, setTicDocvrs] = useState([]);
-  const [ticDocvr, setTicDocvr] = useState(null);
-  const [ddTicDocvrItem, setDdTicDocvrItem] = useState(null);
-  const [ddTicDocvrItems, setDdTicDocvrItems] = useState(null);
+  const [ticDocvrs, setCoffDocvrs] = useState([]);
+  const [ticDocvr, setCoffDocvr] = useState(null);
+  const [ddCoffDocvrItem, setDdCoffDocvrItem] = useState(null);
+  const [ddCoffDocvrItems, setDdCoffDocvrItems] = useState(null);
 
-  const [ticDocobjs, setTicDocobjs] = useState([]);
-  const [ticDocobj, setTicDocobj] = useState(1); // SETUJE SE PRIVREMENO DOK SE NE RAZVRSTA PO LOKACIJI
-  const [ddTicDocobjItem, setDdTicDocobjItem] = useState(null);
-  const [ddTicDocobjItems, setDdTicDocobjItems] = useState(null);
+  const [ticDocobjs, setCoffDocobjs] = useState([]);
+  const [ticDocobj, setCoffDocobj] = useState(1); // SETUJE SE PRIVREMENO DOK SE NE RAZVRSTA PO LOKACIJI
+  const [ddCoffDocobjItem, setDdCoffDocobjItem] = useState(null);
+  const [ddCoffDocobjItems, setDdCoffDocobjItems] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
         ++i
         if (i < 2) {
-          const ticDocService = new KkDocService();
-          const data = await ticDocService.getTicListaByItem('doc', 'listabynum', 'tic_docbynum_v', 'aa.docvr', ddTicDocvrItem.code);
-          setTicDocs(data);
+          const ticDocService = new CoffDocService();
+          const data = await ticDocService.getTicListaByItem('doc', 'listabynum', 'tic_docbynum_v', 'aa.docvr', ddCoffDocvrItem.code);
+          setCoffDocs(data);
           initFilters();
         }
       } catch (error) {
@@ -66,23 +65,23 @@ export default function KkDocL(props) {
       }
     }
     fetchData();
-  }, [ddTicDocvrItem, ticDoc]);
+  }, [ddCoffDocvrItem, ticDoc]);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const ticDocService = new KkDocService();
+        const ticDocService = new CoffDocService();
         const data = await ticDocService.getCmnListaByItem('obj', 'listabytxt', 'cmn_obj_tp_v', 't.code', 'O');
 
-        setTicDocobjs(data);
+        setCoffDocobjs(data);
 
         const dataDD = data.map(({ textx, id }) => ({ name: textx, code: id }));
-        setDdTicDocobjItems(dataDD);
+        setDdCoffDocobjItems(dataDD);
 
         const foundItem = data.find((item) => item.code === 'O0');
-        emptyTicDoc.docobj = foundItem.id;
-        setDdTicDocobjItem(dataDD.find((item) => item.code === foundItem.id) || null);
-        setTicDocobj(foundItem || null);
+        emptyCoffDoc.docobj = foundItem.id;
+        setDdCoffDocobjItem(dataDD.find((item) => item.code === foundItem.id) || null);
+        setCoffDocobj(foundItem || null);
 
         //}
       } catch (error) {
@@ -96,19 +95,19 @@ export default function KkDocL(props) {
   useEffect(() => {
     async function fetchData() {
       try {
-        const ticDocvrService = new TicDocvrService();
-        const data = await ticDocvrService.getTicDocvrs();
+        const ticDocvrService = new CoffDocService();
+        const data = await ticDocvrService.getCoffDocvrs();
 
-        setTicDocvrs(data)
+        setCoffDocvrs(data)
 
         const dataDD = data.map(({ textx, id }) => ({ name: textx, code: id }));
-        setDdTicDocvrItems(dataDD);
+        setDdCoffDocvrItems(dataDD);
 
         if (docVr) {
           const foundItem = data.find((item) => item.code === docVr);
-          emptyTicDoc.docvr = foundItem.id;
-          setDdTicDocvrItem(dataDD.find((item) => item.code === foundItem.id) || null);
-          setTicDocvr(foundItem || null);
+          emptyCoffDoc.docvr = foundItem.id;
+          setDdCoffDocvrItem(dataDD.find((item) => item.code === foundItem.id) || null);
+          setCoffDocvr(foundItem || null);
         }
 
       } catch (error) {
@@ -133,13 +132,13 @@ export default function KkDocL(props) {
       _ticDocs[index] = _ticDoc;
     } else if ((localObj.newObj.docTip === "DELETE")) {
       _ticDocs = ticDocs.filter((val) => val.id !== localObj.newObj.obj.id);
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'TicDoc Delete', life: 3000 });
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDoc Delete', life: 3000 });
     } else {
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'TicDoc ?', life: 3000 });
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDoc ?', life: 3000 });
     }
     toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.docTip}`, life: 3000 });
-    setTicDocs(_ticDocs);
-    setTicDoc(emptyTicDoc);
+    setCoffDocs(_ticDocs);
+    setCoffDoc(emptyCoffDoc);
   };
 
   const findIndexById = (id) => {
@@ -156,7 +155,7 @@ export default function KkDocL(props) {
   };
 
   const openNew = () => {
-    setTicDocDialog(emptyTicDoc);
+    setCoffDocDialog(emptyCoffDoc);
   };
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const showDeleteDialog = () => {
@@ -189,20 +188,20 @@ export default function KkDocL(props) {
       let _ticDoc = { ...ticDoc };
       val = (e.target && e.target.value && e.target.value.code) || '';
       if (name == "docvr") {
-        setDdTicDocvrItem(e.value);
+        setDdCoffDocvrItem(e.value);
         const foundItem = ticDocvrs.find((item) => item.id === val);
-        setTicDocvr(foundItem || null);
+        setCoffDocvr(foundItem || null);
         _ticDoc.docvr = val;
-        emptyTicDoc.docvr = val;
-        emptyTicDoc.docobj = 1;
+        emptyCoffDoc.docvr = val;
+        emptyCoffDoc.docobj = 1;
       } else if (name == "docobj") {
-        setDdTicDocobjItem(e.value);
+        setDdCoffDocobjItem(e.value);
         const foundItem = ticDocobjs.find((item) => item.id === val);
-        setTicDocobj(foundItem || null);
+        setCoffDocobj(foundItem || null);
         _ticDoc.docobj = val;
-        emptyTicDoc.docobj = val;
+        emptyCoffDoc.docobj = val;
       }
-      setTicDoc(_ticDoc);
+      setCoffDoc(_ticDoc);
     }
   }
   // <heder za filter
@@ -297,10 +296,10 @@ export default function KkDocL(props) {
   };
 
   // <--- Dialog
-  const setTicDocDialog = (ticDoc) => {
+  const setCoffDocDialog = (ticDoc) => {
     setVisible(true)
     setDocTip("CREATE")
-    setTicDoc({ ...ticDoc });
+    setCoffDoc({ ...ticDoc });
   }
   //  Dialog --->
 
@@ -316,7 +315,7 @@ export default function KkDocL(props) {
           icon="pi pi-pencil"
           style={{ width: '24px', height: '24px' }}
           onClick={() => {
-            setTicDocDialog(rowData)
+            setCoffDocDialog(rowData)
             setDocTip("UPDATE")
           }}
           text
@@ -349,7 +348,7 @@ export default function KkDocL(props) {
         paginator
         rows={10}
         rowsPerPageOptions={[15, 25, 50]}
-        onSelectionChange={(e) => setTicDoc(e.value)}
+        onSelectionChange={(e) => setCoffDoc(e.value)}
         onRowSelect={onRowSelect}
         onRowUnselect={onRowUnselect}
       >
@@ -394,7 +393,7 @@ export default function KkDocL(props) {
         }}
       >
         {showMyComponent && (
-          <TicDoc
+          <CoffDoc
             parameter={"inputTextValue"}
             ticDoc={ticDoc}
             handleDialogClose={handleDialogClose}

@@ -1,49 +1,49 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { classNames } from 'primereact/utils';
-import { KkDocService } from "../../service/model/KkDocService";
+import { CoffDocService } from "../../service/model/CoffDocService";
 import { TicFunctionService } from "../../service/model/TicFunctionService";
 import './index.css';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
+import { Dropdown } from 'primereact/dropdown';
 import { Toast } from "primereact/toast";
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from "../../configs/translations";
+import { Calendar } from "primereact/calendar";
 import DateFunction from "../../utilities/DateFunction"
+import CoffDocsL from './coffDocsorderL';
 import { EmptyEntities } from '../../service/model/EmptyEntities';
 import { Dialog } from 'primereact/dialog';
+//import CmnParL from './cmnParL';
 import CmnParL from './remoteComponentContainer';
+import CmnPar from './remoteComponentContainer';
 import env from "../../configs/env"
 
-const KkDoc = (props) => {
-    console.log("***********************************", `${env.DOMEN}?endpoint=parlend&sl=sr_cyr`, "***********************************", props)
+const CoffDocorder = (props) => {
+    console.log("**********************************************************************", props)
     const objName = "tic_docs"
-    const objDelivery = "tic_docdelivery"
+
     const domen = env.DOMEN
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const emptyTicEvents = EmptyEntities[objName]
-    const [showMyComponent, setShowMyComponent] = useState(false);
+    const [showMyComponent, setShowMyComponent] = useState(true);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
     const [dropdownItem, setDropdownItem] = useState(null);
     const [dropdownItems, setDropdownItems] = useState(null);
-    const [ticDoc, setTicDoc] = useState(props.ticDoc);
-    const [ticDocs, setTicDocs] = useState(props.ticDocs);
+    const [coffDoc, setCoffDoc] = useState('');
+    const [coffDocs, setCoffDocs] = useState('');
     const [submitted, setSubmitted] = useState(false);
     const [visible, setVisible] = useState(false);
 
-    const [ddCmnCurrItem, setDdCmnCurrItem] = useState(null);
-    const [ddCmnCurrItems, setDdCmnCurrItems] = useState(null);
-    const [cmnCurrItem, setCmnCurrItem] = useState(null);
-    const [cmnCurrItems, setCmnCurrItems] = useState(null);
+
     const [cmnParLVisible, setCmnParLVisible] = useState(false);
     const [cmnPar, setCmnPar] = useState(null);
     const [cmnParVisible, setCmnParVisible] = useState(false);
 
+    //const [date, setDate] = useState(new Date(DateFunction.formatJsDate(props.coffDoc.date || DateFunction.currDate())));
+    const [vreme, setVreme] = useState(DateFunction.formatDatetime( DateFunction.currDatetime()));
 
-    const [date, setDate] = useState(new Date(DateFunction.formatJsDate(props.ticDoc.date || DateFunction.currDate())));
-    const [tm, setTm] = useState(DateFunction.formatDatetime(props.ticDoc.tm || DateFunction.currDatetime()));
-
-    const [docTip, setDocTip] = useState(props.docTip);
-    const [docdeliveryTip, setDocdeliveryTip] = useState(props.docTip);
+    const [docTip, setDocTip] = useState('CREATE');
 
     const toast = useRef(null);
     const items = [
@@ -52,20 +52,23 @@ const KkDoc = (props) => {
     ];
 
     useEffect(() => {
-        setDropdownItem(findDropdownItemByCode(props.ticDoc.status));
+        setDropdownItem(findDropdownItemByCode(coffDoc.status));
     }, []);
+
 
 
     async function fetchPar() {
         try {
-            const ticDocService = new KkDocService();
-            const data = await ticDocService.getCmnParById(ticDoc.usr);
-            console.log(ticDoc.usr, "*-*-*************getCmnParById*************-*", data)
+            const coffDocService = new CoffDocService();
+            const data = await coffDocService.getCmnParById(coffDoc.usr);
+            console.log(coffDoc.usr, "*-*-*************getCmnParById*************-*", data)
             return data;
         } catch (error) {
             console.error(error);
+            // Obrada greške ako je potrebna
         }
     }
+
 
     const findDropdownItemByCode = (code) => {
         return items.find((item) => item.code === code) || null;
@@ -83,9 +86,25 @@ const KkDoc = (props) => {
         props.setVisible(false);
     };
 
+    const handleParBlur = async (parValue) => {
+        try {
+            const ticFunctionService = new TicFunctionService();
+            const data = await ticFunctionService.getParpopust(parValue);
+            coffDoc.parpopust = data.value
+            // Ovde možete da obradite rezultat dobijen iz getParpopust funkcije
+            console.log("Rezultat getParpopust:", data);
+        } catch (error) {
+            console.error("Greška pri pozivanju getParpopust funkcije:", error);
+        }
+    };
+
     const handleParLClick = async () => {
         try {
+            // const cmnParCode = coffDoc.cpar; // Pretpostavljamo da je ovde kod za cmnPar
+            // const coffDocService = new CoffDocService();
+            // const cmnParData = await coffDocService.getCmnPar(cmnParCode);
             setCmnParLDialog()
+            // setCmnPar(cmnParData);
         } catch (error) {
             console.error(error);
             toast.current.show({
@@ -97,17 +116,33 @@ const KkDoc = (props) => {
         }
     };
 
+    const handleParClick = async () => {
+        try {
+            // const cmnParCode = coffDoc.cpar; // Pretpostavljamo da je ovde kod za cmnPar
+            // const coffDocService = new CoffDocService();
+            // const cmnParData = await coffDocService.getCmnPar(cmnParCode);
+            setCmnParDialog()
+            // setCmnPar(cmnParData);
+        } catch (error) {
+            console.error(error);
+            toast.current.show({
+                severity: "error",
+                summary: "Error",
+                detail: "Failed to fetch cmnPar data",
+                life: 3000,
+            });
+        }
+    };
     const handleCreateClick = async () => {
         try {
             setSubmitted(true);
-            ticDoc.date = DateFunction.formatDateToDBFormat(DateFunction.dateGetValue(date));
-            ticDoc.tm = DateFunction.formatDateTimeToDBFormat(tm);
-            const ticDocService = new KkDocService();
-            const data = await ticDocService.postTicDoc(ticDoc);
-            ticDoc.id = data.id
-            ticDoc.broj = data.broj
-            setTicDoc({ ...ticDoc });
-            props.handleDialogClose({ obj: ticDoc, docTip: props.docTip });
+            coffDoc.vreme = DateFunction.formatDateTimeToDBFormat(vreme);
+            const coffDocService = new CoffDocService();
+            const data = await coffDocService.postCoffDoc(coffDoc);
+            coffDoc.id = data.id
+            coffDoc.broj = data.broj
+            setCoffDoc({ ...coffDoc });
+            props.handleDialogClose({ obj: coffDoc, docTip: props.docTip });
             props.setVisible(false);
         } catch (err) {
             toast.current.show({
@@ -122,17 +157,16 @@ const KkDoc = (props) => {
     const handleNextClick = async (event) => {
         try {
             setSubmitted(true);
-            ticDoc.date = DateFunction.formatDateToDBFormat(DateFunction.dateGetValue(date));
-            ticDoc.tm = DateFunction.formatDateTimeToDBFormat(tm);
-            const ticDocService = new KkDocService();
+            coffDoc.vreme = DateFunction.formatDateTimeToDBFormat(vreme);
+            const coffDocService = new CoffDocService();
             if (event == 'CREATE') {
-                const data = await ticDocService.postTicDoc(ticDoc);
-                ticDoc.id = data.id
-                ticDoc.broj = data.broj
-                setTicDoc({ ...ticDoc });                
-                props.handleDialogClose({ obj: ticDoc, docTip: props.docTip });
+                const data = await coffDocService.postCoffDoc(coffDoc);
+                coffDoc.id = data.id
+                coffDoc.broj = data.broj
+                setCoffDoc({ ...coffDoc });                
+                props.handleDialogClose({ obj: coffDoc, docTip: props.docTip });
             } else {
-                await ticDocService.putTicDoc(ticDoc);
+                await coffDocService.putCoffDoc(coffDoc);
             }
             setDocTip('UPDATE');
         } catch (err) {
@@ -148,11 +182,10 @@ const KkDoc = (props) => {
     const handleSaveClick = async () => {
         try {
             setSubmitted(true);
-            ticDoc.date = DateFunction.formatDateToDBFormat(DateFunction.dateGetValue(date));
-            ticDoc.tm = DateFunction.formatDateTimeToDBFormat(tm);
-            const ticDocService = new KkDocService();
-            await ticDocService.putTicDoc(ticDoc);
-            props.handleDialogClose({ obj: ticDoc, docTip: props.docTip });
+            coffDoc.vreme = DateFunction.formatDateTimeToDBFormat(vreme);
+            const coffDocService = new CoffDocService();
+            await coffDocService.putCoffDoc(coffDoc);
+            props.handleDialogClose({ obj: coffDoc, docTip: props.docTip });
             props.setVisible(false);
         } catch (err) {
             toast.current.show({
@@ -164,6 +197,7 @@ const KkDoc = (props) => {
         }
     };
 
+
     const showDeleteDialog = () => {
         setDeleteDialogVisible(true);
     };
@@ -171,9 +205,9 @@ const KkDoc = (props) => {
     const handleDeleteClick = async () => {
         try {
             setSubmitted(true);
-            const ticDocService = new KkDocService();
-            await ticDocService.deleteTicDoc(ticDoc);
-            props.handleDialogClose({ obj: ticDoc, docTip: 'DELETE' });
+            const coffDocService = new CoffDocService();
+            await coffDocService.deleteCoffDoc(coffDoc);
+            props.handleDialogClose({ obj: coffDoc, docTip: 'DELETE' });
             props.setVisible(false);
             hideDeleteDialog();
         } catch (err) {
@@ -185,7 +219,7 @@ const KkDoc = (props) => {
             });
         }
     };
-        
+
     const onInputChange = (e, type, name) => {
         let val = ''
         if (type === "options") {
@@ -195,8 +229,6 @@ const KkDoc = (props) => {
                 val = (e.target && e.target.value) || '';
                 switch (name) {
                     case "date":
-                        setDate(e.value)
-                        ticDoc.date = DateFunction.formatDateToDBFormat(dateVal)
                         break;
                     default:
                         console.error("Pogresan naziv polja")
@@ -208,11 +240,11 @@ const KkDoc = (props) => {
             val = (e.target && e.target.value) || '';
         }
 
-        let _ticDoc = { ...ticDoc };
-        _ticDoc[`${name}`] = val;
-        if (name === `textx`) _ticDoc[`text`] = val
+        let _coffDoc = { ...coffDoc };
+        _coffDoc[`${name}`] = val;
+        if (name === `textx`) _coffDoc[`text`] = val
 
-        setTicDoc(_ticDoc);
+        setCoffDoc(_coffDoc);
     };
 
     const hideDeleteDialog = () => {
@@ -223,85 +255,108 @@ const KkDoc = (props) => {
     const handleCmnParLDialogClose = async (newObj) => {
         if (newObj?.id) {
             setCmnPar(newObj);
-            let _ticDoc = { ...ticDoc }
-            _ticDoc.usr = newObj.id
-            _ticDoc.npar = newObj.text
-            _ticDoc.cpar = newObj.code
+            let _coffDoc = { ...coffDoc }
+            _coffDoc.usr = newObj.id
+            _coffDoc.npar = newObj.text
+            _coffDoc.cpar = newObj.code
 
             const ticFunctionService = new TicFunctionService();
             const data = await ticFunctionService.getParpopust(newObj.id);
-            _ticDoc.parpopust = data.value || 0
+            _coffDoc.parpopust = data.value || 0
 
-            setTicDoc(_ticDoc)
+            setCoffDoc(_coffDoc)
             // Ovde možete da obradite rezultat dobijen iz getParpopust funkcije
             console.log("Rezultat getParpopust:", data);
         }
         setCmnParLVisible(false)
+    };
+
+    const handleCmnParDialogClose = (newObj) => {
+        setCmnPar(newObj);
+        setCmnParVisible(false)
     };
     // <--- Dialog
     const setCmnParLDialog = () => {
         setCmnParLVisible(true)
     }
 
+    const setCmnParDialog = () => {
+        setCmnParVisible(true)
+    }
     //  Dialog --->
     return (
         <div className="grid">
             <Toast ref={toast} />
             <div className="col-12">
                 <div className="card">
+
                     <div className="p-fluid formgrid grid">
-                        <div className="field col-12 md:col-3">
-                            <label htmlFor="text">{translations[selectedLanguage].docvr}</label>
-                            <InputText
-                                id="text"
-                                value={props.ticDocvr.text}
-                                disabled={true}
-                            />
-                        </div>
-                    </div>
-                    <div className="p-fluid formgrid grid">
-                        <div className="field col-12 md:col-4">
+                        {/* <div className="field col-12 md:col-4">
                             <label htmlFor="cpar">{translations[selectedLanguage].cpar} *</label>
                             <div className="p-inputgroup flex-1">
                                 <InputText id="cpar" autoFocus
-                                    value={ticDoc.cpar} onChange={(e) => onInputChange(e, "text", 'cpar')}
-                                    //onBlur={() => handleParBlur(ticDoc.par)}
+                                    value={coffDoc.cpar} onChange={(e) => onInputChange(e, "text", 'cpar')}
+                                    //onBlur={() => handleParBlur(coffDoc.par)}
                                     required
-                                    className={classNames({ 'p-invalid': submitted && !ticDoc.cpar })}
+                                    className={classNames({ 'p-invalid': submitted && !coffDoc.cpar })}
                                 />
                                 <Button icon="pi pi-search" onClick={handleParLClick} className="p-button" />
+                                <Button icon="pi pi-search" onClick={handleParClick} className="p-button-success" />
                             </div>
-                            {submitted && !ticDoc.cpar && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
-                        </div>
+                            {submitted && !coffDoc.cpar && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
+                        </div> */}
                         <div className="field col-12 md:col-6">
                             <label htmlFor="npar">{translations[selectedLanguage].npar}</label>
                             <InputText
                                 id="npar"
-                                value={props.ticDoc.npar}
-                                disabled={true}
-                            />
-                        </div>
-                        <div className="field col-12 md:col-2">
-                            <label htmlFor="tm">{translations[selectedLanguage].tm}</label>
-                            <InputText
-                                id="tm"
-                                value={tm}
+                                value={coffDoc.npar}
                                 disabled={true}
                             />
                         </div>
 
-                        <div className="field col-12 md:col-12">
-                            <label htmlFor="napomena">{translations[selectedLanguage].napomena}</label>
+                        <div className="field col-12 md:col-3">
+                            <label htmlFor="status">{translations[selectedLanguage].status} *</label>
+                            <Dropdown id="status"
+                                value={dropdownItem}
+                                options={dropdownItems}
+                                onChange={(e) => onInputChange(e, "options", 'status')}
+                                required
+                                optionLabel="name"
+                                placeholder="Select One"
+                                className={classNames({ 'p-invalid': submitted && !coffDoc.status })}
+                            />
+                            {submitted && !coffDoc.status && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
+                        </div>
+                        {/* <div className="field col-12 md:col-2">
+                            <label htmlFor="vreme">{translations[selectedLanguage].vreme}</label>
                             <InputText
-                                id="napomena"
-                                value={ticDoc.napomena} onChange={(e) => onInputChange(e, "text", 'napomena')}
+                                id="vreme"
+                                value={vreme}
+                                disabled={true}
+                            />
+                        </div> */}
+
+                        <div className="field col-12 md:col-12">
+                            <label htmlFor="opis">{translations[selectedLanguage].opis}</label>
+                            <InputText
+                                id="opis"
+                                value={coffDoc.opis} onChange={(e) => onInputChange(e, "text", 'opis')}
                             />
                         </div>
                     </div>
 
                     <div className="flex flex-wrap gap-1">
+                        {props.dialog ? (
+                            <Button
+                                label={translations[selectedLanguage].Cancel}
+                                icon="pi pi-times"
+                                className="p-button-outlined p-button-secondary"
+                                onClick={handleCancelClick}
+                                outlined
+                            />
+                        ) : null}
                         <div className="flex-grow-1"></div>
-                        <div className="flex flex-wrap gap-1">
+                        {/* <div className="flex flex-wrap gap-1">
                             {(docTip === 'CREATE') ? (
                                 <Button
                                     label={translations[selectedLanguage].Create}
@@ -329,7 +384,7 @@ const KkDoc = (props) => {
                                         severity="success"
                                         outlined
                                     />
-                                 </>
+                                </>
                             ) : null}
                             {(docTip == 'CREATE') ? (
                                 <Button
@@ -348,17 +403,54 @@ const KkDoc = (props) => {
                                     outlined
                                 />
                             )}
-                        </div>
+                        </div> */}
                     </div>
                 </div>
+
+                    {showMyComponent && (
+                        <CoffDocsL
+                            parameter={"inputTextValue"}
+                            coffDoc={coffDoc}
+                            coffDocs={coffDocs}
+                            //updateEventsTip={updateEventsTip}
+                            ////handleDialogClose={handleDialogClose}
+                            setVisible={true}
+                            dialog={false}
+                            docTip={props.docTip}
+                        />
+                    )}
+
+
             </div>
             <DeleteDialog
                 visible={deleteDialogVisible}
                 inAction="delete"
-                item={ticDoc.text}
+                item={coffDoc.text}
                 onHide={hideDeleteDialog}
                 onDelete={handleDeleteClick}
             />
+            {/*
+            <Dialog
+                header={translations[selectedLanguage].ParList}
+                visible={cmnParLVisible}
+                style={{ width: '90%' }}
+                onHide={() => {
+                    setCmnParLVisible(false);
+                    setShowMyComponent(false);
+                }}
+            >
+                {cmnParLVisible && (
+                    <CmnParL
+                        parameter={"inputTextValue"}
+                        cmnPar={cmnPar}
+                        handleCmnParLDialogClose={handleCmnParLDialogClose}
+                        setCmnParLVisible={setCmnParLVisible}
+                        dialog={true}
+                        lookUp={true}
+                    />
+                )}
+            </Dialog>
+            */}
             <Dialog
                 header={translations[selectedLanguage].ParList}
                 visible={cmnParLVisible}
@@ -371,8 +463,26 @@ const KkDoc = (props) => {
                 {cmnParLVisible && (
                     <CmnParL
                         remoteUrl={`${env.CMN_URL}?endpoint=parlend&sl=sr_cyr`}
-                        queryParams={{ sl: 'sr_cyr', lookUp: false, dialog: false, ticDoc: ticDoc, parentOrigin: `${domen}` }} // Dodajte ostale parametre po potrebi
+                        queryParams={{ sl: 'sr_cyr', lookUp: false, dialog: false, coffDoc: coffDoc, parentOrigin: `${domen}` }} // Dodajte ostale parametre po potrebi
                         onTaskComplete={handleCmnParLDialogClose}
+                        originUrl={`${domen}`}
+                    />
+                )}
+            </Dialog>
+            <Dialog
+                header={translations[selectedLanguage].Par}
+                visible={cmnParVisible}
+                style={{ width: '90%', height: '1100px' }}
+                onHide={() => {
+                    setCmnParVisible(false);
+                    setShowMyComponent(false);
+                }}
+            >
+                {cmnParVisible && (
+                    <CmnPar
+                        remoteUrl={`${env.CMN_URL}?endpoint=parend&objid=${coffDoc.usr}&sl=sr_cyr`}
+                        queryParams={{ sl: 'sr_cyr', lookUp: false, dialog: false, coffDoc: coffDoc, parentOrigin: `${domen}` }} // Dodajte ostale parametre po potrebi
+                        onTaskComplete={handleCmnParDialogClose}
                         originUrl={`${domen}`}
                     />
                 )}
@@ -381,4 +491,4 @@ const KkDoc = (props) => {
     );
 };
 
-export default KkDoc;
+export default CoffDocorder;

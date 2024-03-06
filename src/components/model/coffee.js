@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { translations } from "../../configs/translations";
 import CoffeeV from "./coffeeV"
 import EmpA from "./empA"
-import KkDocL from "./kkDocL"
-import KkDoc from "./kkDoc"
+import CoffDocL from "./coffDocL"
+import CoffDoc from "./coffDoc"
 
 import { TabView, TabPanel } from 'primereact/tabview';
 import { Avatar } from 'primereact/avatar';
@@ -109,7 +109,7 @@ export default function TemplateDemo() {
                 </div>
             </SplitterPanel>
             <SplitterPanel className="flex flex-column" size={30} style={{ height: '780px', overflowY: 'auto' }}>
-                {action === 'CREATE' ? <KkDoc par="POR" /> : <KkDocL />}
+                {action === 'CREATE' ? <CoffDoc par="POR" /> : <CoffDocL />}
             </SplitterPanel>
         </Splitter>
     )

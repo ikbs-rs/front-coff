@@ -4,6 +4,78 @@ const god = DateFunction.currYear
 
 const EmptyEntities = 
 {
+  "coff_artum": {
+    "id": null,
+    "site": null,
+    "art": null,
+    "um": null,
+    "odnos": null
+  },
+  "coff_doc": {
+    "id": null,
+    "doctp": null,
+    "obj": null,
+    "mesto": null,
+    "napomena": "",
+    "potpisnik": null,
+    "vreme": "",
+    "eksternibroj": "",
+    "usr": null,
+    "status": "0"
+  },
+  "coff_docs": {
+    "id": null,
+    "doc": null,
+    "art": null,
+    "um": null,
+    "ulaz": null,
+    "izlaz": null,
+    "cena": null,
+    "duguje": null,
+    "potrazuje": null,
+    "napomena": "",
+    "org": null
+  },
+  "coff_loclinkout": {
+    "id": null,
+    "site": null,
+    "tp": null,
+    "loctp1": null,
+    "loc1": null,
+    "loctp2": null,
+    "loc2": null,
+    "val": "",
+    "begda": "",
+    "endda": "",
+    "hijerarhija": null
+  },
+  "coff_sastavnica": {
+    "id": null,
+    "art1": null,
+    "art2": null,
+    "ration": null,
+    "descript": ""
+  },
+  "coff_zap": {
+    "id": null,
+    "zap": "",
+    "tp": null
+  },
+  "coff_zaplink": {
+    "id": null,
+    "zap1": null,
+    "zap2": null,
+    "begda": "",
+    "endda": "",
+    "descript": ""
+  },
+  "coff_zaptp": {
+    "id": null,
+    "site": null,
+    "code": "",
+    "text": "",
+    "valid": null
+  },  
   "tic_agenda": {
     "id": null,
     "site": null,

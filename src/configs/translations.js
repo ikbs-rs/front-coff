@@ -756,6 +756,20 @@ export const translations = {
         Administration_elements: "Администрација елемената",
         coffee: "Бифе",
         Home: "Почетак",
+        Update: "Измена",
+        Zaduzenje: "Задужење",
+        Porudzbine: "Поруџбине",
+        ndoctp: "Тип документа",
+        Mestoporudzbina: "Место поруџбине",
+        potpisnik: "Потписник",
+        Vreme: "Време",
+        Mesto: "Место",
+        napomena: "Напомена",
+        Isporuceno: "Испоручено",
+        Cekanje: "Чекање",
+        Prijem: "Пријем",
+        Kol: "Кол",
+        num: "ЈМ",
     }
   };
   

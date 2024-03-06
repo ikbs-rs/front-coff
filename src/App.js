@@ -15,10 +15,9 @@ import Condtp from './components/model/ticCondtpL';
 import DiscountTp from './components/model/ticDiscounttpL';
 import PrivilegeTp from './components/model/ticPrivilegetpL';
 import Privilege from './components/model/ticPrivilegeL';
-import Doc from './components/model/kkDocL';
+import Doc from './components/model/coffDocL';
 import Coff from './components/model/coffee';
 import DocTp from './components/model/ticDoctpL';
-import DocVr from './components/model/ticDocvrL';
 import EventAtttp from './components/model/ticEventatttpL';
 import EventAtt from './components/model/ticEventattL';
 import EventCtg from './components/model/ticEventctgL';
@@ -36,8 +35,6 @@ import SeatTp from './components/model/ticSeattpL';
 import Atest from './components/model/1test';
 import Sal from './components/model/ticSal';
 
-import Event from './components/model/ticEventL';
-import EventProdaja from './components/model/ticEventProdajaL';
 import EmptyPage from './pages/EmptyPage';
 import ObjW from './components/model/ticCmnW';
 
@@ -111,7 +108,8 @@ const App = () => {
             label: translations[selectedLanguage].Processing,
             icon: 'pi pi-cog',
             items: [
-                { label: translations[selectedLanguage].Document, icon: 'pi pi-fw pi-clone', to: '/doc' },
+                { label: translations[selectedLanguage].Zaduzenje, icon: 'pi pi-fw pi-clone', to: '/doc2' },
+                { label: translations[selectedLanguage].Porudzbine, icon: 'pi pi-fw pi-clone', to: '/doc1' },
                 { label: translations[selectedLanguage].coffee, icon: 'pi pi-fw pi-clone', to: '/coff' },
             ]
         },
@@ -474,12 +472,10 @@ const App = () => {
 
                         <Route path="/usergrp" element={<EventAtt />} />
                         <Route path="/action" element={<EventAtt />} />
-                        <Route path="/event" element={<Event />} />
-                        <Route path="/eventprodaja" element={<EventProdaja />} />
-                        <Route path="/doc" element={<Doc />} />
+                        <Route path="/doc1" element={<Doc doctp={1} />} />
+                        <Route path="/doc2" element={<Doc doctp={2} />} />
                         <Route path="/coff" element={<Coff />} />
                         <Route path="/doctp" element={<DocTp />} />
-                        <Route path="/docvr" element={<DocVr />} />
                         <Route path="/eventtp" element={<EventTP />} />
                         <Route path="/eventctg" element={<EventCtg />} />
                         <Route path="/eventatttp" element={<EventAtttp />} />
@@ -487,12 +483,11 @@ const App = () => {
                         <Route path="/agendatp" element={<AgendaTp />} />
                         <Route path="/agenda" element={<Agenda />} />
                         <Route path="/season" element={<Season />} /> 
-                        <Route path="/art" element={<Art />} />
                         <Route path="/artgrp" element={<ArtGrp />} />
                         <Route path="/arttp" element={<ArtTp />} />
+                        <Route path="/art" element={<Art />} />
                         <Route path="/cena" element={<Cena />} />
                         <Route path="/cenatp" element={<CenaTp />} />
-                        <Route path="/docvr" element={<DocVr />} />
 
                         <Route path="/atest" element={<Atest />} />
                         <Route path="/sal" element={<Sal />} />

@@ -3,8 +3,7 @@ import { Route, Routes, useNavigate } from 'react-router-dom';
 import { Ripple } from 'primereact/ripple';
 import { DataView } from 'primereact/dataview';
 import { translations } from '../../configs/translations';
-import Event from './ticEventProdajaL';
-import Doc from './kkDocL';
+import Doc from './coffDocL';
 
 export default function EmpA() {
     const navigate = useNavigate();
@@ -44,7 +43,7 @@ export default function EmpA() {
         console.log('Funkcija f1 je pozvana sa parametrom:', param);
         switch (param) {
             case 4:
-                navigate('/eventprodaja');
+                navigate('/sal');
                 break;            
             case 3:
                 navigate('/sal');
@@ -98,7 +97,6 @@ export default function EmpA() {
 
             <div className="layout-content">
                 <Routes>
-                    <Route path="/eventprodaja" element={<Event />} />
                     <Route path="/doc" element={<Doc />} />
                 </Routes>
             </div>
