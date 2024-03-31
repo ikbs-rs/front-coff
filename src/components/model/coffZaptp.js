@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { classNames } from 'primereact/utils';
-import { TicCenatpService } from "../../service/model/TicCenatpService";
+import { TicCenatpService } from "../../service/model/CoffZaptpService";
 import './index.css';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';

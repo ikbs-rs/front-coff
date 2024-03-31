@@ -8,40 +8,35 @@ import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import { Toast } from "primereact/toast";
 import './index.css';
-import { CoffDocsService } from "../../service/model/CoffDocsService";
-import CoffDocsmenu from './coffDocsmenu';
+import { TicCenatpService } from "../../service/model/CoffZaptpService";
+import TicCenatp from './coffZaptp';
 import { EmptyEntities } from '../../service/model/EmptyEntities';
 import { Dialog } from 'primereact/dialog';
 import { translations } from "../../configs/translations";
 
-export default function CoffDocsL(props) {
-  console.log(props, "@@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDocsL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+export default function TicCenatpL(props) {
   let i = 0
-  const objName = "coff_doc"
+  const objName = "tic_cenatp"
   const selectedLanguage = localStorage.getItem('sl')||'en'
-  const emptyCoffDocs = EmptyEntities[objName]
-  emptyCoffDocs.doctp = props.doctp
+  const emptyTicCenatp = EmptyEntities[objName]
   const [showMyComponent, setShowMyComponent] = useState(true);
-  const [coffDocss, setCoffDocss] = useState([]);
-  const [coffDocs, setCoffDocs] = useState(emptyCoffDocs);
+  const [ticCenatps, setTicCenatps] = useState([]);
+  const [ticCenatp, setTicCenatp] = useState(emptyTicCenatp);
   const [filters, setFilters] = useState('');
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [loading, setLoading] = useState(false);
   const toast = useRef(null);
-  const [coffDocsVisible, setCoffDocsVisible] = useState(false);
-  const [docsTip, setDocsTip] = useState('');
-  const [artCurr, setArtCurr] = useState({});
-  const [cenaTip, setLocTip] = useState('');
-  const [visibleCoffDocsmenu, setVisibleCoffDocsmenu] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [cenatpTip, setCenatpTip] = useState('');
 
   useEffect(() => {
     async function fetchData() {
       try {
         ++i
         if (i<2) {  
-          const coffDocsService = new CoffDocsService();
-          const data = await coffDocsService.getCurrCoffOrder(props.coffDoc.id);
-        setCoffDocss(data);
+        const ticCenatpService = new TicCenatpService();
+        const data = await ticCenatpService.getTicCenatps();
+        setTicCenatps(data);
         initFilters();
         }
       } catch (error) {
@@ -55,31 +50,31 @@ export default function CoffDocsL(props) {
   const handleDialogClose = (newObj) => {
     const localObj = { newObj };
 
-    let _coffDocss = [...coffDocss];
-    let _coffDocs = { ...localObj.newObj.obj };
+    let _ticCenatps = [...ticCenatps];
+    let _ticCenatp = { ...localObj.newObj.obj };
 
     //setSubmitted(true);
-    if (localObj.newObj.docsTip === "CREATE") {
-      _coffDocss.push(_coffDocs);
-    } else if (localObj.newObj.docsTip === "UPDATE") {
+    if (localObj.newObj.cenatpTip === "CREATE") {
+      _ticCenatps.push(_ticCenatp);
+    } else if (localObj.newObj.cenatpTip === "UPDATE") {
       const index = findIndexById(localObj.newObj.obj.id);
-      _coffDocss[index] = _coffDocs;
-    } else if ((localObj.newObj.docsTip === "DELETE")) {
-      _coffDocss = coffDocss.filter((val) => val.id !== localObj.newObj.obj.id);
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDocs Delete', life: 3000 });
+      _ticCenatps[index] = _ticCenatp;
+    } else if ((localObj.newObj.cenatpTip === "DELETE")) {
+      _ticCenatps = ticCenatps.filter((val) => val.id !== localObj.newObj.obj.id);
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'TicCenatp Delete', life: 3000 });
     } else {
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDocs ?', life: 3000 });
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'TicCenatp ?', life: 3000 });
     }
-    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.docsTip}`, life: 3000 });
-    setCoffDocss(_coffDocss);
-    setCoffDocs(emptyCoffDocs);
+    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.cenatpTip}`, life: 3000 });
+    setTicCenatps(_ticCenatps);
+    setTicCenatp(emptyTicCenatp);
   };
 
   const findIndexById = (id) => {
     let index = -1;
 
-    for (let i = 0; i < coffDocss.length; i++) {
-      if (coffDocss[i].id === id) {
+    for (let i = 0; i < ticCenatps.length; i++) {
+      if (ticCenatps[i].id === id) {
         index = i;
         break;
       }
@@ -89,7 +84,7 @@ export default function CoffDocsL(props) {
   };
 
   const openNew = () => {
-    setCoffDocsDialog(emptyCoffDocs);
+    setTicCenatpDialog(emptyTicCenatp);
   };
 
   const onRowSelect = (event) => {
@@ -147,7 +142,7 @@ export default function CoffDocsL(props) {
           <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
         </div>
         <div className="flex-grow-1" />
-        <b>{translations[selectedLanguage].DocsList}</b>
+        <b>{translations[selectedLanguage].CenatpList}</b>
         <div className="flex-grow-1"></div>
         <div className="flex flex-wrap gap-1">
           <span className="p-input-icon-left">
@@ -199,19 +194,10 @@ export default function CoffDocsL(props) {
   };
 
   // <--- Dialog
-  const setCoffDocsDialog = (coffDocs) => {
-    const _artCurr = {}
-    _artCurr.category = "B-SOK"
-    _artCurr.code = "3.1"
-    _artCurr.id = coffDocs.art
-    _artCurr.img = `assets/img/menu/${coffDocs.art}.jpg`
-    _artCurr.name = coffDocs.text
-    _artCurr.un = coffDocs.c_id
-    setArtCurr({ ..._artCurr })
-    setVisibleCoffDocsmenu(true)
-    // setCoffDocsVisible(true)
-    setDocsTip("CREATE")
-    setCoffDocs({ ...coffDocs });
+  const setTicCenatpDialog = (ticCenatp) => {
+    setVisible(true)
+    setCenatpTip("CREATE")
+    setTicCenatp({ ...ticCenatp });
   }
   //  Dialog --->
 
@@ -227,8 +213,8 @@ export default function CoffDocsL(props) {
           icon="pi pi-pencil"
           style={{ width: '24px', height: '24px' }}
           onClick={() => {
-            setCoffDocsDialog(rowData)
-            setDocsTip("UPDATE")
+            setTicCenatpDialog(rowData)
+            setCenatpTip("UPDATE")
           }}
           text
           raised ></Button>
@@ -237,20 +223,15 @@ export default function CoffDocsL(props) {
     );
   };
 
-  const handleDataUpdate = (updatedTab) => {
-    props.onDataUpdate(updatedTab);
-    // setDataTab(updatedTab);
-  };
   return (
     <div className="card">
       <Toast ref={toast} />
       <DataTable
-        id="coffDocsL"
         dataKey="id"
         selectionMode="single"
-        selection={coffDocs}
+        selection={ticCenatp}
         loading={loading}
-        value={coffDocss}
+        value={ticCenatps}
         header={header}
         showGridlines
         removableSort
@@ -258,17 +239,17 @@ export default function CoffDocsL(props) {
         scrollable
         sortField="code"        
         sortOrder={1}
-        scrollHeight="350px"
+        scrollHeight="750px"
         virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}
         paginator
         rows={10}
         rowsPerPageOptions={[5, 10, 25, 50]}
-        onSelectionChange={(e) => setCoffDocs(e.value)}
+        onSelectionChange={(e) => setTicCenatp(e.value)}
         onRowSelect={onRowSelect}
         onRowUnselect={onRowUnselect}
-      >       
+      >
         <Column
           //bodyClassName="text-center"
           body={actionTemplate}
@@ -277,78 +258,51 @@ export default function CoffDocsL(props) {
           style={{ minWidth: '4rem' }}
         />        
         <Column
-          field="text"
+          field="code"
+          header={translations[selectedLanguage].Code}
+          sortable
+          filter
+          style={{ width: "25%" }}
+        ></Column>
+        <Column
+          field="textx"
           header={translations[selectedLanguage].Text}
-          // sortable
-          // filter
-          style={{ width: "50%" }}
+          sortable
+          filter
+          style={{ width: "60%" }}
         ></Column>
         <Column
-          field="num"
-          header={translations[selectedLanguage].num}
-          // sortable
-          // filter
-          style={{ width: "10%" }}
+          field="valid"
+          filterField="valid"
+          dataType="numeric"
+          header={translations[selectedLanguage].Valid}
+          sortable
+          filter
+          filterElement={validFilterTemplate}
+          style={{ width: "15%" }}
+          bodyClassName="text-center"
+          body={validBodyTemplate}
         ></Column>
-        <Column
-          field="izlaz"
-          header={translations[selectedLanguage].Kol}
-          // sortable
-          // filter
-          style={{ width: "20%" }}
-        ></Column>
-                    
       </DataTable>
-      {/* <Dialog
-        header={translations[selectedLanguage].Docs}
-        visible={coffDocsVisible}
-        style={{ width: '60%' }}
-        onHide={() => {
-          setVisibleCoffDocsmenu(false);
-          setShowMyComponent(false);
-        }}
-      >
-        {showMyComponent && (
-          <coffDocsmenu
-          parameter={"inputTextValue"}
-          artCurr={artCurr}
-          coffDocs={coffDocs}
-          onDataUpdate={handleDataUpdate}
-          handleDialogClose={handleDialogClose}
-          setVisibleCoffDocsmenu={setVisibleCoffDocsmenu}
-          dialog={true}
-          cenaTip={cenaTip}
-          docId={coffDocs.doc}
-          />
-        )}
-      </Dialog> */}
       <Dialog
-        header={translations[selectedLanguage].Stavka}
-        visible={visibleCoffDocsmenu}
-        style={{ width: '40%' }}
+        header={translations[selectedLanguage].Cenatp}
+        visible={visible}
+        style={{ width: '50%' }}
         onHide={() => {
-          setVisibleCoffDocsmenu(false);
+          setVisible(false);
           setShowMyComponent(false);
         }}
       >
         {showMyComponent && (
-          <CoffDocsmenu
+          <TicCenatp
             parameter={"inputTextValue"}
-            artCurr={artCurr}
-            coffDocs={coffDocs}
-            onDataUpdate={handleDataUpdate}
+            ticCenatp={ticCenatp}
             handleDialogClose={handleDialogClose}
-            setVisibleCoffDocsmenu={setVisibleCoffDocsmenu}
+            setVisible={setVisible}
             dialog={true}
-            cenaTip={cenaTip}
-            docId={coffDocs.doc}
+            cenatpTip={cenatpTip}
           />
         )}
-        <div className="p-dialog-header-icons" style={{ display: 'none' }}>
-          <button className="p-dialog-header-close p-link">
-            <span className="p-dialog-header-close-icon pi pi-times"></span>
-          </button>
-        </div>
       </Dialog>
     </div>
   );

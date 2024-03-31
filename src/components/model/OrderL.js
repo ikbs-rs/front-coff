@@ -56,13 +56,13 @@ export default function OrderL(props) {
     async function fetchData() {
       try {
         ++i
-        if (i < 2) {
+        // if (i < 2) {
           const coffDocsService = new CoffDocsService();
-          const data = await coffDocsService.getCurrCoffOrder(docId);
-
+          const data = await coffDocsService.getCurrCoffOrder(currCoffOrder);
+console.log(currCoffOrder, "323232323232323currCoffOrdercurrCoffOrdercurrCoffOrdercurrCo", docId, "ffOrdercurrCoffOrdercurrCoffOrdercurrCoffOrder232323232323232", data)
           setCoffDocss(data);
           initFilters();
-        }
+        // }
       } catch (error) {
         console.error(error);
         // Obrada greške ako je potrebna
@@ -141,11 +141,11 @@ export default function OrderL(props) {
   };
 
   const openDocNew = () => {
-    setCoffDocDialog(emptyCoffDoc);
+    setCoffDocDialog(emptyCoffDoc, "CREATE");
   };
 
   const openDoc = () => {
-    setCoffDocsDialog(emptyCoffDocs);
+    setCoffDocDialog(coffDoc, "UPDATE");
   };
 
   const onRowSelect = (event) => {
@@ -224,11 +224,11 @@ export default function OrderL(props) {
     setArtCurr({ ..._artCurr })
     setCoffDocs({ ...coffDocs });
   }
-  const setCoffDocDialog = (coffDoc) => {
+  const setCoffDocDialog = (coffDoc, docTip) => {
     const _coffDoc = { ...coffDoc }
     _coffDoc.doctp = "1"
     setCoffDocVisible(true)
-    setDocTip("CREATE")
+    setDocTip(docTip)
     setCoffDoc({ ..._coffDoc });
   }
   //  Dialog --->
@@ -284,7 +284,7 @@ export default function OrderL(props) {
             <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openDocNew} text raised />
           </div>
           <div className="field col-12 md:col-6">
-            <Button label={translations[selectedLanguage].Update} icon="pi pi-cog" severity="success" onClick={openNew} text raised />
+            <Button label={translations[selectedLanguage].Update} icon="pi pi-cog" severity="success" onClick={openDoc} text raised />
           </div>
 
         </div>

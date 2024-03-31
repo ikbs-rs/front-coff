@@ -29,9 +29,8 @@ import Art from './components/model/ticArtL';
 import ArtGrp from './components/model/ticArtgrpL';
 import ArtTp from './components/model/ticArttpL';
 import Cena from './components/model/ticCenaL';
-import CenaTp from './components/model/ticCenatpL';
-import SeattpAtt from './components/model/ticSeattpattL';
-import SeatTp from './components/model/ticSeattpL';
+import CenaTp from './components/model/coffZaptpL';
+import Zaptp from './components/model/coffZaptpL';
 import Atest from './components/model/1test';
 import Sal from './components/model/ticSal';
 
@@ -452,8 +451,7 @@ const App = () => {
                     <Routes>
                         <Route path="/" element={<EmptyPage />} />
                         
-                        <Route path="/seattpatt" element={<SeattpAtt />} />
-                        <Route path="/seattp" element={<SeatTp />} />
+                        <Route path="/zaptp" element={<Zaptp />} />
                         <Route path="/discounttp" element={<DiscountTp />} />
                         <Route path="/privilegetp" element={<PrivilegeTp />} />
                         <Route path="/privilege" element={<Privilege />} />

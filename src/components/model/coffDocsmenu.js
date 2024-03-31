@@ -52,10 +52,11 @@ const Order = (props) => {
                 ++i
                 if (i < 2) {
                     const coffDocsService = new CoffDocsService();
+
                     const data = await coffDocsService.getDocsorder(props.artCurr.id, props.docId);
                     await setCoffValues(data);
 
-                    console.log("coffDocService.getMenu !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", data)
+                    console.log("coffDocService.getMenu !!!!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!!!!!", data)
                     //initFilters(); 
                 }
             } catch (error) {

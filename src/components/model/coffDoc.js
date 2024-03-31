@@ -263,7 +263,6 @@ const CoffDoc = (props) => {
                         </div>
                     </div>
                 </div>
-                stVisible
                 {(props.stVisible) ? (
                     <div className="col-lg-12 details order-1 order-lg-1">
                         < CoffDocsL

@@ -2,7 +2,7 @@ import axios from 'axios';
 import env from "../../configs/env"
 import Token from "../../utilities/Token";
 
-export class TicCenatpService {
+export class CoffZaptpService {
   async getTicCenatps() {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const url = `${env.TIC_BACK_URL}/tic/x/cenatp/?sl=${selectedLanguage}`;

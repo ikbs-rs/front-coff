@@ -30,25 +30,19 @@ const Ordermenu = (props) => {
     const [menItems, setMenuItems] = useState([]);
     const [dataTab, setDataTab] = useState('');
     const [docId, setDocId] = useState('');
+    
 
     // const orderItems = [
 
     useEffect(() => {
         async function fetchData() {
             try {
-                setTimeout(() => {
-                    const element = ''//document.getElementById('OrderL').querySelector('.row.order-container.aos-init.aos-animate');
-                    if (element) {
-                        element.style.height = '1000px';
-                    }
-                }, 100);
                 ++i
                 if (i < 2) {
                     const coffDocService = new CoffDocService();
                     const data = await coffDocService.getMenu();
                     await setMenuItems(data);
 
-                    console.log("Ordermenu.getMenu !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", menItems)
                     initFilters();
                 }
             } catch (error) {
@@ -60,17 +54,11 @@ const Ordermenu = (props) => {
     }, []);
 
     React.useEffect(() => {
-        setTimeout(() => {
-            const element = '' //document.getElementById('OrderL').querySelector('.row.order-container.aos-init.aos-animate');
-            if (element) {
-                element.style.height = '1000px';
-            }
-        }, 300);
+
         isotopeOrder.current = new Isotope('.order-container', {
             itemSelector: '.order-item',
             layoutMode: 'fitRows',
         })
-        // cleanup
         return () => isotopeOrder.current.destroy()
     }, [menItems])
 
@@ -86,7 +74,10 @@ const Ordermenu = (props) => {
 
     }
 
-    const handleFilterKeyChange = key => () => setFilterKey(key)
+    const handleFilterKeyChange = key => () => {
+        console.log("@@@------------------------handleFilterKeyChange--------------------@@@@@@");
+        setFilterKey(key)
+    }
 
 
     const handleItemClick = (item, event) => {
@@ -130,6 +121,7 @@ const Ordermenu = (props) => {
         props.onDataUpdate(updatedTab);
         // setDataTab(updatedTab);
     };
+  
     return (
         <section id="menu" className="menu section-bg ">
             <div className="container" data-aos="fade-up">
@@ -138,8 +130,8 @@ const Ordermenu = (props) => {
                     {/* <p>Check Our Tasty Menu</p> */}
                 </div>
 
-                <div className="row" data-aos="fade-up" data-aos-delay="100">
-                    <div className="col-lg-12 d-flex justify-content-center">
+                <div id="mnu01" className="row" data-aos="fade-up" data-aos-delay="800">
+                    <div id="mnu02" className="col-lg-12 d-flex justify-content-center">
                         <ul id="order-flters">
                             <li onClick={handleFilterKeyChange('*')} className="filter-active">Све</li>
                             <li onClick={handleFilterKeyChange('B-KAFA')}>Кафа</li>
@@ -159,7 +151,7 @@ const Ordermenu = (props) => {
                     </div>
                 </div>
 
-                <div className="row order-container" data-aos="fade-up" data-aos-delay="200" style={{ position: 'relative', height: '700px ' }}>
+                <div id="mnu03" className="row order-container" data-aos="fade-up" data-aos-delay="200" style={{ position: 'relative', height: '950px ' }}>
                     {menItems.map(item => (
                         <div key={item.id} className={`col-lg-3 menu-item order-item ${item.category}`} onClick={(e) => handleItemClick(item, e)}>
                             <img src={item.img} className="menu-img" alt={item.name} style={{ cursor: 'pointer' }} />

@@ -8,35 +8,37 @@ import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import { Toast } from "primereact/toast";
 import './index.css';
-import { TicCenatpService } from "../../service/model/TicCenatpService";
-import TicCenatp from './ticCenatp';
+import { CoffDocService } from "../../service/model/CoffDocService";
+import CoffDoc from './coffDoc';
 import { EmptyEntities } from '../../service/model/EmptyEntities';
 import { Dialog } from 'primereact/dialog';
 import { translations } from "../../configs/translations";
 
-export default function TicCenatpL(props) {
+export default function CoffDocL(props) {
+  console.log(props, "@@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDocL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
   let i = 0
-  const objName = "tic_cenatp"
+  const objName = "coff_doc"
   const selectedLanguage = localStorage.getItem('sl')||'en'
-  const emptyTicCenatp = EmptyEntities[objName]
+  const emptyCoffDoc = EmptyEntities[objName]
+  emptyCoffDoc.doctp = props.doctp
   const [showMyComponent, setShowMyComponent] = useState(true);
-  const [ticCenatps, setTicCenatps] = useState([]);
-  const [ticCenatp, setTicCenatp] = useState(emptyTicCenatp);
+  const [coffDocs, setCoffDocs] = useState([]);
+  const [coffDoc, setCoffDoc] = useState(emptyCoffDoc);
   const [filters, setFilters] = useState('');
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [loading, setLoading] = useState(false);
   const toast = useRef(null);
-  const [visible, setVisible] = useState(false);
-  const [cenatpTip, setCenatpTip] = useState('');
+  const [coffDocVisible, setCoffDocVisible] = useState(false);
+  const [docTip, setDocTip] = useState('');
 
   useEffect(() => {
     async function fetchData() {
       try {
         ++i
         if (i<2) {  
-        const ticCenatpService = new TicCenatpService();
-        const data = await ticCenatpService.getTicCenatps();
-        setTicCenatps(data);
+        const coffDocService = new CoffDocService();
+        const data = await coffDocService.getCoffDocsTp(props.doctp);
+        setCoffDocs(data);
         initFilters();
         }
       } catch (error) {
@@ -45,36 +47,36 @@ export default function TicCenatpL(props) {
       }
     }
     fetchData();
-  }, []);
+  }, [props.datarefresh]);
 
   const handleDialogClose = (newObj) => {
     const localObj = { newObj };
 
-    let _ticCenatps = [...ticCenatps];
-    let _ticCenatp = { ...localObj.newObj.obj };
+    let _coffDocs = [...coffDocs];
+    let _coffDoc = { ...localObj.newObj.obj };
 
     //setSubmitted(true);
-    if (localObj.newObj.cenatpTip === "CREATE") {
-      _ticCenatps.push(_ticCenatp);
-    } else if (localObj.newObj.cenatpTip === "UPDATE") {
+    if (localObj.newObj.docTip === "CREATE") {
+      _coffDocs.push(_coffDoc);
+    } else if (localObj.newObj.docTip === "UPDATE") {
       const index = findIndexById(localObj.newObj.obj.id);
-      _ticCenatps[index] = _ticCenatp;
-    } else if ((localObj.newObj.cenatpTip === "DELETE")) {
-      _ticCenatps = ticCenatps.filter((val) => val.id !== localObj.newObj.obj.id);
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'TicCenatp Delete', life: 3000 });
+      _coffDocs[index] = _coffDoc;
+    } else if ((localObj.newObj.docTip === "DELETE")) {
+      _coffDocs = coffDocs.filter((val) => val.id !== localObj.newObj.obj.id);
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDoc Delete', life: 3000 });
     } else {
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'TicCenatp ?', life: 3000 });
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDoc ?', life: 3000 });
     }
-    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.cenatpTip}`, life: 3000 });
-    setTicCenatps(_ticCenatps);
-    setTicCenatp(emptyTicCenatp);
+    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.docTip}`, life: 3000 });
+    setCoffDocs(_coffDocs);
+    setCoffDoc(emptyCoffDoc);
   };
 
   const findIndexById = (id) => {
     let index = -1;
 
-    for (let i = 0; i < ticCenatps.length; i++) {
-      if (ticCenatps[i].id === id) {
+    for (let i = 0; i < coffDocs.length; i++) {
+      if (coffDocs[i].id === id) {
         index = i;
         break;
       }
@@ -84,7 +86,7 @@ export default function TicCenatpL(props) {
   };
 
   const openNew = () => {
-    setTicCenatpDialog(emptyTicCenatp);
+    setCoffDocDialog(emptyCoffDoc);
   };
 
   const onRowSelect = (event) => {
@@ -142,7 +144,7 @@ export default function TicCenatpL(props) {
           <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
         </div>
         <div className="flex-grow-1" />
-        <b>{translations[selectedLanguage].CenatpList}</b>
+        <b>{translations[selectedLanguage].DocsList}</b>
         <div className="flex-grow-1"></div>
         <div className="flex flex-wrap gap-1">
           <span className="p-input-icon-left">
@@ -194,10 +196,10 @@ export default function TicCenatpL(props) {
   };
 
   // <--- Dialog
-  const setTicCenatpDialog = (ticCenatp) => {
-    setVisible(true)
-    setCenatpTip("CREATE")
-    setTicCenatp({ ...ticCenatp });
+  const setCoffDocDialog = (coffDoc) => {
+    setCoffDocVisible(true)
+    setDocTip("CREATE")
+    setCoffDoc({ ...coffDoc });
   }
   //  Dialog --->
 
@@ -213,8 +215,8 @@ export default function TicCenatpL(props) {
           icon="pi pi-pencil"
           style={{ width: '24px', height: '24px' }}
           onClick={() => {
-            setTicCenatpDialog(rowData)
-            setCenatpTip("UPDATE")
+            setCoffDocDialog(rowData)
+            setDocTip("UPDATE")
           }}
           text
           raised ></Button>
@@ -223,15 +225,20 @@ export default function TicCenatpL(props) {
     );
   };
 
+  const handleDataUpdate = (updatedTab) => {
+    props.onDataUpdate(updatedTab);
+    // setDataTab(updatedTab);
+  };
   return (
     <div className="card">
       <Toast ref={toast} />
       <DataTable
+        id="coffDocL"
         dataKey="id"
         selectionMode="single"
-        selection={ticCenatp}
+        selection={coffDoc}
         loading={loading}
-        value={ticCenatps}
+        value={coffDocs}
         header={header}
         showGridlines
         removableSort
@@ -246,10 +253,10 @@ export default function TicCenatpL(props) {
         paginator
         rows={10}
         rowsPerPageOptions={[5, 10, 25, 50]}
-        onSelectionChange={(e) => setTicCenatp(e.value)}
+        onSelectionChange={(e) => setCoffDoc(e.value)}
         onRowSelect={onRowSelect}
         onRowUnselect={onRowUnselect}
-      >
+      >       
         <Column
           //bodyClassName="text-center"
           body={actionTemplate}
@@ -258,49 +265,58 @@ export default function TicCenatpL(props) {
           style={{ minWidth: '4rem' }}
         />        
         <Column
-          field="code"
-          header={translations[selectedLanguage].Code}
+          field="ndoctp"
+          header={translations[selectedLanguage].ndoctp}
           sortable
           filter
-          style={{ width: "25%" }}
+          style={{ width: "20%" }}
         ></Column>
         <Column
-          field="textx"
-          header={translations[selectedLanguage].Text}
+          field="mesto"
+          header={translations[selectedLanguage].Mestoporudzbina}
           sortable
           filter
-          style={{ width: "60%" }}
+          style={{ width: "30%" }}
         ></Column>
         <Column
-          field="valid"
-          filterField="valid"
-          dataType="numeric"
-          header={translations[selectedLanguage].Valid}
+          field="potpisnik"
+          header={translations[selectedLanguage].potpisnik}
           sortable
           filter
-          filterElement={validFilterTemplate}
-          style={{ width: "15%" }}
-          bodyClassName="text-center"
-          body={validBodyTemplate}
-        ></Column>
+          style={{ width: "20%" }}
+        ></Column>  
+        <Column
+          field="vreme"
+          header={translations[selectedLanguage].Vreme}
+          sortable
+          filter
+          style={{ width: "20%" }}
+        ></Column>   
+        <Column
+          field="status"
+          header={translations[selectedLanguage].status}
+          sortable
+          filter
+          style={{ width: "10%" }}
+        ></Column>                    
       </DataTable>
       <Dialog
-        header={translations[selectedLanguage].Cenatp}
-        visible={visible}
+        header={translations[selectedLanguage].Docs}
+        visible={coffDocVisible}
         style={{ width: '50%' }}
         onHide={() => {
-          setVisible(false);
+          setCoffDocVisible(false);
           setShowMyComponent(false);
         }}
       >
         {showMyComponent && (
-          <TicCenatp
+          <CoffDoc
             parameter={"inputTextValue"}
-            ticCenatp={ticCenatp}
+            coffDoc={coffDoc}
             handleDialogClose={handleDialogClose}
-            setVisible={setVisible}
+            setCoffDocVisible={setCoffDocVisible}
             dialog={true}
-            cenatpTip={cenatpTip}
+            docTip={docTip}
           />
         )}
       </Dialog>
