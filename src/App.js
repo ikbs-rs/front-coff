@@ -18,6 +18,7 @@ import Privilege from './components/model/ticPrivilegeL';
 import Doc from './components/model/coffDocL';
 import Coff from './components/model/coffee';
 import DocTp from './components/model/ticDoctpL';
+import DocVr from './components/model/ticDocvrL';
 import EventAtttp from './components/model/ticEventatttpL';
 import EventAtt from './components/model/ticEventattL';
 import EventCtg from './components/model/ticEventctgL';
@@ -29,7 +30,7 @@ import Art from './components/model/ticArtL';
 import ArtGrp from './components/model/ticArtgrpL';
 import ArtTp from './components/model/ticArttpL';
 import Cena from './components/model/ticCenaL';
-import CenaTp from './components/model/coffZaptpL';
+import CenaTp from './components/model/ticCenatpL';
 import Zaptp from './components/model/coffZaptpL';
 import Atest from './components/model/1test';
 import Sal from './components/model/ticSal';
@@ -486,6 +487,7 @@ const App = () => {
                         <Route path="/art" element={<Art />} />
                         <Route path="/cena" element={<Cena />} />
                         <Route path="/cenatp" element={<CenaTp />} />
+                        <Route path="/docvr" element={<DocVr />} />
 
                         <Route path="/atest" element={<Atest />} />
                         <Route path="/sal" element={<Sal />} />

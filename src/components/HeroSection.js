@@ -2,7 +2,7 @@
 import React from 'react';
 import './Index.css'; // Pretpostavimo da imate CSS fajl za stilizovanje
 
-const HeroSection = ({scrollToSection, menuRef, orderedRef}) => {
+const HeroSection = ({scrollToSection, menuRef, orderedRef, carouselRef}) => {
   // Funkcija za upravljanje klikom na dugme, ako je potrebno
   const handleMenuClick = () => {
     // Implementacija navigacije do sekcije menija
@@ -34,12 +34,13 @@ const HeroSection = ({scrollToSection, menuRef, orderedRef}) => {
             <h2>Са вама од почетка више од 50 година!</h2>
 
             <div className="btns">
-              <button onClick={(e) => {e.preventDefault(); scrollToSection(menuRef);}} className="btn-menu animated fadeInUp scrollto">Поруџбина</button>
-              <button onClick={(e) => {e.preventDefault(); scrollToSection(orderedRef);}} className="btn-book animated fadeInUp scrollto">Резервација сале</button>
+              <button onClick={(e) => {e.preventDefault(); scrollToSection(orderedRef);}} className="btn-menu animated fadeInUp scrollto">Поруџбина</button>
+              <button onClick={(e) => {e.preventDefault(); scrollToSection(carouselRef);}} className="btn-book animated fadeInUp scrollto">Резервација сале</button>
             </div>
           </div>
           <div className="col-lg-4 d-flex align-items-center justify-content-center position-relative" data-aos="zoom-in" data-aos-delay="200">
-            <a onClick={() => openPopup('https://www.youtube.com/watch?v=u6BOC7CDUTQ', 800, 600)} className="glightbox play-btn"></a>
+            {/* <a onClick={() => openPopup('https://www.youtube.com/watch?v=u6BOC7CDUTQ', 800, 600)} className="glightbox play-btn"></a> */}
+            <a onClick={() => openPopup('https://www.youtube.com/embed/rVb400kUX5Q?autoplay=1&vq=hd720', 800, 600)} className="glightbox play-btn"></a>
           </div>
         </div>
       </div>

@@ -68,14 +68,14 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
               if (mobileMenuOpen) {
                 toggleMobileMenu();
               }
-            }}>Поруџбина</a></li>   
+            }}>Поруџбина</a></li>
             <li><a href="/doc" onClick={(e) => {
               e.preventDefault();
               scrollToSection(docRef);
               if (mobileMenuOpen) {
                 toggleMobileMenu();
               }
-            }}>Преглед</a></li>                     
+            }}>Преглед</a></li>
             {/* <li className={`dropdown`} onClick={handleDropdownClick}>
               <a href="#">
                 Администрација<i className="bi bi-chevron-down"></i>
@@ -138,7 +138,16 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
           </ul>
           <i className={`bi mobile-nav-toggle ${mobileMenuOpen ? 'bi-x' : 'bi-list'}`} onClick={toggleMobileMenu}></i>
         </nav>
-        <a href="#" className="book-a-table-btn scrollto d-none d-lg-flex">Поруџбина</a>
+        <a href="/order" className="book-a-table-btn scrollto d-none d-lg-flex"
+          onClick={(e) => {
+            e.preventDefault();
+            scrollToSection(orderRef);
+            if (mobileMenuOpen) {
+              toggleMobileMenu();
+            }
+          }
+          }
+        >Поруџбина</a>
       </div>
     </header>
   );

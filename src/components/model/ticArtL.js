@@ -16,6 +16,8 @@ import { translations } from '../../configs/translations';
 import DateFunction from '../../utilities/DateFunction';
 import TicArtlocL from './ticArtlocL';
 import TicArtcenaL from './ticArtcenaL';
+import CoffSastavnicaL from './coffSastavnicaL';
+import CoffArtumL from './coffArtumL';
 import ColorPickerWrapper from './cmn/ColorPickerWrapper';
 
 export default function TicArtL(props) {
@@ -33,6 +35,8 @@ export default function TicArtL(props) {
     const [artTip, setLocTip] = useState('');
     const [ticArtlocLVisible, setTicArtlocLVisible] = useState(false);
     const [ticArtcenaLVisible, setTicArtcenaLVisible] = useState(false);
+    const [coffSastavnicaLVisible, setCoffSastavnicaLVisible] = useState(false);
+    const [coffArtumLVisible, setCoffArtumLVisible] = useState(false);
     let i = 0;
     const handleCancelClick = () => {
         props.setTicArtLVisible(false);
@@ -114,6 +118,14 @@ export default function TicArtL(props) {
         const localObj = { newObj };
     };
 
+    const handleCoffSastavnicaLDialogClose = (newObj) => {
+        const localObj = { newObj };
+    };
+
+    const handleCoffArtumLDialogClose = (newObj) => {
+        const localObj = { newObj };
+    };    
+    
     const openNew = () => {
         setTicArtDialog(emptyTicArt);
     };
@@ -124,6 +136,14 @@ export default function TicArtL(props) {
 
     const handleCenaClick = () => {
         setTicCenaDialog();
+    };
+
+    const handleSastavnicaClick = () => {
+        setCoffSastavnicaDialog();
+    };
+
+    const handleArtumClick = () => {
+        setCoffArtumDialog();
     };
 
     const onRowSelect = (event) => {
@@ -201,6 +221,10 @@ export default function TicArtL(props) {
                 <Button label={translations[selectedLanguage].Loc} icon="pi pi-map" onClick={handleLocClick} text raised disabled={!ticArt} />
                 <div className="flex flex-wrap gap-1" />
                 <Button label={translations[selectedLanguage].Cena} icon="pi pi-euro" onClick={handleCenaClick} text raised disabled={!ticArt} />
+                <div className="flex flex-wrap gap-1" />
+                <Button label={translations[selectedLanguage].Recipe} icon="pi pi-wrench" onClick={handleSastavnicaClick} text raised disabled={!ticArt} />
+                <div className="flex flex-wrap gap-1" />
+                <Button label={translations[selectedLanguage].Packaging} icon="pi pi-gift" onClick={handleArtumClick} text raised disabled={!ticArt} />
                 <div className="flex-grow-1"></div>
                 <b>{translations[selectedLanguage].ArtList}</b>
                 <div className="flex-grow-1"></div>
@@ -246,6 +270,17 @@ export default function TicArtL(props) {
         setShowMyComponent(true);
         setTicArtcenaLVisible(true);
     };
+ 
+    const setCoffSastavnicaDialog = () => {
+        setShowMyComponent(true);
+        setCoffSastavnicaLVisible(true);
+    };   
+    
+ 
+    const setCoffArtumDialog = () => {
+        setShowMyComponent(true);
+        setCoffArtumLVisible(true);
+    };  
 
     const setCmnLocDialog = () => {
         setShowMyComponent(true);
@@ -381,8 +416,36 @@ export default function TicArtL(props) {
                     setShowMyComponent(false);
                 }}
             >
-                {showMyComponent && <TicArtcenaL parameter={'inputTextValue'} ticArt={ticArt} handleTicArtcenaLDialogClose={handleTicArtcenaLDialogClose} setTicArtcenaLVisible={setTicArtcenaLVisible} dialog={true} lookUp={false} />}
+                {showMyComponent && <TicArtcenaL parameter={'inputTextValue'} ticArt={ticArt} 
+                    handleTicArtcenaLDialogClose={handleTicArtcenaLDialogClose} 
+                    setTicArtcenaLVisible={setTicArtcenaLVisible} dialog={true} lookUp={false} />}
             </Dialog>
+            <Dialog
+                header={translations[selectedLanguage].SastavnicaList}
+                visible={coffSastavnicaLVisible}
+                style={{ width: '90%' }}
+                onHide={() => {
+                    setCoffSastavnicaLVisible(false);
+                    setShowMyComponent(false);
+                }}
+            >
+                {showMyComponent && <CoffSastavnicaL parameter={'inputTextValue'} ticArt={ticArt} 
+                    handleCoffSastavnicaLDialogClose={handleCoffSastavnicaLDialogClose} 
+                    setCoffSastavnicaLVisible={setCoffSastavnicaLVisible} dialog={true} lookUp={false} />}
+            </Dialog>   
+            <Dialog
+                header={translations[selectedLanguage].ArtumList}
+                visible={coffArtumLVisible}
+                style={{ width: '90%' }}
+                onHide={() => {
+                    setCoffArtumLVisible(false);
+                    setShowMyComponent(false);
+                }}
+            >
+                {showMyComponent && <CoffArtumL parameter={'inputTextValue'} ticArt={ticArt} 
+                    handleCoffArtumLDialogClose={handleCoffArtumLDialogClose} 
+                    setCoffArtumLVisible={setCoffArtumLVisible} dialog={true} lookUp={false} />}
+            </Dialog>                       
         </div>
     );
 }

@@ -769,7 +769,13 @@ export const translations = {
         Cekanje: "Чекање",
         Prijem: "Пријем",
         Kol: "Кол",
-        num: "ЈМ",
+        num: "Назив ЈМ",
+        Recipe: "Рецептура",
+        Packaging: "Паковање",
+        SastavnicaList: "Рецептура Листа",
+        cum: "ЈМ",
+        ration: "Однос",
+        odnos: "Однос",
     }
   };
   

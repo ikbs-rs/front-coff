@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { classNames } from 'primereact/utils';
-import { TicCenatpService } from "../../service/model/CoffZaptpService";
+import { CoffZaptpService } from "../../service/model/CoffZaptpService";
 import './index.css';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
@@ -9,12 +9,12 @@ import { Toast } from "primereact/toast";
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from "../../configs/translations";
 
-const TicCenatp = (props) => {
+const CoffZaptp = (props) => {
     const selectedLanguage = localStorage.getItem('sl')||'en'
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
     const [dropdownItem, setDropdownItem] = useState(null);
     const [dropdownItems, setDropdownItems] = useState(null);
-    const [ticCenatp, setTicCenatp] = useState(props.ticCenatp);
+    const [coffZaptp, setCoffZaptp] = useState(props.coffZaptp);
     const [submitted, setSubmitted] = useState(false);
 
     const toast = useRef(null);
@@ -24,7 +24,7 @@ const TicCenatp = (props) => {
     ];
 
     useEffect(() => {
-        setDropdownItem(findDropdownItemByCode(props.ticCenatp.valid));
+        setDropdownItem(findDropdownItemByCode(props.coffZaptp.valid));
     }, []);
 
     const findDropdownItemByCode = (code) => {
@@ -43,10 +43,10 @@ const TicCenatp = (props) => {
     const handleCreateClick = async () => {
         try {
             setSubmitted(true);            
-                const ticCenatpService = new TicCenatpService();
-                const data = await ticCenatpService.postTicCenatp(ticCenatp);
-                ticCenatp.id = data
-                props.handleDialogClose({ obj: ticCenatp, cenatpTip: props.cenatpTip });
+                const coffZaptpService = new CoffZaptpService();
+                const data = await coffZaptpService.postCoffZaptp(coffZaptp);
+                coffZaptp.id = data
+                props.handleDialogClose({ obj: coffZaptp, zaptpTip: props.zaptpTip });
             props.setVisible(false);
         } catch (err) {
             toast.current.show({
@@ -61,9 +61,9 @@ const TicCenatp = (props) => {
     const handleSaveClick = async () => {
         try {
             setSubmitted(true);
-            const ticCenatpService = new TicCenatpService();
-            await ticCenatpService.putTicCenatp(ticCenatp);
-            props.handleDialogClose({ obj: ticCenatp, cenatpTip: props.cenatpTip });
+            const coffZaptpService = new CoffZaptpService();
+            await coffZaptpService.putCoffZaptp(coffZaptp);
+            props.handleDialogClose({ obj: coffZaptp, zaptpTip: props.zaptpTip });
             props.setVisible(false);
         } catch (err) {
             toast.current.show({
@@ -82,9 +82,9 @@ const TicCenatp = (props) => {
     const handleDeleteClick = async () => {
         try {
             setSubmitted(true);
-            const ticCenatpService = new TicCenatpService();
-            await ticCenatpService.deleteTicCenatp(ticCenatp);
-            props.handleDialogClose({ obj: ticCenatp, cenatpTip: 'DELETE' });
+            const coffZaptpService = new CoffZaptpService();
+            await coffZaptpService.deleteCoffZaptp(coffZaptp);
+            props.handleDialogClose({ obj: coffZaptp, zaptpTip: 'DELETE' });
             props.setVisible(false);
             hideDeleteDialog();
         } catch (err) {
@@ -106,11 +106,11 @@ const TicCenatp = (props) => {
             val = (e.target && e.target.value) || '';
         }
 
-        let _ticCenatp = { ...ticCenatp };
-        _ticCenatp[`${name}`] = val;
-        if (name===`textx`) _ticCenatp[`text`] = val
+        let _coffZaptp = { ...coffZaptp };
+        _coffZaptp[`${name}`] = val;
+        if (name===`text`) _coffZaptp[`text`] = val
 
-        setTicCenatp(_ticCenatp);
+        setCoffZaptp(_coffZaptp);
     };
 
     const hideDeleteDialog = () => {
@@ -126,21 +126,21 @@ const TicCenatp = (props) => {
                         <div className="field col-12 md:col-7">
                             <label htmlFor="code">{translations[selectedLanguage].Code}</label>
                             <InputText id="code" autoFocus
-                                value={ticCenatp.code} onChange={(e) => onInputChange(e, "text", 'code')}
+                                value={coffZaptp.code} onChange={(e) => onInputChange(e, "text", 'code')}
                                 required
-                                className={classNames({ 'p-invalid': submitted && !ticCenatp.code })}
+                                className={classNames({ 'p-invalid': submitted && !coffZaptp.code })}
                             />
-                            {submitted && !ticCenatp.code && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
+                            {submitted && !coffZaptp.code && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
                         </div>
                         <div className="field col-12 md:col-12">
-                            <label htmlFor="textx">{translations[selectedLanguage].Text}</label>
+                            <label htmlFor="text">{translations[selectedLanguage].Text}</label>
                             <InputText
-                                id="textx"
-                                value={ticCenatp.textx} onChange={(e) => onInputChange(e, "text", 'textx')}
+                                id="text"
+                                value={coffZaptp.text} onChange={(e) => onInputChange(e, "text", 'text')}
                                 required
-                                className={classNames({ 'p-invalid': submitted && !ticCenatp.textx })}
+                                className={classNames({ 'p-invalid': submitted && !coffZaptp.text })}
                             />
-                            {submitted && !ticCenatp.textx && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
+                            {submitted && !coffZaptp.text && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
                         </div>                       
                         <div className="field col-12 md:col-4">
                             <label htmlFor="valid">{translations[selectedLanguage].Valid}</label>
@@ -151,9 +151,9 @@ const TicCenatp = (props) => {
                                 required
                                 optionLabel="name"
                                 placeholder="Select One"
-                                className={classNames({ 'p-invalid': submitted && !ticCenatp.valid })}
+                                className={classNames({ 'p-invalid': submitted && !coffZaptp.valid })}
                             />
-                            {submitted && !ticCenatp.valid && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
+                            {submitted && !coffZaptp.valid && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
                         </div>                        
                     </div>
 
@@ -169,7 +169,7 @@ const TicCenatp = (props) => {
                         ) : null}
                         <div className="flex-grow-1"></div>
                         <div className="flex flex-wrap gap-1">
-                            {(props.cenatpTip === 'CREATE') ? (
+                            {(props.zaptpTip === 'CREATE') ? (
                                 <Button
                                     label={translations[selectedLanguage].Create}
                                     icon="pi pi-check"
@@ -178,7 +178,7 @@ const TicCenatp = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {(props.cenatpTip !== 'CREATE') ? (
+                            {(props.zaptpTip !== 'CREATE') ? (
                                 <Button
                                     label={translations[selectedLanguage].Delete}
                                     icon="pi pi-trash"
@@ -187,7 +187,7 @@ const TicCenatp = (props) => {
                                     outlined
                                 />
                             ) : null}                            
-                            {(props.cenatpTip !== 'CREATE') ? (
+                            {(props.zaptpTip !== 'CREATE') ? (
                                 <Button
                                     label={translations[selectedLanguage].Save}
                                     icon="pi pi-check"
@@ -203,7 +203,7 @@ const TicCenatp = (props) => {
             <DeleteDialog
                 visible={deleteDialogVisible}
                 inAction="delete"
-                item={ticCenatp.text}
+                item={coffZaptp.text}
                 onHide={hideDeleteDialog}
                 onDelete={handleDeleteClick}
             />
@@ -211,4 +211,4 @@ const TicCenatp = (props) => {
     );
 };
 
-export default TicCenatp;
+export default CoffZaptp;

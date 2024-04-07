@@ -197,8 +197,8 @@ const Order = (props) => {
             showButtons
             buttonLayout="horizontal"
             step={1}
-            inputStyle={{ fontSize: '2rem', textAlign: 'center', fontWeight: 'bold' }}
-            // size={10}
+            inputStyle={{ fontSize: '1.7rem', textAlign: 'center', fontWeight: 'bold' }}
+            size={3}
             decrementButtonClassName="p-button-danger"
             incrementButtonClassName="p-button-success"
             incrementButtonIcon="pi pi-plus"
@@ -234,20 +234,23 @@ const Order = (props) => {
                         <Column
                             field="num"
                             style={{ width: '40%' }}
-                            className="text-2xl font-bold"
+                            className="text-xl font-bold"
                         />
 
                         <Column
                             field="izlaz"
 
                             dataType="numeric"
-                            style={{ width: '60%' }}
+                            style={{ width: '15%' }}
                             bodyClassName="text-center"
                             body={textBodyEditor}
                             bodyStyle={{ textAlign: 'center' }}
                         // onChange={(e) => onInputValueChange(e, 'input', 'coffValue', e.rowData, null)}
                         >
                         </Column>
+                        <Column
+                            style={{ width: '40%' }}
+                        />
                     </DataTable>
                     <div className="flex flex-wrap gap-1">
                         {props.dialog ? (
@@ -257,7 +260,7 @@ const Order = (props) => {
                                 // className="p-button-outlined p-button-secondary"
                                 onClick={handleCancelClick}
                                 className="p-button-raised p-button-secondary"
-                                style={{ width: '100%' }}
+                                style={{ width: '100%', fontSize: '1.2rem' }}
 
                             />
                         ) : null}

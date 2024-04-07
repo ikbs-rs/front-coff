@@ -8,35 +8,35 @@ import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import { Toast } from "primereact/toast";
 import './index.css';
-import { TicCenatpService } from "../../service/model/CoffZaptpService";
-import TicCenatp from './coffZaptp';
+import { CoffZaptpService } from "../../service/model/CoffZaptpService";
+import CoffZaptp from './coffZaptp';
 import { EmptyEntities } from '../../service/model/EmptyEntities';
 import { Dialog } from 'primereact/dialog';
 import { translations } from "../../configs/translations";
 
-export default function TicCenatpL(props) {
+export default function CoffZaptpL(props) {
   let i = 0
-  const objName = "tic_cenatp"
+  const objName = "coff_zaptp"
   const selectedLanguage = localStorage.getItem('sl')||'en'
-  const emptyTicCenatp = EmptyEntities[objName]
+  const emptyCoffZaptp = EmptyEntities[objName]
   const [showMyComponent, setShowMyComponent] = useState(true);
-  const [ticCenatps, setTicCenatps] = useState([]);
-  const [ticCenatp, setTicCenatp] = useState(emptyTicCenatp);
+  const [coffZaptps, setCoffZaptps] = useState([]);
+  const [coffZaptp, setCoffZaptp] = useState(emptyCoffZaptp);
   const [filters, setFilters] = useState('');
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [loading, setLoading] = useState(false);
   const toast = useRef(null);
   const [visible, setVisible] = useState(false);
-  const [cenatpTip, setCenatpTip] = useState('');
+  const [zaptpTip, setCenatpTip] = useState('');
 
   useEffect(() => {
     async function fetchData() {
       try {
         ++i
         if (i<2) {  
-        const ticCenatpService = new TicCenatpService();
-        const data = await ticCenatpService.getTicCenatps();
-        setTicCenatps(data);
+        const coffZaptpService = new CoffZaptpService();
+        const data = await coffZaptpService.getCoffZaptps();
+        setCoffZaptps(data);
         initFilters();
         }
       } catch (error) {
@@ -50,31 +50,31 @@ export default function TicCenatpL(props) {
   const handleDialogClose = (newObj) => {
     const localObj = { newObj };
 
-    let _ticCenatps = [...ticCenatps];
-    let _ticCenatp = { ...localObj.newObj.obj };
+    let _coffZaptps = [...coffZaptps];
+    let _coffZaptp = { ...localObj.newObj.obj };
 
     //setSubmitted(true);
-    if (localObj.newObj.cenatpTip === "CREATE") {
-      _ticCenatps.push(_ticCenatp);
-    } else if (localObj.newObj.cenatpTip === "UPDATE") {
+    if (localObj.newObj.zaptpTip === "CREATE") {
+      _coffZaptps.push(_coffZaptp);
+    } else if (localObj.newObj.zaptpTip === "UPDATE") {
       const index = findIndexById(localObj.newObj.obj.id);
-      _ticCenatps[index] = _ticCenatp;
-    } else if ((localObj.newObj.cenatpTip === "DELETE")) {
-      _ticCenatps = ticCenatps.filter((val) => val.id !== localObj.newObj.obj.id);
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'TicCenatp Delete', life: 3000 });
+      _coffZaptps[index] = _coffZaptp;
+    } else if ((localObj.newObj.zaptpTip === "DELETE")) {
+      _coffZaptps = coffZaptps.filter((val) => val.id !== localObj.newObj.obj.id);
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffZaptp Delete', life: 3000 });
     } else {
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'TicCenatp ?', life: 3000 });
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffZaptp ?', life: 3000 });
     }
-    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.cenatpTip}`, life: 3000 });
-    setTicCenatps(_ticCenatps);
-    setTicCenatp(emptyTicCenatp);
+    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.zaptpTip}`, life: 3000 });
+    setCoffZaptps(_coffZaptps);
+    setCoffZaptp(emptyCoffZaptp);
   };
 
   const findIndexById = (id) => {
     let index = -1;
 
-    for (let i = 0; i < ticCenatps.length; i++) {
-      if (ticCenatps[i].id === id) {
+    for (let i = 0; i < coffZaptps.length; i++) {
+      if (coffZaptps[i].id === id) {
         index = i;
         break;
       }
@@ -84,7 +84,7 @@ export default function TicCenatpL(props) {
   };
 
   const openNew = () => {
-    setTicCenatpDialog(emptyTicCenatp);
+    setCoffZaptpDialog(emptyCoffZaptp);
   };
 
   const onRowSelect = (event) => {
@@ -194,10 +194,10 @@ export default function TicCenatpL(props) {
   };
 
   // <--- Dialog
-  const setTicCenatpDialog = (ticCenatp) => {
+  const setCoffZaptpDialog = (coffZaptp) => {
     setVisible(true)
     setCenatpTip("CREATE")
-    setTicCenatp({ ...ticCenatp });
+    setCoffZaptp({ ...coffZaptp });
   }
   //  Dialog --->
 
@@ -213,7 +213,7 @@ export default function TicCenatpL(props) {
           icon="pi pi-pencil"
           style={{ width: '24px', height: '24px' }}
           onClick={() => {
-            setTicCenatpDialog(rowData)
+            setCoffZaptpDialog(rowData)
             setCenatpTip("UPDATE")
           }}
           text
@@ -229,9 +229,9 @@ export default function TicCenatpL(props) {
       <DataTable
         dataKey="id"
         selectionMode="single"
-        selection={ticCenatp}
+        selection={coffZaptp}
         loading={loading}
-        value={ticCenatps}
+        value={coffZaptps}
         header={header}
         showGridlines
         removableSort
@@ -246,7 +246,7 @@ export default function TicCenatpL(props) {
         paginator
         rows={10}
         rowsPerPageOptions={[5, 10, 25, 50]}
-        onSelectionChange={(e) => setTicCenatp(e.value)}
+        onSelectionChange={(e) => setCoffZaptp(e.value)}
         onRowSelect={onRowSelect}
         onRowUnselect={onRowUnselect}
       >
@@ -265,7 +265,7 @@ export default function TicCenatpL(props) {
           style={{ width: "25%" }}
         ></Column>
         <Column
-          field="textx"
+          field="text"
           header={translations[selectedLanguage].Text}
           sortable
           filter
@@ -294,13 +294,13 @@ export default function TicCenatpL(props) {
         }}
       >
         {showMyComponent && (
-          <TicCenatp
+          <CoffZaptp
             parameter={"inputTextValue"}
-            ticCenatp={ticCenatp}
+            coffZaptp={coffZaptp}
             handleDialogClose={handleDialogClose}
             setVisible={setVisible}
             dialog={true}
-            cenatpTip={cenatpTip}
+            zaptpTip={zaptpTip}
           />
         )}
       </Dialog>
