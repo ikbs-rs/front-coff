@@ -108,7 +108,7 @@ export class CoffDocService {
   async putCoffDoc(newObj) {
     try {
       const selectedLanguage = localStorage.getItem('sl') || 'en'
-      if (newObj.mesto.trim() === '' || newObj.potpisnik === null) {
+      if (newObj?.mesto.trim() === '' || newObj.potpisnik === null) {
         throw new Error(
           "Items must be filled!"
         );

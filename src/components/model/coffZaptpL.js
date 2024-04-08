@@ -27,7 +27,7 @@ export default function CoffZaptpL(props) {
   const [loading, setLoading] = useState(false);
   const toast = useRef(null);
   const [visible, setVisible] = useState(false);
-  const [zaptpTip, setCenatpTip] = useState('');
+  const [zaptpTip, setZaptpTip] = useState('');
 
   useEffect(() => {
     async function fetchData() {
@@ -142,7 +142,7 @@ export default function CoffZaptpL(props) {
           <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
         </div>
         <div className="flex-grow-1" />
-        <b>{translations[selectedLanguage].CenatpList}</b>
+        <b>{translations[selectedLanguage].ZaptpList}</b>
         <div className="flex-grow-1"></div>
         <div className="flex flex-wrap gap-1">
           <span className="p-input-icon-left">
@@ -196,7 +196,7 @@ export default function CoffZaptpL(props) {
   // <--- Dialog
   const setCoffZaptpDialog = (coffZaptp) => {
     setVisible(true)
-    setCenatpTip("CREATE")
+    setZaptpTip("CREATE")
     setCoffZaptp({ ...coffZaptp });
   }
   //  Dialog --->
@@ -214,7 +214,7 @@ export default function CoffZaptpL(props) {
           style={{ width: '24px', height: '24px' }}
           onClick={() => {
             setCoffZaptpDialog(rowData)
-            setCenatpTip("UPDATE")
+            setZaptpTip("UPDATE")
           }}
           text
           raised ></Button>
@@ -285,7 +285,7 @@ export default function CoffZaptpL(props) {
         ></Column>
       </DataTable>
       <Dialog
-        header={translations[selectedLanguage].Cenatp}
+        header={translations[selectedLanguage].Zaptp}
         visible={visible}
         style={{ width: '50%' }}
         onHide={() => {

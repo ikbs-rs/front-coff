@@ -30,6 +30,7 @@ export default function CoffDocL(props) {
   const toast = useRef(null);
   const [coffDocVisible, setCoffDocVisible] = useState(false);
   const [docTip, setDocTip] = useState('');
+  const [ndoctp, setNdoctp] = useState('');
 
   useEffect(() => {
     async function fetchData() {
@@ -38,6 +39,12 @@ export default function CoffDocL(props) {
         if (i<2) {  
         const coffDocService = new CoffDocService();
         const data = await coffDocService.getCoffDocsTp(props.doctp);
+        console.log(data, "@@@@@@@@@@@@@@@@@@@@@@@@@@ getCoffDocsTp @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", props.doctp)
+        if (data) {
+          const data0 = data[0]
+          setNdoctp(data0.ndoctp)
+        }
+
         setCoffDocs(data);
         initFilters();
         }
@@ -236,6 +243,7 @@ export default function CoffDocL(props) {
         id="coffDocL"
         dataKey="id"
         selectionMode="single"
+        size={"small"}
         selection={coffDoc}
         loading={loading}
         value={coffDocs}
@@ -244,15 +252,14 @@ export default function CoffDocL(props) {
         removableSort
         filters={filters}
         scrollable
-        sortField="code"        
-        sortOrder={1}
+        sortField="vreme" defaultSortOrder={-1}       
         scrollHeight="750px"
         virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}
         paginator
-        rows={10}
-        rowsPerPageOptions={[5, 10, 25, 50]}
+        rows={50}
+        rowsPerPageOptions={[50, 100, 250, 500]}
         onSelectionChange={(e) => setCoffDoc(e.value)}
         onRowSelect={onRowSelect}
         onRowUnselect={onRowUnselect}
@@ -279,7 +286,7 @@ export default function CoffDocL(props) {
           style={{ width: "30%" }}
         ></Column>
         <Column
-          field="potpisnik"
+          field="nzap"
           header={translations[selectedLanguage].potpisnik}
           sortable
           filter
@@ -292,13 +299,13 @@ export default function CoffDocL(props) {
           filter
           style={{ width: "20%" }}
         ></Column>   
-        <Column
+        {/* <Column
           field="status"
           header={translations[selectedLanguage].status}
           sortable
           filter
           style={{ width: "10%" }}
-        ></Column>                    
+        ></Column>                     */}
       </DataTable>
       <Dialog
         header={translations[selectedLanguage].Docs}
@@ -316,8 +323,11 @@ export default function CoffDocL(props) {
             handleDialogClose={handleDialogClose}
             setCoffDocVisible={setCoffDocVisible}
             dialog={true}
-            docTip={docTip}
+            docTip={props.doctp}
+            doctp={props.doctp}
             stVisible={true}
+            standard={true}
+            ndoctp={ndoctp}
           />
         )}
       </Dialog>

@@ -32,6 +32,7 @@ export default function OrderL(props) {
   const [coffDocs, setCoffDocs] = useState(emptyCoffDocs);
 
   const [coffDoc, setCoffDoc] = useState(emptyCoffDoc);
+  const [coffDocI, setCoffDocI] = useState(emptyCoffDoc);
 
   const [filters, setFilters] = useState('');
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -97,6 +98,8 @@ console.log(currCoffOrder, "323232323232323currCoffOrdercurrCoffOrdercurrCoffOrd
   const handleDialogClose = (newObj) => {
 
     const localObj = { newObj };
+
+    console.log("******************newObj**************", newObj)
 
     if (localObj.hasOwnProperty('docTip')) {
       currCoffOrder = localStorage.getItem('currCoffOrder')
@@ -229,7 +232,7 @@ console.log(currCoffOrder, "323232323232323currCoffOrdercurrCoffOrdercurrCoffOrd
     _coffDoc.doctp = "1"
     setCoffDocVisible(true)
     setDocTip(docTip)
-    setCoffDoc({ ..._coffDoc });
+    setCoffDocI({ ..._coffDoc });
   }
   //  Dialog --->
 
@@ -266,8 +269,8 @@ console.log(currCoffOrder, "323232323232323currCoffOrdercurrCoffOrdercurrCoffOrd
         <div className="p-fluid formgrid grid">
           <div className="field col-12 md:col-6">
             <label htmlFor="potpisnik">{translations[selectedLanguage].potpisnik}</label>
-            <InputText id="potpisnik"
-              value={coffDoc.potpisnik}
+            <InputText id="nzap"
+              value={coffDoc.nzap}
               disabled={true}
             />
           </div>
@@ -362,12 +365,13 @@ console.log(currCoffOrder, "323232323232323currCoffOrdercurrCoffOrdercurrCoffOrd
         {showMyComponent && (
           <CoffDoc
             parameter={"inputTextValue"}
-            coffDoc={coffDoc}
+            coffDoc={coffDocI}
             handleDialogClose={handleDialogClose}
             setCoffDocVisible={setCoffDocVisible}
             dialog={true}
             docTip={docTip}
             stVisible={false}
+            standard={false}
           />
         )}
       </Dialog>

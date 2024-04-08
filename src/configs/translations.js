@@ -776,6 +776,21 @@ export const translations = {
         cum: "ЈМ",
         ration: "Однос",
         odnos: "Однос",
+        OrgLista: "Организационе јединице Листа",
+        Nivo: "Ниво",
+        SAP_ZAP: "Руководиоци",
+        Ime: "Име",
+        Prezime: "Презиме",
+        nrm: "Радно место",
+        norg: "Орг. јединица",
+        nvposla: "Вр. посл",
+        RukcoffLista: "Руководиоци Листа",
+        SAP_ORG: "Орг. јединице",
+        MBR: "МБР",
+        Pravilnik: "Правилник",
+        Oblast: "Област",
+        Mtroska: "Место трошка",
+        eksternibroj: "Екстерни број",
     }
   };
   

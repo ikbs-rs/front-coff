@@ -8,43 +8,36 @@ import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import { Toast } from "primereact/toast";
 import './index.css';
-import { CoffDocsService } from "../../service/model/CoffDocsService";
-import CoffDocsD from './coffDocsD';
+import { SapDataService } from "../../service/model/SapDataService";
 import { EmptyEntities } from '../../service/model/EmptyEntities';
 import { Dialog } from 'primereact/dialog';
 import { translations } from "../../configs/translations";
+import DateFunction from "../../utilities/DateFunction"
 
-export default function CoffDocsL(props) {
-  console.log(props, "@!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDocsL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!!!!@")
+export default function SapOrgL(props) {
   let i = 0
-  const objName = "coff_doc"
+  const objName = "tic_agenda"
   const selectedLanguage = localStorage.getItem('sl')||'en'
-  const emptyCoffDocs = EmptyEntities[objName]
-  emptyCoffDocs.doctp = props.doctp
-  emptyCoffDocs.doc = props.coffDoc.id
+  const emptySapOrg = EmptyEntities[objName]
   const [showMyComponent, setShowMyComponent] = useState(true);
-  const [coffDocss, setCoffDocss] = useState([]);
-  const [coffDocs, setCoffDocs] = useState(emptyCoffDocs);
+  const [sapOrgs, setSapOrgs] = useState([]);
+  const [sapOrg, setSapOrg] = useState(emptySapOrg);
   const [filters, setFilters] = useState('');
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [loading, setLoading] = useState(false);
   const toast = useRef(null);
-  const [coffDocsVisible, setCoffDocsVisible] = useState(false);
-  const [docsTip, setDocsTip] = useState('');
-  const [artCurr, setArtCurr] = useState({});
-  const [cenaTip, setLocTip] = useState('');
-  const [visibleCoffDocsmenu, setVisibleCoffDocsmenu] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [agendaTip, setAgendaTip] = useState('');
 
   useEffect(() => {
     async function fetchData() {
       try {
         ++i
         if (i<2) {  
-          const coffDocsService = new CoffDocsService();
-          const data = await coffDocsService.getCurrCoffOrder(props.coffDoc.id);
-          console.log(data, "##########################getCurrCoffOrder###########################")
-        setCoffDocss(data);
+        const sapOrgService = new SapDataService();
+        const data = await sapOrgService.getLista('org');
+        console.log(data, "********************* Date ****************************")
+        setSapOrgs(data);
         initFilters();
         }
       } catch (error) {
@@ -57,33 +50,32 @@ export default function CoffDocsL(props) {
 
   const handleDialogClose = (newObj) => {
     const localObj = { newObj };
-    
 
-    let _coffDocss = [...coffDocss];
-    let _coffDocs = { ...localObj.newObj.obj };
+    let _sapOrgs = [...sapOrgs];
+    let _sapOrg = { ...localObj.newObj.obj };
 
     //setSubmitted(true);
-    if (localObj.newObj.docsTip === "CREATE") {
-      _coffDocss.push(_coffDocs);
-    } else if (localObj.newObj.docsTip === "UPDATE") {
+    if (localObj.newObj.agendaTip === "CREATE") {
+      _sapOrgs.push(_sapOrg);
+    } else if (localObj.newObj.agendaTip === "UPDATE") {
       const index = findIndexById(localObj.newObj.obj.id);
-      _coffDocss[index] = _coffDocs;
-    } else if ((localObj.newObj.docsTip === "DELETE")) {
-      _coffDocss = coffDocss.filter((val) => val.id !== localObj.newObj.obj.id);
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDocs Delete', life: 3000 });
+      _sapOrgs[index] = _sapOrg;
+    } else if ((localObj.newObj.agendaTip === "DELETE")) {
+      _sapOrgs = sapOrgs.filter((val) => val.id !== localObj.newObj.obj.id);
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'SapOrg Delete', life: 3000 });
     } else {
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDocs ?', life: 3000 });
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'SapOrg ?', life: 3000 });
     }
-    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.docsTip}`, life: 3000 });
-    setCoffDocss(_coffDocss);
-    setCoffDocs(emptyCoffDocs);
+    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.agendaTip}`, life: 3000 });
+    setSapOrgs(_sapOrgs);
+    setSapOrg(emptySapOrg);
   };
 
   const findIndexById = (id) => {
     let index = -1;
 
-    for (let i = 0; i < coffDocss.length; i++) {
-      if (coffDocss[i].id === id) {
+    for (let i = 0; i < sapOrgs.length; i++) {
+      if (sapOrgs[i].id === id) {
         index = i;
         break;
       }
@@ -93,7 +85,7 @@ export default function CoffDocsL(props) {
   };
 
   const openNew = () => {
-    setCoffDocsDialog(emptyCoffDocs);
+    setSapOrgDialog(emptySapOrg);
   };
 
   const onRowSelect = (event) => {
@@ -147,11 +139,11 @@ export default function CoffDocsL(props) {
   const renderHeader = () => {
     return (
       <div className="flex card-container">
-        <div className="flex flex-wrap gap-1">
+        {/* <div className="flex flex-wrap gap-1">
           <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
-        </div>
+        </div> */}
         <div className="flex-grow-1" />
-        <b>{translations[selectedLanguage].DocsList}</b>
+        <b>{translations[selectedLanguage].OrgLista}</b>
         <div className="flex-grow-1"></div>
         <div className="flex flex-wrap gap-1">
           <span className="p-input-icon-left">
@@ -173,6 +165,10 @@ export default function CoffDocsL(props) {
         </div>
       </div>
     );
+  };
+
+  const formatTimeColumn = (rowData, field) => {
+    return DateFunction.convertTimeToDisplayFormat (rowData[field]);
   };
 
   const validBodyTemplate = (rowData) => {
@@ -203,19 +199,10 @@ export default function CoffDocsL(props) {
   };
 
   // <--- Dialog
-  const setCoffDocsDialog = (coffDocs) => {
-    const _artCurr = {}
-    _artCurr.category = "B-SOK"
-    _artCurr.code = "3.1"
-    _artCurr.id = coffDocs.art
-    _artCurr.img = `assets/img/menu/${coffDocs.art}.jpg`
-    _artCurr.name = coffDocs.text
-    _artCurr.un = coffDocs.c_id
-    setArtCurr({ ..._artCurr })
-    setVisibleCoffDocsmenu(true)
+  const setSapOrgDialog = (sapOrg) => {
     setVisible(true)
-    setDocsTip("CREATE")
-    setCoffDocs({ ...coffDocs });
+    setAgendaTip("CREATE")
+    setSapOrg({ ...sapOrg });
   }
   //  Dialog --->
 
@@ -231,8 +218,8 @@ export default function CoffDocsL(props) {
           icon="pi pi-pencil"
           style={{ width: '24px', height: '24px' }}
           onClick={() => {
-            setCoffDocsDialog(rowData)
-            setDocsTip("UPDATE")
+            setSapOrgDialog(rowData)
+            setAgendaTip("UPDATE")
           }}
           text
           raised ></Button>
@@ -241,20 +228,16 @@ export default function CoffDocsL(props) {
     );
   };
 
-  const handleDataUpdate = (updatedTab) => {
-    props.onDataUpdate(updatedTab);
-    // setDataTab(updatedTab);
-  };
   return (
     <div className="card">
       <Toast ref={toast} />
       <DataTable
-        id="coffDocsL"
-        dataKey="id"
+        dataKey="ORG_ID"
+        size={"small"}
         selectionMode="single"
-        selection={coffDocs}
+        selection={sapOrg}
         loading={loading}
-        value={coffDocss}
+        value={sapOrgs}
         header={header}
         showGridlines
         removableSort
@@ -262,89 +245,53 @@ export default function CoffDocsL(props) {
         scrollable
         sortField="code"        
         sortOrder={1}
-        scrollHeight="350px"
+        scrollHeight="750px"
         virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}
         paginator
-        rows={10}
-        rowsPerPageOptions={[5, 10, 25, 50]}
-        onSelectionChange={(e) => setCoffDocs(e.value)}
+        rows={250}
+        rowsPerPageOptions={[250, 500, 750]}
+        onSelectionChange={(e) => setSapOrg(e.value)}
         onRowSelect={onRowSelect}
         onRowUnselect={onRowUnselect}
-      >       
-        <Column
+      >
+        {/* <Column
           //bodyClassName="text-center"
           body={actionTemplate}
           exportable={false}
           headerClassName="w-10rem"
           style={{ minWidth: '4rem' }}
-        />        
+        />         */}
         <Column
-          field="nart"
+          field="ORG"
+          header={translations[selectedLanguage].Code}
+          sortable
+          filter
+          style={{ width: "15%" }}
+        ></Column>
+        <Column
+          field="NORG"
           header={translations[selectedLanguage].Text}
-          // sortable
-          // filter
-          style={{ width: "50%" }}
+          sortable
+          filter
+          style={{ width: "80%" }}
         ></Column>
         <Column
-          field="num"
-          header={translations[selectedLanguage].num}
-          // sortable
-          // filter
-          style={{ width: "10%" }}
-        ></Column>
-        {(props.doctp !== '1') ? (
+          field="LEVEL"
+          header={translations[selectedLanguage].Nivo}
+          sortable
+          filter
+          style={{ width: "5%" }}
+        ></Column>         
         <Column
-          field="ulaz"
-          header={translations[selectedLanguage].Kol}
-          // sortable
-          // filter
-          style={{ width: "20%" }}
-        ></Column>
-        ) : (
-          <Column
-          field="izlaz"
-          header={translations[selectedLanguage].Kol}
-          // sortable
-          // filter
-          style={{ width: "20%" }}
-        ></Column>
-        )}
-                    
+          field="RANK"
+          header={translations[selectedLanguage].Order}
+          sortable
+          filter
+          style={{ width: "5%" }}
+        ></Column>                       
       </DataTable>
-      <Dialog
-        header={translations[selectedLanguage].Stavka}
-        visible={visibleCoffDocsmenu}
-        style={{ width: '40%' }}
-        onHide={() => {
-          setVisible={setVisible}
-          setVisibleCoffDocsmenu={setVisibleCoffDocsmenu}
-          setShowMyComponent(false);
-        }}
-      >
-        {showMyComponent && (
-          <CoffDocsD
-            parameter={"inputTextValue"}
-            artCurr={artCurr}
-            coffDocs={coffDocs}
-            coffDoc={props.coffDoc}
-            doctp={props.doctp}
-            onDataUpdate={handleDataUpdate}
-            handleDialogClose={handleDialogClose}
-            setVisibleCoffDocsmenu={setVisibleCoffDocsmenu}
-            dialog={true}
-            cenaTip={cenaTip}
-            docsTip={docsTip}
-            setVisible={setVisible}
-          />
-        )}
-        <div className="p-dialog-header-icons" style={{ display: 'none' }}>
-          <button className="p-dialog-header-close p-link">
-            <span className="p-dialog-header-close-icon pi pi-times"></span>
-          </button>
-        </div>
-      </Dialog>
     </div>
   );
 }

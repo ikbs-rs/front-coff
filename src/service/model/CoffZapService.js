@@ -5,7 +5,7 @@ import Token from "../../utilities/Token";
 export class CoffZapService {
   async getLista(objId) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
-    const url = `${env.COFF_BACK_URL}/coff/zap/_v/lista/?stm=coff_zap_v&sl=${selectedLanguage}`;
+    const url = `${env.COFF_BACK_URL}/coff/zap/_v/lista/?stm=coff_zap_v&objid=${objId}&sl=${selectedLanguage}`;
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token
@@ -76,8 +76,9 @@ export class CoffZapService {
 
   async postCoffZap(newObj) {
     try {
+      newObj.tp=1
       const selectedLanguage = localStorage.getItem('sl') || 'en'
-      if (newObj.code.trim() === '' || newObj.text.trim() === '' || newObj.valid === null) {
+      if (newObj.zap.trim() === '' || newObj.oblast.trim() === '') {
         throw new Error(
           "Items must be filled!"
         );
@@ -101,12 +102,14 @@ export class CoffZapService {
 
   async putCoffZap(newObj) {
     try {
+      newObj.tp=1
+      console.log("putCoffZap**************newObj ", newObj)
       const selectedLanguage = localStorage.getItem('sl') || 'en'
-      if (newObj.code.trim() === '' || newObj.text.trim() === '' || newObj.valid === null) {
-        throw new Error(
-          "Items must be filled!"
-        );
-      }
+      // if (newObj?.zap.trim() === '' || newObj?.oblast.trim() === '') {
+      //   throw new Error(
+      //     "Items must be filled!"
+      //   );
+      // }
       const url = `${env.COFF_BACK_URL}/coff/zap/?sl=${selectedLanguage}`;
       const tokenLocal = await Token.getTokensLS();
       const headers = {
@@ -114,8 +117,9 @@ export class CoffZapService {
         'Authorization': tokenLocal.token
       };
       const jsonObj = JSON.stringify(newObj)
+      console.log("putCoffZap**************"  , jsonObj, "****************", url)
       const response = await axios.put(url, jsonObj, { headers });
-      //console.log("**************"  , response, "****************")
+      console.log("putCoffZap **************"  , response, "****************")
       return response.data.items;
     } catch (error) {
       console.error(error);

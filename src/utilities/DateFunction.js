@@ -41,6 +41,17 @@ const formatDatetime =  (inputDatetime) => {
     return `${day}.${month}.${year} ${hour}:${min}:${sec}`;
 }
 
+
+const formatDatetimeR =  (inputDatetime) => {
+  const year = inputDatetime.substring(0, 4);
+  const month = inputDatetime.substring(4, 6);
+  const day = inputDatetime.substring(6, 8);
+  const hour = inputDatetime.substring(8, 10);
+  const min = inputDatetime.substring(10, 12);
+  const sec = inputDatetime.substring(12, 14);
+  return `${year}.${month}.${day} ${hour}:${min}:${sec}`;
+}
+
 const formatTime =  (inputTime) => {
     const hour = inputTime.substring(0, 2);
     const min = inputTime.substring(2, 4);
@@ -131,6 +142,7 @@ export default {
     formatDate,
     formatJsDate,
     formatDatetime,
+    formatDatetimeR,
     formatTime,
     formatDateToDBFormat,
     formatDateTimeToDBFormat,

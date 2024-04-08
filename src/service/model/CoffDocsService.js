@@ -84,11 +84,11 @@ export class CoffDocsService {
   async postCoffDocs(newObj) {
     try {
       const selectedLanguage = localStorage.getItem('sl') || 'en'
-      if (newObj.code.trim() === '' || newObj.text.trim() === '' || newObj.valid === null) {
-        throw new Error(
-          "Items must be filled!"
-        );
-      }
+      // if (newObj.cena.trim() === '' || newObj.text.trim() === '' || newObj.valid === null) {
+      //   throw new Error(
+      //     "Items must be filled!"
+      //   );
+      // }
       const url = `${env.COFF_BACK_URL}/coff/docs/?sl=${selectedLanguage}`;
       const tokenLocal = await Token.getTokensLS();
       const headers = {
@@ -109,11 +109,11 @@ export class CoffDocsService {
   async putCoffDocs(newObj) {
     try {
       const selectedLanguage = localStorage.getItem('sl') || 'en'
-      if (newObj.code.trim() === '' || newObj.text.trim() === '' || newObj.valid === null) {
-        throw new Error(
-          "Items must be filled!"
-        );
-      }
+      // if (newObj.code.trim() === '' || newObj.text.trim() === '' || newObj.valid === null) {
+      //   throw new Error(
+      //     "Items must be filled!"
+      //   );
+      // }
       const url = `${env.COFF_BACK_URL}/coff/docs/?sl=${selectedLanguage}`;
       const tokenLocal = await Token.getTokensLS();
       const headers = {

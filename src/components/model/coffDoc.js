@@ -40,11 +40,11 @@ const CoffDoc = (props) => {
         async function fetchData() {
             try {
                 const coffZapService = new CoffZapService();
-                const data = await coffZapService.getCoffZaps();
+                const data = await coffZapService.getLista('/zap');
 
                 setCoffZapItems(data)
                 console.log(data, "************ coffZapService ************ 11***")
-                const dataDD = data.map(({ zap, id }) => ({ name: zap, code: id }));
+                const dataDD = data.map(({ N2ZAP, id }) => ({ name: N2ZAP, code: id }));
                 console.log(data, "************ coffZapService ************", dataDD)
                 setDdCoffZapItems(dataDD);
                 setDdCoffZapItem(dataDD.find((item) => item.code === props.coffDoc.potpisnik) || null);
@@ -83,8 +83,11 @@ const CoffDoc = (props) => {
     const handleCreateClick = async () => {
         try {
             setSubmitted(true);
-            coffDoc.vreme = DateFunction.formatDatetime(DateFunction.currDatetime())
-            coffDoc.ndoctp = props.coffDoc.ndoctp
+            console.log(coffZapItem, "@@@@@@@@@@@@@@@@@@@@@@@handleCreateClick@@@@@@@@@@@@@@@@@@@@@@@@", coffDoc)
+            coffDoc.nzap = coffZapItem.N2ZAP
+          
+            coffDoc.vreme = DateFunction.formatDatetimeR(DateFunction.currDatetime())
+            coffDoc.ndoctp = props.ndoctp
             const coffDocService = new CoffDocService();
             const data = await coffDocService.postCoffDoc(coffDoc);
             coffDoc.id = data
@@ -103,11 +106,42 @@ const CoffDoc = (props) => {
     const handleSaveClick = async () => {
         try {
             setSubmitted(true);
-            coffDoc.vreme = DateFunction.formatDatetime(DateFunction.currDatetime())
+            coffDoc.nzap = coffZapItem.N2ZAP
+            coffDoc.vreme = DateFunction.formatDatetimeR(DateFunction.currDatetime())
             const coffDocService = new CoffDocService();
+            await setCoffDoc({ ...coffDoc });
             await coffDocService.putCoffDoc(coffDoc);
             props.handleDialogClose({ obj: coffDoc, docTip: props.docTip });
             props.setCoffDocVisible(false);
+        } catch (err) {
+            toast.current.show({
+                severity: "error",
+                summary: "Action ",
+                detail: `${err.response.data.error}`,
+                life: 5000,
+            });
+        }
+    };
+
+    const handleNextClick = async (event) => {
+        try {
+            setSubmitted(true);
+            coffDoc.nzap = coffZapItem.N2ZAP
+            coffDoc.vreme = DateFunction.formatDatetimeR(DateFunction.currDatetime())
+            coffDoc.ndoctp = props.ndoctp
+            await setCoffDoc({ ...coffDoc });
+            const coffDocService = new CoffDocService();
+            if (event == 'CREATE') {
+                const data = await coffDocService.postCoffDoc(coffDoc);
+                console.log(coffDoc, data, "#############handleNextClick##############". event)                                                
+            } else {
+                const updata = await coffDocService.putCoffDoc(coffDoc);
+                console.log(coffDoc, updata, "#############handleNextClick##############". event)
+            }
+            props.handleDialogClose({ obj: coffDoc, docTip: props.docTip });
+            setCoffDoc({ ...coffDoc });
+            // setDocTip('UPDATE');
+            props.setCoffDocVisible(true);
         } catch (err) {
             toast.current.show({
                 severity: "error",
@@ -143,21 +177,23 @@ const CoffDoc = (props) => {
     const onInputChange = (e, type, name) => {
         let val = ''
         if (type === "options") {
+            val = (e.target && e.target.value && e.target.value.code) || '';
             if (name == "potpisnik") {
                 setDdCoffZapItem(e.value);
                 const foundItem = coffZapItems.find((item) => item.id === val);
+                console.log(foundItem, "-*-*-*-*-***-**-*-*-*-*-*-*-*-*--onInputChange000*-*-*-*-*-*-*-*-*--**--*-*-*-*-*-*-*-*-*-*-*-", foundItem.NZAP)
                 setCoffZapItem(foundItem || null);
-                // ticEventatt.ntp = e.value.name
+                coffDoc.nzap = foundItem.NZAP
                 // ticEventatt.ctp = foundItem.code
             } else {
                 setDropdownItem(e.value);
             }
-            val = (e.target && e.target.value && e.target.value.code) || '';
         } else {
             val = (e.target && e.target.value) || '';
         }
-
+        
         let _coffDoc = { ...coffDoc };
+        console.log(_coffDoc, "-*-*-*-*-***-**-*-*-*-*-*-*-*-*--onInputChange111aaa*-*-*-*-*-*-*-*-*--**--*-*-*-*-*-*-*-*-*-*-*-")
         _coffDoc[`${name}`] = val;
         if (name === `textx`) _coffDoc[`text`] = val
 
@@ -199,6 +235,13 @@ const CoffDoc = (props) => {
                             />
                             {submitted && !coffDoc.mesto && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
                         </div>
+                        <div className="field col-12 md:col-10">
+                            <label htmlFor="eksternibroj">{translations[selectedLanguage].eksternibroj}</label>
+                            <InputText
+                                id="eksternibroj"
+                                value={coffDoc.eksternibroj} onChange={(e) => onInputChange(e, "text", 'eksternibroj')}
+                            />
+                        </div>                        
                         <div className="field col-12 md:col-10">
                             <label htmlFor="napomena">{translations[selectedLanguage].napomena}</label>
                             <InputText
@@ -260,6 +303,26 @@ const CoffDoc = (props) => {
                                     outlined
                                 />
                             ) : null}
+                            {(props.standard) ? (
+                            (props.docTip == 'CREATE') ? (
+                                <Button
+                                    label={translations[selectedLanguage].CreateSt}
+                                    icon="pi pi-check"
+                                    onClick={() => handleNextClick('CREATE')}
+                                    severity="success"
+                                    outlined
+                                />
+                            ) : (
+                                <Button
+                                    label={translations[selectedLanguage].SaveSt}
+                                    icon="pi pi-check"
+                                    onClick={() => handleNextClick('UPDATE')}
+                                    severity="success"
+                                    outlined
+                                />
+                            )
+                            ) : (null)
+                            }                            
                         </div>
                     </div>
                 </div>
@@ -268,6 +331,7 @@ const CoffDoc = (props) => {
                         < CoffDocsL
                             parameter={"inputTextValue"}
                             coffDoc={coffDoc}
+                            doctp={props.doctp}
                             handleDialogClose={handleDialogClose}
                             setCoffDocVisible={setCoffDocVisible}
                             dialog={true}

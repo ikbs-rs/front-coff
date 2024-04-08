@@ -15,13 +15,14 @@ const EmptyEntities =
     "id": null,
     "doctp": null,
     "obj": null,
-    "mesto": null,
+    "mesto": "",
     "napomena": "",
     "potpisnik": null,
     "vreme": "",
     "eksternibroj": "",
     "usr": null,
-    "status": "0"
+    "status": "0",
+    "nzap": ""
   },
   "coff_docs": {
     "id": null,
@@ -59,7 +60,11 @@ const EmptyEntities =
   "coff_zap": {
     "id": null,
     "zap": "",
-    "tp": null
+    "tp": null,
+    "pravilnik": "",
+    "oblast": "",
+    "mtroska": "",
+    "nzap": ""
   },
   "coff_zaplink": {
     "id": null,

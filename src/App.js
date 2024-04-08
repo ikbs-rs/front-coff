@@ -10,12 +10,12 @@ import AppMenu from './AppMenu';
 import AppRightMenu from './AppRightMenu';
 import './index.css';
 
-import Discount from './components/model/ticDiscountL';
-import Condtp from './components/model/ticCondtpL';
-import DiscountTp from './components/model/ticDiscounttpL';
-import PrivilegeTp from './components/model/ticPrivilegetpL';
-import Privilege from './components/model/ticPrivilegeL';
-import Doc from './components/model/coffDocL';
+import Zaptp from './components/model/coffZaptpL';
+import Zap from './components/model/coffZapL';
+import Saporg from './components/model/sapOrgl';
+import Zapcoff from './components/model/sapZapcoffL';
+import DocW from './components/model/coffDocW';
+import Doc2 from './components/model/coffDocL';
 import Coff from './components/model/coffee';
 import DocTp from './components/model/ticDoctpL';
 import DocVr from './components/model/ticDocvrL';
@@ -31,7 +31,7 @@ import ArtGrp from './components/model/ticArtgrpL';
 import ArtTp from './components/model/ticArttpL';
 import Cena from './components/model/ticCenaL';
 import CenaTp from './components/model/ticCenatpL';
-import Zaptp from './components/model/coffZaptpL';
+
 import Atest from './components/model/1test';
 import Sal from './components/model/ticSal';
 
@@ -87,8 +87,8 @@ const App = () => {
 
                 { label: translations[selectedLanguage].Zap_type, icon: 'pi pi-fw pi-calendar', to: '/zaptp' },
                 { label: translations[selectedLanguage].Zap, icon: 'pi pi-fw pi-calendar', to: '/zap'  },
-                { label: translations[selectedLanguage].Org, icon: 'pi pi-fw pi-calendar', to: '/org'  },
-                { label: translations[selectedLanguage].Sis, icon: 'pi pi-fw pi-calendar', to: '/sis'  },
+                { label: translations[selectedLanguage].SAP_ORG, icon: 'pi pi-fw pi-calendar', to: '/saporg'  },
+                { label: translations[selectedLanguage].SAP_ZAP, icon: 'pi pi-fw pi-calendar', to: '/zapcoff'  },
             ]
         },
         {
@@ -108,8 +108,8 @@ const App = () => {
             label: translations[selectedLanguage].Processing,
             icon: 'pi pi-cog',
             items: [
-                { label: translations[selectedLanguage].Zaduzenje, icon: 'pi pi-fw pi-clone', to: '/doc2' },
-                { label: translations[selectedLanguage].Porudzbine, icon: 'pi pi-fw pi-clone', to: '/doc1' },
+                { label: translations[selectedLanguage].Zaduzenje, icon: 'pi pi-fw pi-clone', to: '/doc/2' },
+                { label: translations[selectedLanguage].Porudzbine, icon: 'pi pi-fw pi-clone', to: '/doc/1' },
                 { label: translations[selectedLanguage].coffee, icon: 'pi pi-fw pi-clone', to: '/coff' },
             ]
         },
@@ -451,13 +451,13 @@ const App = () => {
                 <div className="layout-content">
                     <Routes>
                         <Route path="/" element={<EmptyPage />} />
-                        
+                    
+
                         <Route path="/zaptp" element={<Zaptp />} />
-                        <Route path="/discounttp" element={<DiscountTp />} />
-                        <Route path="/privilegetp" element={<PrivilegeTp />} />
-                        <Route path="/privilege" element={<Privilege />} />
-                        <Route path="/discount" element={<Discount />} />
-                        <Route path="/condtp" element={<Condtp />} />
+                        <Route path="/zap" element={<Zap />} />
+                        <Route path="/saporg" element={<Saporg />} />
+                        <Route path="/zapcoff" element={<Zapcoff />} />
+
 
                         <Route path="/objtp" element={<ObjW endpoint="objtpend" />} />
                         <Route path="/objpk/:objtpCode" element={<ObjW endpoint="objend" />} />
@@ -471,8 +471,12 @@ const App = () => {
 
                         <Route path="/usergrp" element={<EventAtt />} />
                         <Route path="/action" element={<EventAtt />} />
-                        <Route path="/doc1" element={<Doc doctp={1} />} />
-                        <Route path="/doc2" element={<Doc doctp={2} />} />
+                        {/* <Route path="/doc1" element={<Doc1 doctp={1} />} />
+                        <Route path="/doc2" element={<Doc2 doctp={2} />} /> */}
+
+                        <Route path="/doc/:doctp" element={<DocW />} />
+                        <Route path="/doc/:doctp" element={<DocW />} />
+
                         <Route path="/coff" element={<Coff />} />
                         <Route path="/doctp" element={<DocTp />} />
                         <Route path="/eventtp" element={<EventTP />} />
