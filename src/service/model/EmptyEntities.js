@@ -64,7 +64,8 @@ const EmptyEntities =
     "pravilnik": "",
     "oblast": "",
     "mtroska": "",
-    "nzap": ""
+    "nzap": "",
+    "obj": null
   },
   "coff_zaplink": {
     "id": null,

@@ -791,6 +791,12 @@ export const translations = {
         Oblast: "Област",
         Mtroska: "Место трошка",
         eksternibroj: "Екстерни број",
+        Pregled: "Преглед",
+        Stanje: "Стање",
+        Kartica: "Картица",
+        Potvrdi: "Потврди",
+        Export: "Експорт",
+        PregledList: "Преглед Листа",
     }
   };
   

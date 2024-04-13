@@ -184,6 +184,7 @@ const CoffDoc = (props) => {
                 console.log(foundItem, "-*-*-*-*-***-**-*-*-*-*-*-*-*-*--onInputChange000*-*-*-*-*-*-*-*-*--**--*-*-*-*-*-*-*-*-*-*-*-", foundItem.NZAP)
                 setCoffZapItem(foundItem || null);
                 coffDoc.nzap = foundItem.NZAP
+                coffDoc.obj = foundItem.obj
                 // ticEventatt.ctp = foundItem.code
             } else {
                 setDropdownItem(e.value);

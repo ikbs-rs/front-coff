@@ -32,6 +32,10 @@ import ArtTp from './components/model/ticArttpL';
 import Cena from './components/model/ticCenaL';
 import CenaTp from './components/model/ticCenatpL';
 
+import Izv01 from './components/model/coffIzv01L';
+import Stanje from './components/model/coffIzv01StanjeL';
+import Kartica from './components/model/coffIzv01Kartica';
+
 import Atest from './components/model/1test';
 import Sal from './components/model/ticSal';
 
@@ -121,16 +125,18 @@ const App = () => {
                     label: translations[selectedLanguage].Reports,
                     icon: 'pi pi-file-pdf',
                     items: [
-                        { label: translations[selectedLanguage].Test, icon: 'pi pi-database', to: '/atest' }
-                    ]
-                },
-                {
-                    label: translations[selectedLanguage].Reports,
-                    icon: 'pi pi-chart-bar',
-                    items: [
-                        { label: translations[selectedLanguage].Report, icon: 'pi pi-chart-bar', to: '/izv2' }
+                        { label: translations[selectedLanguage].Pregled, icon: 'pi pi-database', to: '/izv01' },
+                        { label: translations[selectedLanguage].Stanje, icon: 'pi pi-database', to: '/stanje' },
+                        { label: translations[selectedLanguage].Kartica, icon: 'pi pi-database', to: '/kartica' }
                     ]
                 }
+                // {
+                //     label: translations[selectedLanguage].Reports,
+                //     icon: 'pi pi-chart-bar',
+                //     items: [
+                //         { label: translations[selectedLanguage].Report, icon: 'pi pi-chart-bar', to: '/izv2' }
+                //     ]
+                // }
             ]
         },        
         {
@@ -458,6 +464,9 @@ const App = () => {
                         <Route path="/saporg" element={<Saporg />} />
                         <Route path="/zapcoff" element={<Zapcoff />} />
 
+                        <Route path="/izv01" element={<Izv01 />} />
+                        <Route path="/stanje" element={<Stanje />} />
+                        <Route path="/kartica" element={<Kartica />} />
 
                         <Route path="/objtp" element={<ObjW endpoint="objtpend" />} />
                         <Route path="/objpk/:objtpCode" element={<ObjW endpoint="objend" />} />
@@ -471,6 +480,7 @@ const App = () => {
 
                         <Route path="/usergrp" element={<EventAtt />} />
                         <Route path="/action" element={<EventAtt />} />
+
                         {/* <Route path="/doc1" element={<Doc1 doctp={1} />} />
                         <Route path="/doc2" element={<Doc2 doctp={2} />} /> */}
 
