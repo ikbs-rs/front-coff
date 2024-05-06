@@ -95,9 +95,9 @@ export class CoffDocService {
       };
       const jsonObj = JSON.stringify(newObj)
       const response = await axios.post(url, jsonObj, { headers });
-      // console.log("**************"  , response.data, "****************")
+      console.log("**************"  , response.data, "****************@@@@@@@@@@@@@@@@@@@@@@@@@@@===================================================")
       localStorage.setItem('currCoffOrder', response.data.items);
-      return response.data.items;
+      return response.data.items||response.data.item;
     } catch (error) {
       console.error(error);
       throw error;
@@ -107,6 +107,7 @@ export class CoffDocService {
 
   async putCoffDoc(newObj) {
     try {
+      newObj = { ...newObj, obj: -1 }
       const selectedLanguage = localStorage.getItem('sl') || 'en'
       if (newObj?.mesto.trim() === '' || newObj.potpisnik === null) {
         throw new Error(
@@ -167,6 +168,24 @@ export class CoffDocService {
       console.log("------------------ getMenu ---------------------------------", url)
       const response = await axios.get(url, { headers });
       console.log("KKKKKKK getMenu ---------------------------------", url, response.data)
+      return response.data.item;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+
+  async getCmnObjListaLL(objId) {
+    const selectedLanguage = localStorage.getItem('sl') || 'en'
+    const url = `${env.CMN_BACK_URL}/cmn/x/obj/_v/lista/?stm=cmn_objll_v&objid=${objId}&sl=${selectedLanguage}`;
+    const tokenLocal = await Token.getTokensLS();
+    const headers = {
+      Authorization: tokenLocal.token
+    };
+
+    try {
+      const response = await axios.get(url, { headers });
       return response.data.item;
     } catch (error) {
       console.error(error);

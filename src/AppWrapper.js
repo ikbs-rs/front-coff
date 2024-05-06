@@ -16,7 +16,7 @@ const AppWrapper = (props) => {
   const search = window.location.search;
   const params = new URLSearchParams(search);
   const sl = params.get('sl');
-  localStorage.setItem('sl', sl || "en")
+  localStorage.setItem('sl', sl || "sr_cyr")
 
 
 
@@ -49,9 +49,10 @@ const AppWrapper = (props) => {
         });
     } else {
       setIsLoggedIn(false);
+      navigate('/login');
     }
     window.scrollTo(0, 0);
-  }, []);
+  }, [isLoggedIn]);
 
 
 

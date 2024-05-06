@@ -19,10 +19,11 @@ import { translations } from "../../configs/translations";
 export default function OrderL(props) {
   console.log(props, "@@@@@@+++++++++++++++++++++++ OrderL ++++++++++++++++++++++++++++++++@@@@@")
   let i = 0
+  let k = 0
   const objName = "coff_docs"
 
   const selectedLanguage = localStorage.getItem('sl') || 'en'
-  const currCoffOrder = localStorage.getItem('currCoffOrder')
+  let [currCoffOrder, setCurrCoffOrder] = useState(localStorage.getItem('currCoffOrder'))
   const docName = "coff_doc"
   const emptyCoffDoc = EmptyEntities[docName]
   const emptyCoffDocs = EmptyEntities[objName]
@@ -46,6 +47,7 @@ export default function OrderL(props) {
 
   const [artCurr, setArtCurr] = useState({});
   const [cenaTip, setLocTip] = useState('');
+  let [refresh, seRefresh] = useState(props.datarefresh);
 
   // Setuje docId, tj. id za trenutnu porudzbinu
   useEffect(() => {
@@ -56,21 +58,18 @@ export default function OrderL(props) {
   useEffect(() => {
     async function fetchData() {
       try {
-        ++i
-        // if (i < 2) {
-          const coffDocsService = new CoffDocsService();
-          const data = await coffDocsService.getCurrCoffOrder(currCoffOrder);
-console.log(currCoffOrder, "323232323232323currCoffOrdercurrCoffOrdercurrCoffOrdercurrCo", docId, "ffOrdercurrCoffOrdercurrCoffOrdercurrCoffOrder232323232323232", data)
-          setCoffDocss(data);
-          initFilters();
-        // }
+        const coffDocsService = new CoffDocsService();
+        if (currCoffOrder<docId){currCoffOrder=docId}
+        const data = await coffDocsService.getCurrCoffOrder(currCoffOrder);
+        setCoffDocss(data);
+        initFilters();
       } catch (error) {
         console.error(error);
         // Obrada greške ako je potrebna
       }
     }
     fetchData();
-  }, [docId, props.datarefresh]);
+  }, [ docId, refresh, props.datarefresh]);
 
   // Setujem zaglavlje porudzbine
   useEffect(() => {
@@ -80,7 +79,6 @@ console.log(currCoffOrder, "323232323232323currCoffOrdercurrCoffOrdercurrCoffOrd
         // if (i < 2) {
         const coffDocService = new CoffDocService();
         const data = await coffDocService.getCoffDoc(docId);
-        console.log(data, "!!!!!!!!!!!!!!!!!!!!!!!!!! Setujem zaglavlje porudzbine !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", docId)
         if (data) {
           setCoffDoc(data)
         }
@@ -93,17 +91,17 @@ console.log(currCoffOrder, "323232323232323currCoffOrdercurrCoffOrdercurrCoffOrd
       }
     }
     fetchData();
-  }, [docId]);
+  }, [docId, refresh, props.datarefresh]);
 
   const handleDialogClose = (newObj) => {
 
     const localObj = { newObj };
 
-    console.log("******************newObj**************", newObj)
 
-    if (localObj.hasOwnProperty('docTip')) {
-      currCoffOrder = localStorage.getItem('currCoffOrder')
+    if (newObj.docId) {
+      currCoffOrder = newObj.docId //localStorage.getItem('currCoffOrder')
       setDocId(currCoffOrder)
+      seRefresh(++refresh)
     }
 
     let _coffDocss = [...coffDocss];
@@ -112,16 +110,20 @@ console.log(currCoffOrder, "323232323232323currCoffOrdercurrCoffOrdercurrCoffOrd
     //setSubmitted(true);
     if (localObj.newObj.seattpTip === "CREATE") {
       _coffDocss.push(_coffDocs);
+      seRefresh(++refresh)
     } else if (localObj.newObj.seattpTip === "UPDATE") {
       const index = findIndexById(localObj.newObj.obj.id);
       _coffDocss[index] = _coffDocs;
+      if(newObj?.docC=='Z') {
+        setCoffDoc(newObj.obj)
+      }
     } else if ((localObj.newObj.seattpTip === "DELETE")) {
       _coffDocss = coffDocss.filter((val) => val.id !== localObj.newObj.obj.id);
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDocs Delete', life: 3000 });
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDocs Delete', life: 500 });
     } else {
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDocs ?', life: 3000 });
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDocs ?', life: 500 });
     }
-    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.seattpTip}`, life: 3000 });
+    // toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.seattpTip}`, life: 3000 });
     setCoffDocss(_coffDocss);
     setCoffDocs(emptyCoffDocs);
   };
@@ -151,6 +153,10 @@ console.log(currCoffOrder, "323232323232323currCoffOrdercurrCoffOrdercurrCoffOrd
     setCoffDocDialog(coffDoc, "UPDATE");
   };
 
+
+  const handleZavrsi = () => {
+    setCoffDocZavrsi(coffDoc, "CREATE");
+  };
   const onRowSelect = (event) => {
     toast.current.show({
       severity: "info",
@@ -230,9 +236,16 @@ console.log(currCoffOrder, "323232323232323currCoffOrdercurrCoffOrdercurrCoffOrd
   const setCoffDocDialog = (coffDoc, docTip) => {
     const _coffDoc = { ...coffDoc }
     _coffDoc.doctp = "1"
+    _coffDoc.obj = null
     setCoffDocVisible(true)
     setDocTip(docTip)
     setCoffDocI({ ..._coffDoc });
+  }
+  const setCoffDocZavrsi = (coffDoc, docTip) => {
+    setCoffDoc({ ...emptyCoffDoc });
+    setCoffDocs({ ...emptyCoffDocs });
+    seRefresh(++refresh)
+    setCurrCoffOrder(-1)
   }
   //  Dialog --->
 
@@ -275,19 +288,29 @@ console.log(currCoffOrder, "323232323232323currCoffOrdercurrCoffOrdercurrCoffOrd
             />
           </div>
           <div className="field col-12 md:col-6">
-            <label htmlFor="mesto">{translations[selectedLanguage].Mesto}</label>
+            <label htmlFor="mesto">{translations[selectedLanguage].Loc}</label>
             <InputText
               id="mesto"
               value={coffDoc.mesto}
               disabled={true}
             />
           </div>
-
-          <div className="field col-12 md:col-6">
-            <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openDocNew} text raised />
+        </div>
+        <div className="p-fluid formgrid grid">
+          <div className="field col-12 md:col-4">
+            <Button label={translations[selectedLanguage].NewPor} 
+            // icon="pi pi-plus" 
+            severity="warning" onClick={openDocNew} raised />
           </div>
-          <div className="field col-12 md:col-6">
-            <Button label={translations[selectedLanguage].Update} icon="pi pi-cog" severity="success" onClick={openDoc} text raised />
+          <div className="field col-12 md:col-4">
+            <Button label={translations[selectedLanguage].Update} 
+            // icon="pi pi-cog" 
+            severity="warning" onClick={openDoc} raised />
+          </div>
+          <div className="field col-12 md:col-4">
+            <Button label={translations[selectedLanguage].Zavrsi} 
+            // icon="pi pi-check" 
+            severity="danger" onClick={handleZavrsi} raised />
           </div>
 
         </div>
@@ -354,7 +377,7 @@ console.log(currCoffOrder, "323232323232323currCoffOrdercurrCoffOrdercurrCoffOrd
         ></Column>
       </DataTable>
       <Dialog
-        header={translations[selectedLanguage].Doc}
+        header={translations[selectedLanguage].Porudzbina}
         visible={coffDocVisible}
         style={{ width: '50%' }}
         onHide={() => {

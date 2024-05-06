@@ -49,6 +49,7 @@ export default function CoffIzv01L(props) {
     { field: 'nart', header: 'Art', width: '15%' },
     { field: 'ulaz', header: 'Ulaz', width: '10%' },
     { field: 'izlaz', header: 'Izlaz', width: '10%' },
+    { field: 'stanje', header: 'Stanje', width: '10%' },
     { field: 'num', header: 'JM', width: '5%' }
   ];
 

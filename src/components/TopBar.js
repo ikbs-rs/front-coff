@@ -26,7 +26,7 @@ const TopBar = () => {
         <div id="topbar" className={`d-flex align-items-center fixed-top ${isScrolled ? 'topbar-scrolled' : ''}`}>
             <div className="container d-flex justify-content-center justify-content-md-between">
                 <div className="contact-info d-flex align-items-center">
-                    <i className="bi bi-phone d-flex align-items-center"><span>+381 64 84088 xx</span></i>
+                    {/* <i className="bi bi-phone d-flex align-items-center"><span>+381 64 84088 xx</span></i> */}
                     <i className="bi bi-clock d-flex align-items-center ms-4"><span> Пон-Пет: 08 - 16</span></i>
                 </div>
 

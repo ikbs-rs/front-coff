@@ -4,7 +4,7 @@ import CoffDocL from '../components/model/coffDocL';
 // import OrderlistL from '../components/model/ticArttpL';
 
 const Tab = (props) => {
-
+console.log("Tab =================================================================")
     const currCoffOrder = localStorage.getItem('currCoffOrder')
 
     

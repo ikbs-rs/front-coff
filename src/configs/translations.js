@@ -766,8 +766,8 @@ export const translations = {
         Mesto: "Место",
         napomena: "Напомена",
         Isporuceno: "Испоручено",
-        Cekanje: "Чекање",
-        Prijem: "Пријем",
+        Cekanje: "Обрада",
+        Prijem: "У припреми",
         Kol: "Кол",
         num: "Назив ЈМ",
         Recipe: "Рецептура",
@@ -797,6 +797,15 @@ export const translations = {
         Potvrdi: "Потврди",
         Export: "Експорт",
         PregledList: "Преглед Листа",
+        Stavka: "Ставка",
+        Porudzbina: "Поруџбина",
+        Zavrsi: "Заврши",
+        Coff: "Кухиња",
+        NewPor: "Нова поруџба",
+        CancelNext: "Сачувај и настави",
+        TipJM: "Тип ЈМ",
+        Logout: "Одјави се",
+        Zaplink: "Овлашћени запослени Листа"
     }
   };
   

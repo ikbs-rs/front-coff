@@ -193,6 +193,14 @@ const CoffArtum = (props) => {
                         </div>
 
                     </div>
+                    <div className="p-fluid formgrid grid">
+                        <div className="field col-12 md:col-3">
+                            <label htmlFor="proizvod">{translations[selectedLanguage].TipJM} *</label>
+                            <InputText id="proizvod" value={coffArtum.proizvod} onChange={(e) => onInputChange(e, 'text', 'proizvod')} required className={classNames({ 'p-invalid': submitted && !coffArtum.proizvod })} />
+                            {submitted && !coffArtum.proizvod && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
+                        </div>
+
+                    </div>                    
 
                     <div className="flex flex-wrap gap-1">
                         {props.dialog ? <Button label={translations[selectedLanguage].Cancel} icon="pi pi-times" className="p-button-outlined p-button-secondary" onClick={handleCancelClick} outlined /> : null}

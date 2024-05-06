@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { classNames } from 'primereact/utils';
 import { CoffDocService } from "../../service/model/CoffDocService";
 import { CoffZapService } from "../../service/model/CoffZapService";
+// import { CmnObjService } from "../../service/model/cmn/CmnObjService";
 import './index.css';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
@@ -20,6 +21,7 @@ const CoffDoc = (props) => {
     const [dropdownItem, setDropdownItem] = useState(null);
     const [dropdownItems, setDropdownItems] = useState(null);
     const [coffDoc, setCoffDoc] = useState(props.coffDoc);
+    const [docTip, setDocTip] = useState(props.docTip);
     const [submitted, setSubmitted] = useState(false);
 
     const toast = useRef(null);
@@ -29,6 +31,10 @@ const CoffDoc = (props) => {
         { name: `${translations[selectedLanguage].Prijem}`, code: '0' }
     ];
 
+    const [ddCoffCoffItem, setDdCoffCoffItem] = useState(null);
+    const [ddCoffCoffItems, setDdCoffCoffItems] = useState(null);
+    const [coffCoffItem, setCoffCoffItem] = useState(null);
+    const [coffCoffItems, setCoffCoffItems] = useState(null);    
 
     const [ddCoffZapItem, setDdCoffZapItem] = useState(null);
     const [ddCoffZapItems, setDdCoffZapItems] = useState(null);
@@ -64,6 +70,33 @@ const CoffDoc = (props) => {
     }, []);
 
     useEffect(() => {
+        async function fetchData() {
+            try {
+                const coffDocService = new CoffDocService();
+                const data = await coffDocService.getCmnObjListaLL('COFFLOC');
+
+                setCoffCoffItems(data)
+                console.log(data, "************ coffCoffService ************ 11***")
+                const dataDD = data.map(({ text, id }) => ({ name: text, code: id }));
+                console.log(data, "************ coffCoffService ************", dataDD)
+                setDdCoffCoffItems(dataDD);
+                setDdCoffCoffItem(dataDD.find((item) => item.code === props.coffDoc.coff) || null);
+
+                if (props.coffDoc.coff && props.coffDoc.coff != 'null') {
+                    const foundItem = data.find((item) => item.id === props.coffDoc.coff);
+                    console.log(props.coffDoc.coff, "---------------foundItem----coffCoffService-------------", foundItem)
+                    setCoffCoffItem(foundItem || null);
+                    coffCoffItem.coff = foundItem?.id
+                }
+            } catch (error) {
+                console.error(error);
+                // Obrada greške ako je potrebna
+            }
+        }
+        fetchData();
+    }, []);
+    
+    useEffect(() => {
         setDropdownItem(findDropdownItemByCode(props.coffDoc.status));
     }, []);
 
@@ -83,15 +116,18 @@ const CoffDoc = (props) => {
     const handleCreateClick = async () => {
         try {
             setSubmitted(true);
-            console.log(coffZapItem, "@@@@@@@@@@@@@@@@@@@@@@@handleCreateClick@@@@@@@@@@@@@@@@@@@@@@@@", coffDoc)
+            const _coffDoc = { ...coffDoc }
+            
             coffDoc.nzap = coffZapItem.N2ZAP
           
             coffDoc.vreme = DateFunction.formatDatetimeR(DateFunction.currDatetime())
             coffDoc.ndoctp = props.ndoctp
             const coffDocService = new CoffDocService();
             const data = await coffDocService.postCoffDoc(coffDoc);
-            coffDoc.id = data
-            props.handleDialogClose({ obj: coffDoc, docTip: props.docTip });
+            _coffDoc.id = data
+            console.log(_coffDoc, "@@@@@@@@@@@@@@@@@@@@@@@handleCreateClick@@@@@@@@@@@@@@@@@@@@@@@@")
+            setCoffDoc(_coffDoc)
+            props.handleDialogClose({ obj: coffDoc, docTip: props.docTip, docId: data });
             props.setCoffDocVisible(false);
         } catch (err) {
             toast.current.show({
@@ -111,7 +147,7 @@ const CoffDoc = (props) => {
             const coffDocService = new CoffDocService();
             await setCoffDoc({ ...coffDoc });
             await coffDocService.putCoffDoc(coffDoc);
-            props.handleDialogClose({ obj: coffDoc, docTip: props.docTip });
+            props.handleDialogClose({ obj: coffDoc, docTip: props.docTip, docC: "Z" });
             props.setCoffDocVisible(false);
         } catch (err) {
             toast.current.show({
@@ -124,24 +160,24 @@ const CoffDoc = (props) => {
     };
 
     const handleNextClick = async (event) => {
-        try {
+        try {    
             setSubmitted(true);
+            const _coffDoc = { ...coffDoc }
             coffDoc.nzap = coffZapItem.N2ZAP
             coffDoc.vreme = DateFunction.formatDatetimeR(DateFunction.currDatetime())
             coffDoc.ndoctp = props.ndoctp
-            await setCoffDoc({ ...coffDoc });
+            coffDoc.obj = -1
             const coffDocService = new CoffDocService();
             if (event == 'CREATE') {
                 const data = await coffDocService.postCoffDoc(coffDoc);
-                console.log(coffDoc, data, "#############handleNextClick##############". event)                                                
+                coffDoc.id = data
+                console.log(coffDoc, data, "#############handleNextClick##############", event)                   
+                setCoffDoc({ ...coffDoc})
+                props.handleDialogClose({ obj: coffDoc, docTip: props.docTip });                 
             } else {
-                const updata = await coffDocService.putCoffDoc(coffDoc);
-                console.log(coffDoc, updata, "#############handleNextClick##############". event)
+                await coffDocService.putCoffDoc(coffDoc);
             }
-            props.handleDialogClose({ obj: coffDoc, docTip: props.docTip });
-            setCoffDoc({ ...coffDoc });
-            // setDocTip('UPDATE');
-            props.setCoffDocVisible(true);
+            setDocTip('UPDATE');
         } catch (err) {
             toast.current.show({
                 severity: "error",
@@ -186,6 +222,14 @@ const CoffDoc = (props) => {
                 coffDoc.nzap = foundItem.NZAP
                 coffDoc.obj = foundItem.obj
                 // ticEventatt.ctp = foundItem.code
+            } else if (name == "coff") {
+                setDdCoffCoffItem(e.value);
+                const foundItem = coffCoffItems.find((item) => item.id === val);
+                console.log(foundItem, "-*-*-*-*-***-**-*-*-*-*-*-*-*-*--onInputChange000*-*-*-*-*-*-*-*-*--**--*-*-*-*-*-*-*-*-*-*-*-", foundItem.NZAP)
+                setCoffCoffItem(foundItem || null);
+                coffDoc.ncoff = foundItem.text
+                coffDoc.obj = foundItem.obj
+                // ticEventatt.ctp = foundItem.code
             } else {
                 setDropdownItem(e.value);
             }
@@ -226,8 +270,21 @@ const CoffDoc = (props) => {
                             />
                             {submitted && !coffDoc.potpisnik && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
                         </div>
+                        <div className="field col-12 md:col-4">
+                            <label htmlFor="coff">{translations[selectedLanguage].Coff} *</label>
+                            <Dropdown id="coff"
+                                value={ddCoffCoffItem}
+                                options={ddCoffCoffItems}
+                                onChange={(e) => onInputChange(e, "options", 'coff')}
+                                required
+                                optionLabel="name"
+                                placeholder="Select One"
+                                className={classNames({ 'p-invalid': submitted && !coffDoc.coff })}
+                            />
+                            {submitted && !coffDoc.coff && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
+                        </div>                        
                         <div className="field col-12 md:col-6">
-                            <label htmlFor="mesto">{translations[selectedLanguage].Mesto}</label>
+                            <label htmlFor="mesto">{translations[selectedLanguage].Loc}</label>
                             <InputText
                                 id="mesto"
                                 value={coffDoc.mesto} onChange={(e) => onInputChange(e, "text", 'mesto')}
@@ -236,21 +293,23 @@ const CoffDoc = (props) => {
                             />
                             {submitted && !coffDoc.mesto && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
                         </div>
-                        <div className="field col-12 md:col-10">
+                        {(props.doctp) ? (
+                        <div className="field col-12 md:col-6">
                             <label htmlFor="eksternibroj">{translations[selectedLanguage].eksternibroj}</label>
                             <InputText
                                 id="eksternibroj"
                                 value={coffDoc.eksternibroj} onChange={(e) => onInputChange(e, "text", 'eksternibroj')}
                             />
-                        </div>                        
-                        <div className="field col-12 md:col-10">
+                        </div> 
+                        ):null}                       
+                        <div className="field col-12 md:col-8">
                             <label htmlFor="napomena">{translations[selectedLanguage].napomena}</label>
                             <InputText
                                 id="napomena"
                                 value={coffDoc.napomena} onChange={(e) => onInputChange(e, "text", 'napomena')}
                             />
                         </div>
-                        <div className="field col-12 md:col-2">
+                        <div className="field col-12 md:col-4">
                             <label htmlFor="status">{translations[selectedLanguage].Status}</label>
                             <Dropdown id="status"
                                 value={dropdownItem}

@@ -7,6 +7,98 @@
   /* Dodajte ostale stilove prema potrebi */
 }
 
+/***********************************************************/
+.p-button {
+  /* color: #ffffff; */
+  background: #b6aeae;
+  border: 1px solid #ede2e2;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  border-radius: 3px;
+} 
+
+aa {
+  font-size: 13px;
+  color: #f5f4f2;
+  text-decoration: none !important;
+}
+/* FONT */
+.p-component {
+  /* font-family: system-ui; */
+  font-family: 'Helvetica Neue','Segoe UI',Helvetica,Arial,sans-serif;
+  font-size: 13px;
+}
+
+body {
+  font-family: 'Helvetica Neue','Segoe UI',Helvetica,Arial,sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.p-link {
+  font-size: 13px;
+  font-family: 'Helvetica Neue','Segoe UI',Helvetica,Arial,sans-serif;
+}
+
+.p-inputtext {
+  font-family: 'Helvetica Neue','Segoe UI',Helvetica,Arial,sans-serif;
+  font-size: 13px;
+}
+
+.p-checkbox .p-checkbox-box {
+  width: 13px;
+  height: 13px;
+}
+
+.p-button.p-button-icon-only.p-button-rounded {
+  height: 1.7rem;
+}
+
+.p-button.p-button-icon-only {
+  width: 1.7rem;
+}
+
+/* END FONT */
+.p-dialog .p-dialog-header {
+  background: #df5959;
+}
+.layout-wrapper .layout-menu-container {
+  height: calc(100% - 0px);
+  top: 0px;
+
+}
+.layout-wrapper .layout-main {
+  padding-top: 0px;
+}
+.layout-wrapper .layout-main .layout-content {
+  padding: 0px;
+}
+
+  /* .p-datatable .p-datatable-tbody > tr > td {
+    text-align: left;
+    border: 1px solid #e9ecef;
+    border-width: 0 0 1px 0;
+    padding: 1rem 1rem;
+  } */
+.p-datatable .p-datatable-tbody > tr {
+  animation: none;
+  background: none;
+  color: #495057;
+  transition: box-shadow 0.2s;
+}
+/* .card { */
+  /* padding-left: 0px; */
+  /* padding-top: 0px; */
+/* } */
+
+.p-dialog .p-dialog-content {
+  background: #ffffff;
+  color: #495057;
+  padding: 0 1.5rem;
+}
+/***********************************************************/
+
 .opacity-01 {
   opacity: .01!important
 }
@@ -85,4 +177,8 @@
 
 .opacity-10 {
   opacity: 1!important
+}
+
+.container-xl, .container-lg, .container-md, .container-sm, .container {
+  max-width: 100%;
 }

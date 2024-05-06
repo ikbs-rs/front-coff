@@ -57,6 +57,7 @@ export default function CoffDocL(props) {
   }, [props.datarefresh]);
 
   const handleDialogClose = (newObj) => {
+    console.log(newObj, "%%%%%%%%%%###%%%%%%%%%%%%%%%%%%%%%%%%%%######%%%%%%%%%%%%%%%%%%%%%%%####%%%%%%%%%%%%%%%")
     const localObj = { newObj };
 
     let _coffDocs = [...coffDocs];
@@ -204,9 +205,10 @@ export default function CoffDocL(props) {
 
   // <--- Dialog
   const setCoffDocDialog = (coffDoc) => {
+    setCoffDoc({ ...coffDoc });
     setCoffDocVisible(true)
     setDocTip("CREATE")
-    setCoffDoc({ ...coffDoc });
+
   }
   //  Dialog --->
 
@@ -323,7 +325,7 @@ export default function CoffDocL(props) {
             handleDialogClose={handleDialogClose}
             setCoffDocVisible={setCoffDocVisible}
             dialog={true}
-            docTip={props.doctp}
+            docTip={docTip}
             doctp={props.doctp}
             stVisible={true}
             standard={true}

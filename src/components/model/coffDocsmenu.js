@@ -199,8 +199,8 @@ const Order = (props) => {
             step={1}
             inputStyle={{ fontSize: '1.7rem', textAlign: 'center', fontWeight: 'bold' }}
             size={3}
-            decrementButtonClassName="p-button-danger"
-            incrementButtonClassName="p-button-success"
+            decrementButtonClassName="p-button-addon"
+            incrementButtonClassName="p-button-addon"
             incrementButtonIcon="pi pi-plus"
             decrementButtonIcon="pi pi-minus"
             onChange={(e) => handleValueChange(e, 'input', 'izlaz', rowData, null)}
@@ -255,11 +255,12 @@ const Order = (props) => {
                     <div className="flex flex-wrap gap-1">
                         {props.dialog ? (
                             <Button
-                                label={translations[selectedLanguage].Cancel}
+                                label={translations[selectedLanguage].CancelNext}
                                 // icon="pi pi-times"
                                 // className="p-button-outlined p-button-secondary"
                                 onClick={handleCancelClick}
                                 className="p-button-raised p-button-secondary"
+                                severity="warning"
                                 style={{ width: '100%', fontSize: '1.2rem' }}
 
                             />

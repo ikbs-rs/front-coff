@@ -149,3 +149,8 @@
 .card:last-child {
   flex: 0 0 20%;
 }
+
+body {
+  /* color: #252529; */
+  opacity: 0.95; 
+}

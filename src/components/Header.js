@@ -1,10 +1,27 @@
 // src/components/Header.js
 import React, { useState, useEffect } from 'react';
 import './Index.css';
+import { Badge } from 'primereact/badge';
+import { translations } from "../configs/translations";
+import CoffZamL from './model/coffZaplinkL';
+import { Dialog } from 'primereact/dialog';
+import { AdmUserService } from "../service/model/cmn/AdmUserService";
+import { Avatar } from 'primereact/avatar';
 
 const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef, docRef }) => {
+  let i = 0
+  const b = "http://brztest.ems.local/coff/assets/img/zap/1774496601038262272.jpg"
+  const selectedLanguage = localStorage.getItem('sl') || 'en'
+  const userId = localStorage.getItem('userId') || -1
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showMyComponent, setShowMyComponent] = useState(true);
+  const [coffZap, setCoffZap] = useState({});
+  const [user, setUser] = useState({});
+  const [coffZapVisible, setCoffZaplinkLVisible] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [slika, setSlika] = useState('');
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,9 +39,37 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        ++i
+        if (i < 2) {
+          const admUserService = new AdmUserService();
+          const data = await admUserService.getAdmUser(userId);
+          console.log(data, "/////////////////////////////////////////////////////////////getListaLL////////////////////////////////////////////////////////////////////////")
+          setUser(data);
+          setSlika(`http://brztest.ems.local/coff/assets/img/zap/${data.id}.jpg`)
+        }
+      } catch (error) {
+        console.error(error);
+        // Obrada greške ako je potrebna
+      }
+    }
+    fetchData();
+  }, []);
+
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
+
+  const handleOvlascenjeClick = (e) => {
+    setCoffZamDialog(e);
+  }
+
+  const setCoffZamDialog = (e) => {
+    setCoffZaplinkLVisible(true)
+    setShowMyComponent(true)
+  }
 
   const handleDropdownClick = (event) => {
     console.log(event, "*************event*******************")
@@ -42,41 +87,50 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
     event.stopPropagation();
   };
 
+  const handleDialogClose = (newObj) => {
+    const localObj = { newObj };
+  }
+
   return (
-    <header id="header" className={`fixed-top d-flex align-items-center ${isScrolled ? 'header-scrolled' : ''}`}>
-      <div className="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
-        <h1 className="logo me-auto me-lg-0"><a href="/" onClick={(e) => { e.preventDefault(); scrollToSection(heroSectionRef); }}>ЕМС - БИФЕ </a></h1>
-        <nav id="navbar" className={`navbar order-last order-lg-0 ${mobileMenuOpen ? 'navbar-mobile' : ''}`}>
-          <ul class>
-            <li><a href="/hero" onClick={(e) => {
-              e.preventDefault();
-              scrollToSection(heroSectionRef);
-              if (mobileMenuOpen) {
-                toggleMobileMenu();
-              }
-            }}>Почетна</a></li>
-            <li><a href="status/" onClick={(e) => {
-              e.preventDefault();
-              scrollToSection(statusRef);
-              if (mobileMenuOpen) {
-                toggleMobileMenu();
-              }
-            }}>Статус</a></li>
-            <li><a href="/order" onClick={(e) => {
-              e.preventDefault();
-              scrollToSection(orderRef);
-              if (mobileMenuOpen) {
-                toggleMobileMenu();
-              }
-            }}>Поруџбина</a></li>
-            <li><a href="/doc" onClick={(e) => {
-              e.preventDefault();
-              scrollToSection(docRef);
-              if (mobileMenuOpen) {
-                toggleMobileMenu();
-              }
-            }}>Преглед</a></li>
-            {/* <li className={`dropdown`} onClick={handleDropdownClick}>
+    <>
+      <header id="header" className={`fixed-top d-flex align-items-center ${isScrolled ? 'header-scrolled' : ''}`}>
+        <div className="container-fluid container-xl d-flex align-items-center justify-content-lg-between" style={{ "max-width": "100%" }}>
+          {/* <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '10px', alignItems: 'center' }} /> */}
+          <h1 className="logo me-auto me-lg-0"><a href="/" onClick={(e) => { e.preventDefault(); scrollToSection(heroSectionRef); }} style={{ "padding-left": "50px" }}>ЕМС - БИФЕ </a></h1>
+          <nav id="navbar" className={`navbar order-last order-lg-0 ${mobileMenuOpen ? 'navbar-mobile' : ''}`}>
+            <ul class>
+              <li><a href="/hero" onClick={(e) => {
+                e.preventDefault();
+                scrollToSection(heroSectionRef);
+                if (mobileMenuOpen) {
+                  toggleMobileMenu();
+                }
+              }}>Почетна</a></li>
+              <li><a href="status/" onClick={(e) => {
+                e.preventDefault();
+                scrollToSection(statusRef);
+                if (mobileMenuOpen) {
+                  toggleMobileMenu();
+                }
+              }}>Статус</a></li>
+              <li><a href="/order" onClick={(e) => {
+                e.preventDefault();
+                scrollToSection(orderRef);
+                if (mobileMenuOpen) {
+                  toggleMobileMenu();
+                }
+              }}>Поруџбина</a></li>
+              <li><a href="/doc" onClick={(e) => {
+                e.preventDefault();
+                scrollToSection(docRef);
+                if (mobileMenuOpen) {
+                  toggleMobileMenu();
+                }
+              }}>Преглед</a></li>
+
+
+
+              {/* <li className={`dropdown`} onClick={handleDropdownClick}>
               <a href="#">
                 Администрација<i className="bi bi-chevron-down"></i>
               </a>
@@ -134,22 +188,72 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
                 </li>
               </ul>
             </li>
- */}
-          </ul>
-          <i className={`bi mobile-nav-toggle ${mobileMenuOpen ? 'bi-x' : 'bi-list'}`} onClick={toggleMobileMenu}></i>
-        </nav>
-        <a href="/order" className="book-a-table-btn scrollto d-none d-lg-flex"
-          onClick={(e) => {
-            e.preventDefault();
-            scrollToSection(orderRef);
-            if (mobileMenuOpen) {
-              toggleMobileMenu();
+            */}
+              <li><a href="#" onClick={(e) => {
+                handleOvlascenjeClick(e);
+                // scrollToSection(docRef);
+                if (mobileMenuOpen) {
+                  toggleMobileMenu();
+                }
+              }}>Овлашћење</a></li>
+            </ul>
+
+            <i className={`bi mobile-nav-toggle ${mobileMenuOpen ? 'bi-x' : 'bi-list'}`} onClick={toggleMobileMenu}></i>
+          </nav>
+          {/* <a href="/order" className="book-a-table-btn scrollto d-none d-lg-flex"
+            onClick={(e) => {
+              e.preventDefault();
+              scrollToSection(orderRef);
+              if (mobileMenuOpen) {
+                toggleMobileMenu();
+              }
             }
-          }
-          }
-        >Поруџбина</a>
-      </div>
-    </header>
+            }
+          >Поруџбина</a> */}
+
+
+
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', "padding-right": "20px", "padding-top": "8px" }} >
+            <div style={{"padding-right": "5px"}}>
+              <i className="pi pi-bell p-overlay-badge" style={{ fontSize: '2rem', color: '#cda45e' }}>
+                <Badge value="2" severity="danger"></Badge>
+              </i>
+            </div>
+            <div>
+              <span style={{ color: "rgb(205, 164, 94)" }}>{`${user.firstname} ${user.lastname || ''}`}</span>
+            </div>
+            <div>
+              <Avatar size="large" icon="pi pi-user" shape="circle" className="p-overlay-badge" image={slika} >
+                <Badge value="4" severity="danger" />
+              </Avatar>
+            </div>
+          </div>
+
+        </div>
+      </header>
+      <Dialog
+        header={translations[selectedLanguage].Zamena}
+        visible={coffZapVisible}
+        style={{ width: '50%' }}
+        onHide={() => {
+          setCoffZaplinkLVisible(false);
+          setShowMyComponent(false);
+        }}
+      >
+        {showMyComponent && (
+          <CoffZamL
+            parameter={"inputTextValue"}
+            coffZap={coffZap}
+            handleDialogClose={handleDialogClose}
+            setCoffZaplinkLVisible={setCoffZaplinkLVisible}
+            user={user}
+            stVisible={false}
+            dialog={true}
+          />
+        )}
+      </Dialog>
+    </>
   );
 };
 

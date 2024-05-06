@@ -82,7 +82,7 @@ const App = () => {
     const location = useLocation();
     const inlineUserRef = useRef();
 
-     const menu = [
+    const menu = [
         { label: translations[selectedLanguage].Home, icon: 'pi pi-fw pi-home', to: `/` },
         {
             label: translations[selectedLanguage].HR_books,
@@ -90,9 +90,9 @@ const App = () => {
             items: [
 
                 { label: translations[selectedLanguage].Zap_type, icon: 'pi pi-fw pi-calendar', to: '/zaptp' },
-                { label: translations[selectedLanguage].Zap, icon: 'pi pi-fw pi-calendar', to: '/zap'  },
-                { label: translations[selectedLanguage].SAP_ORG, icon: 'pi pi-fw pi-calendar', to: '/saporg'  },
-                { label: translations[selectedLanguage].SAP_ZAP, icon: 'pi pi-fw pi-calendar', to: '/zapcoff'  },
+                { label: translations[selectedLanguage].Zap, icon: 'pi pi-fw pi-calendar', to: '/zap' },
+                { label: translations[selectedLanguage].SAP_ORG, icon: 'pi pi-fw pi-calendar', to: '/saporg' },
+                { label: translations[selectedLanguage].SAP_ZAP, icon: 'pi pi-fw pi-calendar', to: '/zapcoff' },
             ]
         },
         {
@@ -104,8 +104,8 @@ const App = () => {
                 { label: translations[selectedLanguage].Item, icon: 'pi pi-fw pi-clone', to: '/art' },
                 { label: translations[selectedLanguage].Price_types, icon: 'pi pi-fw pi-clone', to: '/cenatp' },
                 { label: translations[selectedLanguage].Price, icon: 'pi pi-fw pi-exclamation-triangle', to: '/cena' },
-                { label: translations[selectedLanguage].Document_types, icon: 'pi pi-fw pi-calendar' , to: '/doctp'},
-                { label: translations[selectedLanguage].Species_documents, icon: 'pi pi-fw pi-calendar' , to: '/docvr'},
+                { label: translations[selectedLanguage].Document_types, icon: 'pi pi-fw pi-calendar', to: '/doctp' },
+                { label: translations[selectedLanguage].Species_documents, icon: 'pi pi-fw pi-calendar', to: '/docvr' },
             ]
         },
         {
@@ -138,13 +138,26 @@ const App = () => {
                 //     ]
                 // }
             ]
-        },        
+        },
         {
-            label: translations[selectedLanguage].Moduleselection,
+            label: translations[selectedLanguage].Logout,
             icon: 'pi pi-fw pi-power-off',
-            items: [
-                { label: translations[selectedLanguage].Back, icon: 'pi pi-sign-out', url: `${env.START_URL}?sl=${selectedLanguage}` }
-            ]
+            command: () => {
+                handleLogout();
+            }
+
+            // label: translations[selectedLanguage].Moduleselection,
+            // icon: 'pi pi-fw pi-power-off',
+            // items: [
+            //     {
+            //         label: translations[selectedLanguage].Logout, icon: 'pi pi-sign-out',
+            //         // url: `${env.START_URL}?sl=${selectedLanguage}`
+            //         command: () => {
+            //             handleLogout();
+            //         }
+            //     }
+            //     // { label: translations[selectedLanguage].Back, icon: 'pi pi-sign-out', url: `${env.START_URL}?sl=${selectedLanguage}` }
+            // ]
         }
     ];
 
@@ -154,12 +167,12 @@ const App = () => {
     let rightMenuClick;
     let userMenuClick;
     let configClick = false;
-   
 
-    useEffect(() => {      
-      if (selectedLanguage) {
-        dispatch(setLanguage(selectedLanguage)); // Postavi jezik iz URL-a u globalni store
-      }
+
+    useEffect(() => {
+        if (selectedLanguage) {
+            dispatch(setLanguage(selectedLanguage)); // Postavi jezik iz URL-a u globalni store
+        }
     }, [dispatch]);
 
     useEffect(() => {
@@ -173,6 +186,13 @@ const App = () => {
             unblockBodyScroll();
         }
     }, [staticMenuMobileActive]);
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        sessionStorage.removeItem("isLoggedIn");
+        //window.location.reload();
+        navigate('/login');
+    }
 
     const onInputStyleChange = (inputStyle) => {
         setInputStyle(inputStyle);
@@ -397,7 +417,7 @@ const App = () => {
     return (
         <div className={layoutClassName} onClick={onDocumentClick}>
             <Tooltip ref={copyTooltipRef} target=".block-action-copy" position="bottom" content="Copied to clipboard" event="focus" />
-{/* 
+            {/* 
             <AppTopbar
                 topbarMenuActive={topbarMenuActive}
                 activeTopbarItem={activeTopbarItem}
@@ -406,11 +426,12 @@ const App = () => {
                 onMenuButtonClick={onMenuButtonClick}
                 onTopbarMenuButtonClick={onTopbarMenuButtonClick}
                 onTopbarItemClick={onTopbarItemClick}
-            /> */}
+            /> 
+            */}
 
             <AppRightMenu rightPanelMenuActive={rightPanelMenuActive} onRightMenuClick={onRightMenuClick}></AppRightMenu>
 
-            <div className="layout-menu-container"  onClick={onMenuClick} >
+            <div className="layout-menu-container" onClick={onMenuClick} >
                 {inlineUser && (
                     <div className="layout-profile">
                         <button type="button" className="p-link layout-profile-button" onClick={onInlineUserClick}>
@@ -450,14 +471,21 @@ const App = () => {
                         </CSSTransition>
                     </div>
                 )}
-                <AppMenu model={menu} onMenuItemClick={onMenuItemClick} onRootMenuItemClick={onRootMenuItemClick} layoutMode={layoutMode} active={menuActive} mobileMenuActive={staticMenuMobileActive} />
+                <AppMenu
+                    model={menu}
+                    onMenuItemClick={onMenuItemClick}
+                    onRootMenuItemClick={onRootMenuItemClick}
+                    layoutMode={layoutMode}
+                    active={menuActive}
+                    mobileMenuActive={staticMenuMobileActive}
+                />
             </div>
 
             <div className="layout-main">
                 <div className="layout-content">
                     <Routes>
                         <Route path="/" element={<EmptyPage />} />
-                    
+
 
                         <Route path="/zaptp" element={<Zaptp />} />
                         <Route path="/zap" element={<Zap />} />
@@ -474,9 +502,9 @@ const App = () => {
                         <Route path="/objorg/:objtpCode" element={<ObjW endpoint="objend" />} />
                         <Route path="/objtctp/:objtpCode" element={<ObjW endpoint="objend" />} />
                         <Route path="/objdoc/:objtpCode" element={<ObjW endpoint="objend" />} />
-                        <Route path="/obj/:objtpCode" element={<ObjW endpoint="objend" />} />   
-                        <Route path="/objatt" element={<ObjW endpoint="objattend" />} />  
-                        <Route path="/objatttp" element={<ObjW endpoint="objatttpend" />} />                       
+                        <Route path="/obj/:objtpCode" element={<ObjW endpoint="objend" />} />
+                        <Route path="/objatt" element={<ObjW endpoint="objattend" />} />
+                        <Route path="/objatttp" element={<ObjW endpoint="objatttpend" />} />
 
                         <Route path="/usergrp" element={<EventAtt />} />
                         <Route path="/action" element={<EventAtt />} />
@@ -495,7 +523,7 @@ const App = () => {
                         <Route path="/eventatt" element={<EventAtt />} />
                         <Route path="/agendatp" element={<AgendaTp />} />
                         <Route path="/agenda" element={<Agenda />} />
-                        <Route path="/season" element={<Season />} /> 
+                        <Route path="/season" element={<Season />} />
                         <Route path="/artgrp" element={<ArtGrp />} />
                         <Route path="/arttp" element={<ArtTp />} />
                         <Route path="/art" element={<Art />} />
@@ -507,7 +535,7 @@ const App = () => {
                         <Route path="/sal" element={<Sal />} />
                     </Routes>
                 </div>
-{/* 
+                {/* 
                 <AppConfig
                     configActive={configActive}
                     onConfigClick={onConfigClick}

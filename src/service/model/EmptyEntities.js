@@ -9,7 +9,8 @@ const EmptyEntities =
     "site": null,
     "art": null,
     "um": null,
-    "odnos": null
+    "odnos": null,
+    "proizvod": "A"
   },
   "coff_doc": {
     "id": null,
@@ -22,7 +23,8 @@ const EmptyEntities =
     "eksternibroj": "",
     "usr": null,
     "status": "0",
-    "nzap": ""
+    "nzap": "",
+    "coff": null
   },
   "coff_docs": {
     "id": null,
