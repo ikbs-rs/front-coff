@@ -1,5 +1,5 @@
 // src/components/Header.js
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Index.css';
 import { Badge } from 'primereact/badge';
 import { translations } from "../configs/translations";
@@ -7,6 +7,8 @@ import CoffZamL from './model/coffZaplinkL';
 import { Dialog } from 'primereact/dialog';
 import { AdmUserService } from "../service/model/cmn/AdmUserService";
 import { Avatar } from 'primereact/avatar';
+import { useWebSocket } from '../utilities/WebSocketContext';
+import { CoffDocService } from "../service/model/CoffDocService";
 
 const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef, docRef }) => {
   let i = 0
@@ -21,7 +23,38 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
   const [coffZapVisible, setCoffZaplinkLVisible] = useState(false);
   const [visible, setVisible] = useState(false);
   const [slika, setSlika] = useState('');
+  let [brojPoruka, setBrojPoruka] = useState(0);
+  const websocket = useWebSocket();
 
+
+
+  useEffect(() => {
+    async function fetchData() {
+
+        const coffDocService = new CoffDocService();
+        const data = await coffDocService.getCoffDocsCountTp(1);       
+        setBrojPoruka(data.count)
+
+    }
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    async function fetchData() {
+      
+      if (websocket) {     
+        websocket.addEventListener('message', async (message) => {
+          const obj = JSON.parse(message.data)
+          if (obj.data[0].id == 'TRECA') {
+            const coffDocService = new CoffDocService();
+            const data = await coffDocService.getCoffDocsCountTp(1);            
+            setBrojPoruka(data.count)  
+          }
+        });
+      }
+    }
+    fetchData();
+  }, [websocket]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,7 +96,10 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
   };
 
   const handleOvlascenjeClick = (e) => {
-    setCoffZamDialog(e);
+    if (websocket && websocket.readyState === WebSocket.OPEN) {
+      websocket.send('{"data":[{"id":"TRECA"}]}');
+    }
+    // setCoffZamDialog(e);
   }
 
   const setCoffZamDialog = (e) => {
@@ -215,9 +251,9 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
 
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', "padding-right": "20px", "padding-top": "8px" }} >
-            <div style={{"padding-right": "5px"}}>
+            <div style={{ "padding-right": "5px" }}>
               <i className="pi pi-bell p-overlay-badge" style={{ fontSize: '2rem', color: '#cda45e' }}>
-                <Badge value="2" severity="danger"></Badge>
+                {brojPoruka == '0' ? (null) : (<Badge value={brojPoruka} severity="danger"></Badge>)}
               </i>
             </div>
             <div>
@@ -225,7 +261,7 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
             </div>
             <div>
               <Avatar size="large" icon="pi pi-user" shape="circle" className="p-overlay-badge" image={slika} >
-                <Badge value="4" severity="danger" />
+                {/* {brojPoruka=='0'?(null):(<Badge value={brojPoruka} severity="danger"></Badge>)} */}
               </Avatar>
             </div>
           </div>

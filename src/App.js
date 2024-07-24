@@ -54,6 +54,10 @@ import { useDispatch } from 'react-redux';
 import { setLanguage } from './store/actions';
 import { translations } from "./configs/translations";
 import TicArtgrp from './components/model/ticArtgrp';
+import WsComponent from './components/model/wsComponent';
+// import WebSocketService from './utilities/WebSocketService';
+// import WebSocketManager from './utilities/WebSocketManager';
+import { WebSocketProvider } from './utilities/WebSocketContext';
 
 const App = () => {
     const dispatch = useDispatch();
@@ -127,7 +131,8 @@ const App = () => {
                     items: [
                         { label: translations[selectedLanguage].Pregled, icon: 'pi pi-database', to: '/izv01' },
                         { label: translations[selectedLanguage].Stanje, icon: 'pi pi-database', to: '/stanje' },
-                        { label: translations[selectedLanguage].Kartica, icon: 'pi pi-database', to: '/kartica' }
+                        { label: translations[selectedLanguage].Kartica, icon: 'pi pi-database', to: '/kartica' },
+                        { label: translations[selectedLanguage].WSC, icon: 'pi pi-database', to: '/wsc' }
                     ]
                 }
                 // {
@@ -167,7 +172,15 @@ const App = () => {
     let rightMenuClick;
     let userMenuClick;
     let configClick = false;
-
+    
+    // useEffect(() => {
+    //     WebSocketService.connect();
+    
+    //     return () => {
+    //         console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+    //     //   WebSocketService.disconnect();
+    //     };
+    //   }, []);
 
     useEffect(() => {
         if (selectedLanguage) {
@@ -415,7 +428,9 @@ const App = () => {
     const inlineUserTimeout = layoutMode === 'slim' ? 0 : { enter: 1000, exit: 450 };
 
     return (
+<WebSocketProvider>       
         <div className={layoutClassName} onClick={onDocumentClick}>
+
             <Tooltip ref={copyTooltipRef} target=".block-action-copy" position="bottom" content="Copied to clipboard" event="focus" />
             {/* 
             <AppTopbar
@@ -495,6 +510,7 @@ const App = () => {
                         <Route path="/izv01" element={<Izv01 />} />
                         <Route path="/stanje" element={<Stanje />} />
                         <Route path="/kartica" element={<Kartica />} />
+                        <Route path="/wsc" element={<WsComponent />} />
 
                         <Route path="/objtp" element={<ObjW endpoint="objtpend" />} />
                         <Route path="/objpk/:objtpCode" element={<ObjW endpoint="objend" />} />
@@ -533,6 +549,8 @@ const App = () => {
 
                         <Route path="/atest" element={<Atest />} />
                         <Route path="/sal" element={<Sal />} />
+                        <Route path="/public/assets/img/" element={<Sal />} />
+                        
                     </Routes>
                 </div>
                 {/* 
@@ -562,7 +580,9 @@ const App = () => {
             </div>
 
             <div className="layout-content-mask"></div>
+          
         </div>
+        </WebSocketProvider>         
     );
 };
 

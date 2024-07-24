@@ -34,6 +34,7 @@
         "react-scripts": "5.0.1",
         "sass": "^1.58.3",
         "web-vitals": "^3.1.1",
+        "websocket": "^1.0.35",
         "xlsx": "^0.18.5"
     },
     "scripts": {

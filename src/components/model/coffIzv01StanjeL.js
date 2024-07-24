@@ -280,9 +280,8 @@ export default function CoffIzv01L(props) {
               placeholder="Select One"
             />
           </div>
-        </div>
-        <div className="p-fluid formgrid grid">
-          <div className="field col-12 md:col-6">
+
+          <div className="field col-12 md:col-3">
             <label htmlFor="mesto">{translations[selectedLanguage].Begda}</label>
             <Calendar
               id="begda"
@@ -290,7 +289,7 @@ export default function CoffIzv01L(props) {
               onChange={(e) => setDate(e.value)}
               showIcon />
           </div>
-          <div className="field col-12 md:col-6">
+          <div className="field col-12 md:col-3">
             <label htmlFor="mesto">{translations[selectedLanguage].Endda}</label>
             <Calendar
               id="endda"
@@ -306,7 +305,7 @@ export default function CoffIzv01L(props) {
         id="OrderL"
         dataKey="id"
         selectionMode="single"
-        selection={coffIzv01s}
+        // selection={coffIzv01s}
         loading={loading}
         value={coffIzv01s}
         header={header}
@@ -314,7 +313,7 @@ export default function CoffIzv01L(props) {
         removableSort
         filters={filters}
         scrollable
-        scrollHeight="650px"
+        scrollHeight="640px"
         virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}

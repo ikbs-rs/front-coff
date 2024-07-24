@@ -55,6 +55,41 @@ export class CoffDocService {
       throw error;
     }
   }
+  async getCoffDocsCountTp(doctp) {
+    const selectedLanguage = localStorage.getItem('sl') || 'en'
+    const url = `${env.COFF_BACK_URL}/coff/doc/_v/lista/?stm=coff_docstpcount_v&objid=${doctp}&sl=${selectedLanguage}`
+    console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
+    const tokenLocal = await Token.getTokensLS();
+    const headers = {
+      Authorization: tokenLocal.token
+    };
+
+    try {
+      const response = await axios.get(url, { headers });
+      return response.data.item[0];
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async getCoffDocsPorudzbinaTp(doctp) {
+    const selectedLanguage = localStorage.getItem('sl') || 'en'
+    const url = `${env.COFF_BACK_URL}/coff/doc/_v/lista/?stm=coff_docstpporudzbina_v&objid=${doctp}&sl=${selectedLanguage}`
+    console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
+    const tokenLocal = await Token.getTokensLS();
+    const headers = {
+      Authorization: tokenLocal.token
+    };
+
+    try {
+      const response = await axios.get(url, { headers });
+      return response.data.item;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
 
   async getCoffDoc(objId) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'

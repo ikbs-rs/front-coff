@@ -11,11 +11,11 @@ import { Toast } from "primereact/toast";
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from "../../configs/translations";
 import DateFunction from "../../utilities/DateFunction"
-import CoffDocsL from './coffDocsL';
+import CoffDocsPorudzbinaL from './coffDocsPorudzbinaL';
 import { useWebSocket } from '../../utilities/WebSocketContext';
 
-const CoffDoc = (props) => {
-    console.log(props, "!!@@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDoc @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!")
+const CoffDocPorudzbina = (props) => {
+    console.log(props, "--------------@@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDoc @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!")
 
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -52,15 +52,15 @@ const CoffDoc = (props) => {
                 const data = await coffZapService.getLista('/zap');
 
                 setCoffZapItems(data)
-                console.log(data, "************ coffZapService ************ 11***")
+                // console.log(data, "************ coffZapService ************ 11***")
                 const dataDD = data.map(({ N2ZAP, id }) => ({ name: N2ZAP, code: id }));
-                console.log(data, "************ coffZapService ************", dataDD)
+                // console.log(data, "************ coffZapService ************", dataDD)
                 setDdCoffZapItems(dataDD);
                 setDdCoffZapItem(dataDD.find((item) => item.code === props.coffDoc.potpisnik) || null);
 
                 if (props.coffDoc.potpisnik && props.coffDoc.potpisnik != 'null') {
                     const foundItem = data.find((item) => item.id === props.coffDoc.potpisnik);
-                    console.log(props.coffDoc.potpisnik, "---------------foundItem-----------------", foundItem)
+                    // console.log(props.coffDoc.potpisnik, "---------------foundItem-----------------", foundItem)
                     setCoffZapItem(foundItem || null);
                     coffZapItem.potpisnik = foundItem?.id
                 }
@@ -79,15 +79,15 @@ const CoffDoc = (props) => {
                 const data = await coffDocService.getCmnObjListaLL('COFFLOC');
 
                 setCoffCoffItems(data)
-                console.log(data, "************ coffCoffService ************ 11***")
+                // console.log(data, "************ coffCoffService ************ 11***")
                 const dataDD = data.map(({ text, id }) => ({ name: text, code: id }));
-                console.log(data, "************ coffCoffService ************", dataDD)
+                console.log(data, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@************ coffCoffService ************", dataDD)
                 setDdCoffCoffItems(dataDD);
                 setDdCoffCoffItem(dataDD.find((item) => item.code === props.coffDoc.coff) || null);
 
                 if (props.coffDoc.coff && props.coffDoc.coff != 'null') {
                     const foundItem = data.find((item) => item.id === props.coffDoc.coff);
-                    console.log(props.coffDoc.coff, "---------------foundItem----coffCoffService-------------", foundItem)
+                    // console.log(props.coffDoc.coff, "---------------foundItem----coffCoffService-------------", foundItem)
                     setCoffCoffItem(foundItem || null);
                     coffCoffItem.coff = foundItem?.id
                 }
@@ -100,11 +100,12 @@ const CoffDoc = (props) => {
     }, []);
 
     useEffect(() => {
+
         setDropdownItem(findDropdownItemByCode(props.coffDoc.status));
     }, []);
 
-    const findDropdownItemByCode = (code) => {
-        return items.find((item) => item.code === code) || null;
+    const findDropdownItemByCode = (code) => {     
+        return items.find((item) => item.code == code) || null;
     };
 
 
@@ -128,7 +129,7 @@ const CoffDoc = (props) => {
             const coffDocService = new CoffDocService();
             const data = await coffDocService.postCoffDoc(coffDoc);
             _coffDoc.id = data
-            console.log(_coffDoc, "@@@@@@@@@@@@@@@@@@@@@@@handleCreateClick@@@@@@@@@@@@@@@@@@@@@@@@")
+            // console.log(_coffDoc, "@@@@@@@@@@@@@@@@@@@@@@@handleCreateClick@@@@@@@@@@@@@@@@@@@@@@@@")
             setCoffDoc(_coffDoc)
             props.handleDialogClose({ obj: coffDoc, docTip: props.docTip, docId: data });
             props.setCoffDocVisible(false);
@@ -177,7 +178,7 @@ const CoffDoc = (props) => {
             if (event == 'CREATE') {
                 const data = await coffDocService.postCoffDoc(coffDoc);
                 coffDoc.id = data
-                console.log(coffDoc, data, "#############handleNextClick##############", event)
+                // console.log(coffDoc, data, "#############handleNextClick##############", event)
                 setCoffDoc({ ...coffDoc })
                 props.handleDialogClose({ obj: coffDoc, docTip: props.docTip });
             } else {
@@ -223,7 +224,7 @@ const CoffDoc = (props) => {
             if (name == "potpisnik") {
                 setDdCoffZapItem(e.value);
                 const foundItem = coffZapItems.find((item) => item.id === val);
-                console.log(foundItem, "-*-*-*-*-***-**-*-*-*-*-*-*-*-*--onInputChange000*-*-*-*-*-*-*-*-*--**--*-*-*-*-*-*-*-*-*-*-*-", foundItem.NZAP)
+                // console.log(foundItem, "-*-*-*-*-***-**-*-*-*-*-*-*-*-*--onInputChange000*-*-*-*-*-*-*-*-*--**--*-*-*-*-*-*-*-*-*-*-*-", foundItem.NZAP)
                 setCoffZapItem(foundItem || null);
                 coffDoc.nzap = foundItem.NZAP
                 coffDoc.obj = foundItem.obj
@@ -231,7 +232,7 @@ const CoffDoc = (props) => {
             } else if (name == "coff") {
                 setDdCoffCoffItem(e.value);
                 const foundItem = coffCoffItems.find((item) => item.id === val);
-                console.log(foundItem, "-*-*-*-*-***-**-*-*-*-*-*-*-*-*--onInputChange000*-*-*-*-*-*-*-*-*--**--*-*-*-*-*-*-*-*-*-*-*-", foundItem.NZAP)
+                // console.log(foundItem, "-*-*-*-*-***-**-*-*-*-*-*-*-*-*--onInputChange000*-*-*-*-*-*-*-*-*--**--*-*-*-*-*-*-*-*-*-*-*-", foundItem.NZAP)
                 setCoffCoffItem(foundItem || null);
                 coffDoc.ncoff = foundItem.text
                 coffDoc.obj = foundItem.obj
@@ -244,7 +245,7 @@ const CoffDoc = (props) => {
         }
 
         let _coffDoc = { ...coffDoc };
-        console.log(_coffDoc, "-*-*-*-*-***-**-*-*-*-*-*-*-*-*--onInputChange111aaa*-*-*-*-*-*-*-*-*--**--*-*-*-*-*-*-*-*-*-*-*-")
+        // console.log(_coffDoc, "-*-*-*-*-***-**-*-*-*-*-*-*-*-*--onInputChange111aaa*-*-*-*-*-*-*-*-*--**--*-*-*-*-*-*-*-*-*-*-*-")
         _coffDoc[`${name}`] = val;
         if (name === `textx`) _coffDoc[`text`] = val
 
@@ -394,7 +395,7 @@ const CoffDoc = (props) => {
                 </div>
                 {(props.stVisible) ? (
                     <div className="col-lg-12 details order-1 order-lg-1">
-                        < CoffDocsL
+                        < CoffDocsPorudzbinaL
                             parameter={"inputTextValue"}
                             coffDoc={coffDoc}
                             doctp={props.doctp}
@@ -418,4 +419,4 @@ const CoffDoc = (props) => {
     );
 };
 
-export default CoffDoc;
+export default CoffDocPorudzbina;

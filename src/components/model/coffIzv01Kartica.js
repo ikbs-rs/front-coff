@@ -305,7 +305,7 @@ export default function CoffIzv01L(props) {
         id="OrderL"
         dataKey="id"
         selectionMode="single"
-        selection={coffIzv01s}
+        // selection={coffIzv01s}
         loading={loading}
         value={coffIzv01s}
         header={header}

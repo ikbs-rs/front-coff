@@ -286,9 +286,8 @@ export default function CoffIzv01L(props) {
               placeholder="Select One"
             />
           </div>
-        </div>
-        <div className="p-fluid formgrid grid">
-          <div className="field col-12 md:col-6">
+
+          <div className="field col-12 md:col-3">
             <label htmlFor="mesto">{translations[selectedLanguage].Begda}</label>
             <Calendar
               id="begda"
@@ -296,7 +295,7 @@ export default function CoffIzv01L(props) {
               onChange={(e) => setDate(e.value)}
               showIcon />
           </div>
-          <div className="field col-12 md:col-6">
+          <div className="field col-12 md:col-3">
             <label htmlFor="mesto">{translations[selectedLanguage].Endda}</label>
             <Calendar
               id="endda"
@@ -309,10 +308,10 @@ export default function CoffIzv01L(props) {
       </div>
 
       <DataTable
-        id="OrderL"
+        // id="OrderL"
         dataKey="id"
         selectionMode="single"
-        selection={coffIzv01s}
+        // selection={coffIzv01s}
         loading={loading}
         value={coffIzv01s}
         header={header}
@@ -320,8 +319,8 @@ export default function CoffIzv01L(props) {
         removableSort
         filters={filters}
         scrollable
-        scrollHeight="650px"
-        virtualScrollerOptions={{ itemSize: 46 }}
+        scrollHeight="640px"
+        // virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}
         paginator
@@ -331,45 +330,101 @@ export default function CoffIzv01L(props) {
         onRowSelect={onRowSelect}
         onRowUnselect={onRowUnselect}
       >
-        {cols.map((col, index) => (
-          <Column key={index} field={col.field} header={col.header} style={{ width: col.width }} sortable />
-        ))}
-        {/* <Column
+
+
+     
+         {/* <Column
           //bodyClassName="text-center"
           body={actionTemplate}
           exportable={false}
           headerClassName="w-10rem"
           style={{ width: "2%" }}
         // style={{ minWidth: '4rem' }}
-        />
+        /> */}
         <Column
-          field="text"
-          header={translations[selectedLanguage].Text}
+          field="nzap"
+          header={translations[selectedLanguage].Zap}
           // sortable
           // filter
           style={{ width: "20%" }}
         ></Column>
         <Column
-          field="num"
-          header={translations[selectedLanguage].num}
+          field="vreme"
+          header={translations[selectedLanguage].vreme}
           // sortable
           // filter
           style={{ width: "10%" }}
         ></Column>
         <Column
-          field="izlaz"
-          header={translations[selectedLanguage].Kol}
+          field="mesto"
+          header={translations[selectedLanguage].Mesto}
           // sortable
           // filter
           style={{ width: "5%" }}
         ></Column>
         <Column
-          field="xxx"
-          header={translations[selectedLanguage].xxx}
+          field="nart"
+          header={translations[selectedLanguage].Art}
           // sortable
           // filter
-          style={{ width: "60%" }}
-        ></Column> */}
+          style={{ width: "15%" }}
+        ></Column> 
+        <Column
+          field="ulaz"
+          header={translations[selectedLanguage].Ulaz}
+          // sortable
+          // filter
+          style={{ width: "10%" }}
+        ></Column> 
+        <Column
+          field="izlaz"
+          header={translations[selectedLanguage].Izlaz}
+          // sortable
+          // filter
+          style={{ width: "10%" }}
+        ></Column> 
+        <Column
+          field="num"
+          header={translations[selectedLanguage].JM}
+          // sortable
+          // filter
+          style={{ width: "5%" }}
+        ></Column>  
+        <Column
+          field="cena"
+          header={translations[selectedLanguage].Cena}
+          // sortable
+          // filter
+          style={{ width: "10%" }}
+        ></Column>                             
+        <Column
+          field="username"
+          header={translations[selectedLanguage].Korisnik}
+          // sortable
+          // filter
+          style={{ width: "10%" }}
+        ></Column> 
+        <Column
+          field="mtroska"
+          header={translations[selectedLanguage].M_troska}
+          // sortable
+          // filter
+          style={{ width: "10%" }}
+        ></Column>  
+        <Column
+          field="oblast"
+          header={translations[selectedLanguage].Oblast}
+          // sortable
+          // filter
+          style={{ width: "10%" }}
+        ></Column>  
+        <Column
+          field="pravilnik"
+          header={translations[selectedLanguage].Pravilnik}
+          // sortable
+          // filter
+          style={{ width: "10%" }}
+        ></Column>                                
       </DataTable>
 
     </div>

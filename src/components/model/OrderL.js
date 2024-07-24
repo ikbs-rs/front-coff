@@ -15,6 +15,7 @@ import CoffDocsmenu from './coffDocsmenu';
 import { EmptyEntities } from '../../service/model/EmptyEntities';
 import { Dialog } from 'primereact/dialog';
 import { translations } from "../../configs/translations";
+import { useWebSocket } from '../../utilities/WebSocketContext';
 
 export default function OrderL(props) {
   console.log(props, "@@@@@@+++++++++++++++++++++++ OrderL ++++++++++++++++++++++++++++++++@@@@@")
@@ -48,6 +49,7 @@ export default function OrderL(props) {
   const [artCurr, setArtCurr] = useState({});
   const [cenaTip, setLocTip] = useState('');
   let [refresh, seRefresh] = useState(props.datarefresh);
+  const websocket = useWebSocket();
 
   // Setuje docId, tj. id za trenutnu porudzbinu
   useEffect(() => {
@@ -154,9 +156,21 @@ export default function OrderL(props) {
   };
 
 
-  const handleZavrsi = () => {
-    setCoffDocZavrsi(coffDoc, "CREATE");
+  const handleZavrsi = async () => {
+    setCoffDocZavrsi(coffDoc, "UPDATE");
+    const _coffDoc = { ... coffDoc}
+    _coffDoc.status = 1
+    const coffDocService = new CoffDocService();
+    const data = await coffDocService.putCoffDoc(_coffDoc);   
+    setCoffDoc(_coffDoc)
+    localStorage.setItem('currCoffOrder', "-1");
+    seRefresh(++refresh)
+    if (websocket && websocket.readyState === WebSocket.OPEN) {
+      websocket.send('{"data":[{"id":"TRECA"}]}');
+    }
+
   };
+
   const onRowSelect = (event) => {
     toast.current.show({
       severity: "info",
@@ -244,8 +258,9 @@ export default function OrderL(props) {
   const setCoffDocZavrsi = (coffDoc, docTip) => {
     setCoffDoc({ ...emptyCoffDoc });
     setCoffDocs({ ...emptyCoffDocs });
-    seRefresh(++refresh)
+
     setCurrCoffOrder(-1)
+    seRefresh(++refresh)
   }
   //  Dialog --->
 

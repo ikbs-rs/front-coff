@@ -805,7 +805,9 @@ export const translations = {
         CancelNext: "Сачувај и настави",
         TipJM: "Тип ЈМ",
         Logout: "Одјави се",
-        Zaplink: "Овлашћени запослени Листа"
+        Zaplink: "Овлашћени запослени Листа",
+        WSC: "WSC",
+        Selekcija: "Селекција",
     }
   };
   
