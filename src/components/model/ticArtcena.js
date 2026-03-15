@@ -35,7 +35,7 @@ const TicArtcena = (props) => {
     const [cmnTerrItems, setCmnTerrItems] = useState(null);
 
     const [begda, setBegda] = useState(new Date(DateFunction.formatJsDate(props.ticArtcena.begda || DateFunction.currDate())));
-    const [endda, setEndda] = useState(new Date(DateFunction.formatJsDate(props.ticArtcena.endda || DateFunction.currDate())));
+    const [endda, setEndda] = useState(new Date(DateFunction.formatJsDate(props.ticArtcena.endda || '99991231')));
 
     const calendarRef = useRef(null);
 
@@ -142,6 +142,7 @@ const TicArtcena = (props) => {
             ticArtcena.begda = DateFunction.formatDateToDBFormat(DateFunction.dateGetValue(begda));
             ticArtcena.endda = DateFunction.formatDateToDBFormat(DateFunction.dateGetValue(endda));
             const ticArtcenaService = new TicArtcenaService();
+            ticArtcena.event = null
 
             await ticArtcenaService.putTicArtcena(ticArtcena);
             props.handleDialogClose({ obj: ticArtcena, artcenaTip: props.artcenaTip });

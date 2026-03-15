@@ -81,9 +81,13 @@ export class CoffDocsService {
   }
 
 
-  async postCoffDocs(newObj) {
+  async postCoffDocs(newObj1) {
     try {
       const selectedLanguage = localStorage.getItem('sl') || 'en'
+      const newObj = {...newObj1}
+      newObj.potrazuje = (newObj.izlaz||0)*newObj.cena
+      newObj.org=-1
+      newObj.duguje = (newObj.ulaz||0)*newObj.cena
       // if (newObj.cena.trim() === '' || newObj.text.trim() === '' || newObj.valid === null) {
       //   throw new Error(
       //     "Items must be filled!"

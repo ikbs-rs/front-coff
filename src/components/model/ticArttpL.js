@@ -239,8 +239,8 @@ export default function TicArttpL(props) {
         scrollable
         sortField="code"        
         sortOrder={1}
-        scrollHeight="750px"
-        virtualScrollerOptions={{ itemSize: 46 }}
+        scrollHeight="850px"
+        //virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}
         paginator

@@ -43,10 +43,10 @@ export default function CoffDocPorudzbineL(props) {
         if (i < 2) {
           const coffDocService = new CoffDocService();
           const data = await coffDocService.getCoffDocsPorudzbinaTp(props.doctp);
-          console.log(data, "@@@@@@@@@@@@@@@@@@@@@@@@@@ getCoffDocsTp @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", props.doctp)
+          // console.log(data, "@@@@@@@@@@@@@@@@@@@@@@@@@@ getCoffDocsTp @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", props.doctp)
           if (data) {
             const data0 = data[0]
-            setNdoctp(data0.ndoctp)
+            setNdoctp(data0?.ndoctp)
           }
 
           setCoffDocs(data);
@@ -64,7 +64,7 @@ export default function CoffDocPorudzbineL(props) {
     if (websocket) {
       websocket.addEventListener('message', (message) => {
         const obj = JSON.parse(message.data)
-        if (obj.data[0].id == 'TRECA') {
+        if (obj?.data?.[0]?.id == 'TRECA') {
           setRefresh(++refresh)
         }
       });
@@ -72,19 +72,19 @@ export default function CoffDocPorudzbineL(props) {
   }, [websocket]);
 
   const handleDialogClose = (newObj) => {
-    console.log(newObj, "%%%%%%%%%%###%%%%%%%%%%%%%%%%%%%%%%%%%%######%%%%%%%%%%%%%%%%%%%%%%%####%%%%%%%%%%%%%%%")
+    // console.log(newObj, "%%%%%%%%%%###%%%%%%%%%%%%%%%%%%%%%%%%%%######%%%%%%%%%%%%%%%%%%%%%%%####%%%%%%%%%%%%%%%")
     const localObj = { newObj };
 
     let _coffDocs = [...coffDocs];
     let _coffDoc = { ...localObj.newObj.obj };
 
     //setSubmitted(true);
-    if (localObj.newObj.docTip === "CREATE") {
+    if (localObj.newObj.docTip === "CREATE" && localObj.newObj.docTip != 3) {
       _coffDocs.push(_coffDoc);
-    } else if (localObj.newObj.docTip === "UPDATE") {
+    } else if (localObj.newObj.docTip === "UPDATE" && localObj.newObj.docTip != 3) {
       const index = findIndexById(localObj.newObj.obj.id);
       _coffDocs[index] = _coffDoc;
-    } else if ((localObj.newObj.docTip === "DELETE")) {
+    } else if ((localObj.newObj.docTip === "DELETE" || localObj.newObj.docTip != 3)) {
       _coffDocs = coffDocs.filter((val) => val.id !== localObj.newObj.obj.id);
       toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDoc Delete', life: 3000 });
     } else {
@@ -248,6 +248,37 @@ export default function CoffDocPorudzbineL(props) {
           }}
           text
           raised ></Button>
+        {(rowData.status == 1) ? <Button
+          type="button"
+          icon="pi pi-undo"
+          style={{ width: '24px', height: '24px' }}
+          onClick={async (e) => {
+            const currDoc = localStorage.getItem('currCoffOrder');
+            console.log(currDoc != -1, currDoc, "11-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+            if (currDoc == -1) {
+              e.preventDefault();
+              props.scrollToSection(props.orderRef);
+
+              localStorage.setItem('currCoffOrder', rowData.id);
+              const _coffDoc = {...rowData}
+              _coffDoc.status = 0
+              const coffDocService = new CoffDocService();
+              await coffDocService.putCoffDoc(_coffDoc);
+              console.log(_coffDoc, "22-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+              if (websocket && websocket.readyState === WebSocket.OPEN) {
+                websocket.send('{"data":[{"id":"TRECA"}]}');
+              }
+            } else {
+              toast.current.show({
+                severity: "warn",
+                summary: "Nedozvoljena akcija!",
+                detail: `Imate već jednu otvorenu porudžbinu!`,
+                life: 3000,
+              });
+            }
+          }}
+          severity="warning"
+          raised ></Button> : null}
 
       </div>
     );
@@ -297,37 +328,44 @@ export default function CoffDocPorudzbineL(props) {
           field="ndoctp"
           header={translations[selectedLanguage].ndoctp}
           sortable
-          filter
+          // filter
+          style={{ width: "15%" }}
+        ></Column>
+        <Column
+          field="ncoff"
+          header={translations[selectedLanguage].Sala}
+          sortable
+          // filter
           style={{ width: "20%" }}
         ></Column>
         <Column
           field="mesto"
           header={translations[selectedLanguage].Mestoporudzbina}
           sortable
-          filter
-          style={{ width: "30%" }}
+          // filter
+          style={{ width: "20%" }}
         ></Column>
         <Column
           field="nzap"
           header={translations[selectedLanguage].potpisnik}
           sortable
-          filter
+          // filter
           style={{ width: "20%" }}
         ></Column>
         <Column
           field="vreme"
           header={translations[selectedLanguage].Vreme}
           sortable
-          filter
+          // filter
           style={{ width: "20%" }}
         ></Column>
-        {/* <Column
+        <Column
           field="status"
           header={translations[selectedLanguage].status}
           sortable
           filter
           style={{ width: "10%" }}
-        ></Column>                     */}
+        ></Column>
       </DataTable>
       <Dialog
         header={translations[selectedLanguage].Docs}

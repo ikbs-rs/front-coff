@@ -32,7 +32,7 @@ export class CoffZapService {
 
     try {
       const response = await axios.get(url, { headers });
-      console.log("KKKKKKK", url, response)
+      // console.log("KKKKKKK", url, response.data)
       return response.data.item;
     } catch (error) {
       console.error(error);

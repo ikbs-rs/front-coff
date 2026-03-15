@@ -18,6 +18,7 @@ const CoffDoc = (props) => {
     console.log(props, "!!@@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDoc @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!")
 
     const selectedLanguage = localStorage.getItem('sl') || 'en'
+    const userId = localStorage.getItem('userId')
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
     const [dropdownItem, setDropdownItem] = useState(null);
     const [dropdownItems, setDropdownItems] = useState(null);
@@ -44,49 +45,81 @@ const CoffDoc = (props) => {
     const [coffZapItem, setCoffZapItem] = useState(null);
     const [coffZapItems, setCoffZapItems] = useState(null);
     const [coffDocVisible, setCoffDocVisible] = useState(true);
+    const [user, setUser] = useState(null);
+    const [userCoff, setUserCoff] = useState(null);
+
 
     useEffect(() => {
         async function fetchData() {
             try {
-                const coffZapService = new CoffZapService();
-                const data = await coffZapService.getLista('/zap');
+                const coffDocService = new CoffDocService();
+                const data = await coffDocService.getCoffDocsUser(userId);
 
-                setCoffZapItems(data)
-                console.log(data, "************ coffZapService ************ 11***")
-                const dataDD = data.map(({ N2ZAP, id }) => ({ name: N2ZAP, code: id }));
-                console.log(data, "************ coffZapService ************", dataDD)
-                setDdCoffZapItems(dataDD);
-                setDdCoffZapItem(dataDD.find((item) => item.code === props.coffDoc.potpisnik) || null);
-
-                if (props.coffDoc.potpisnik && props.coffDoc.potpisnik != 'null') {
-                    const foundItem = data.find((item) => item.id === props.coffDoc.potpisnik);
-                    console.log(props.coffDoc.potpisnik, "---------------foundItem-----------------", foundItem)
-                    setCoffZapItem(foundItem || null);
-                    coffZapItem.potpisnik = foundItem?.id
-                }
+                setUser(data)
+                const dataCoff = await coffDocService.getCoffDocsUserCoff(userId, 'COFFLOC');
+                console.log(data, "00-USRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSR", dataCoff)
+                setUserCoff(dataCoff)
             } catch (error) {
                 console.error(error);
                 // Obrada greške ako je potrebna
             }
         }
         fetchData();
-    }, []);
+    }, [userId]);
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const coffZapService = new CoffZapService();
+                const data = await coffZapService.getLista('/zap');
+                const _potpisnik = props.coffDoc.potpisnik ? props.coffDoc.potpisnik : Number(user?.sapuser)
+                console.log(_potpisnik, Number(user?.sapuser), "101-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH", user)
+                if (_potpisnik && data && user) {
+                    setCoffZapItems(data)
+                    const foundItem = data.find((item) => Number(item.id) === Number(_potpisnik));
+                    console.log(data, _potpisnik, "101-USRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSR", foundItem)
+
+                    if (foundItem?.potpisnik) {
+                        foundItem.potpisnik = foundItem?.id
+                    }
+                    setCoffZapItem(foundItem);
+                    const dataDD = data.map(({ N2ZAP, id }) => ({ name: N2ZAP, code: id }));
+                    console.log(data, "************ coffZapService ************ 11***", dataDD, props.coffDoc.potpisnik || Number(user?.sapuser))
+                    setDdCoffZapItems(dataDD);
+
+                    const _ddCoffZapItem = dataDD.find((item) => item.code == _potpisnik)
+                    console.log(_ddCoffZapItem, "01-USRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSR", user)
+                    setDdCoffZapItem(_ddCoffZapItem);
+                    const _coffDoc = { ...props.coffDoc }
+                    if (!_coffDoc.potpisnik) {
+                        _coffDoc.potpisnik = _potpisnik
+                        setCoffDoc(_coffDoc)
+                    }
+                }
+
+            } catch (error) {
+                console.error(error);
+                // Obrada greške ako je potrebna
+            }
+        }
+        fetchData();
+    }, [user]);
 
     useEffect(() => {
         async function fetchData() {
             try {
                 const coffDocService = new CoffDocService();
                 const data = await coffDocService.getCmnObjListaLL('COFFLOC');
-
+                const _coff = (props.coffDoc.coff)?props.coffDoc.coff:userCoff?.coff
                 setCoffCoffItems(data)
                 console.log(data, "************ coffCoffService ************ 11***")
                 const dataDD = data.map(({ text, id }) => ({ name: text, code: id }));
-                console.log(data, "************ coffCoffService ************", dataDD)
+                console.log(data, "************ coffCoffService ************", dataDD)  
                 setDdCoffCoffItems(dataDD);
-                setDdCoffCoffItem(dataDD.find((item) => item.code === props.coffDoc.coff) || null);
+                setDdCoffCoffItem(dataDD.find((item) => item.code == _coff));
 
-                if (props.coffDoc.coff && props.coffDoc.coff != 'null') {
-                    const foundItem = data.find((item) => item.id === props.coffDoc.coff);
+                if (_coff) {
+                    const foundItem = data.find((item) => item.id == _coff);
                     console.log(props.coffDoc.coff, "---------------foundItem----coffCoffService-------------", foundItem)
                     setCoffCoffItem(foundItem || null);
                     coffCoffItem.coff = foundItem?.id
@@ -97,7 +130,7 @@ const CoffDoc = (props) => {
             }
         }
         fetchData();
-    }, []);
+    }, [userCoff]);
 
     useEffect(() => {
         setDropdownItem(findDropdownItemByCode(props.coffDoc.status));
@@ -119,28 +152,53 @@ const CoffDoc = (props) => {
     const handleCreateClick = async () => {
         try {
             setSubmitted(true);
-            const _coffDoc = { ...coffDoc }
 
-            coffDoc.nzap = coffZapItem.N2ZAP
+            // Napravite kopiju `coffDoc` objekta
+            const _coffDoc = { ...coffDoc };
 
-            coffDoc.vreme = DateFunction.formatDatetimeR(DateFunction.currDatetime())
-            coffDoc.ndoctp = props.ndoctp
+            console.log("00-@@@@@@@@@@@@@@@@@@@@@@@handleCreateClick@@@@@@@@@@@@@@@@@@@@@@@@", coffZapItem);
+
+            // Proverite da li `coffZapItem` postoji i ima svojstvo `N2ZAP`
+            if (coffZapItem && coffZapItem.N2ZAP) {
+                _coffDoc.nzap = coffZapItem.N2ZAP; // Ažurirajte kopiju `coffDoc` umesto originalnog
+            } else {
+                console.error("Error: `coffZapItem` is not defined or missing `N2ZAP` property.");
+                return; // Izlaz iz funkcije ako je `coffZapItem` neispravan
+            }
+
+            console.log("01-@@@@@@@@@@@@@@@@@@@@@@@handleCreateClick@@@@@@@@@@@@@@@@@@@@@@@@");
+
+            // Postavljanje dodatnih vrednosti u `_coffDoc`
+            _coffDoc.vreme = DateFunction.formatDatetimeR(DateFunction.currDatetime());
+            _coffDoc.ndoctp = props.ndoctp;
+
+            console.log("02-@@@@@@@@@@@@@@@@@@@@@@@handleCreateClick@@@@@@@@@@@@@@@@@@@@@@@@");
+
+            // Kreirajte CoffDoc pomoću servisa
             const coffDocService = new CoffDocService();
-            const data = await coffDocService.postCoffDoc(coffDoc);
-            _coffDoc.id = data
-            console.log(_coffDoc, "@@@@@@@@@@@@@@@@@@@@@@@handleCreateClick@@@@@@@@@@@@@@@@@@@@@@@@")
-            setCoffDoc(_coffDoc)
-            props.handleDialogClose({ obj: coffDoc, docTip: props.docTip, docId: data });
+            const data = await coffDocService.postCoffDoc(_coffDoc);
+
+            _coffDoc.id = data;  // Dodajte ID iz odgovora na kopiju `coffDoc`
+
+            console.log(_coffDoc, "@@@@@@@@@@@@@@@@@@@@@@@handleCreateClick@@@@@@@@@@@@@@@@@@@@@@@@");
+
+            // Ažurirajte stanje sa novom kopijom `coffDoc`
+            setCoffDoc(_coffDoc);
+
+            // Zatvorite dijalog i prosledite novu kopiju `coffDoc`
+            props.handleDialogClose({ obj: _coffDoc, docTip: props.docTip, docId: data });
             props.setCoffDocVisible(false);
         } catch (err) {
+            console.error("Error in handleCreateClick:", err);
             toast.current.show({
                 severity: "error",
                 summary: "Action ",
-                detail: `${err.response.data.error}`,
+                detail: `${err.response?.data?.error || "An error occurred"}`,
                 life: 5000,
             });
         }
     };
+
 
     const handleSaveClick = async () => {
         try {
@@ -263,19 +321,20 @@ const CoffDoc = (props) => {
             <div className="col-12">
                 <div className="card">
                     <div className="p-fluid formgrid grid">
-                        <div className="field col-12 md:col-6">
-                            <label htmlFor="potpisnik">{translations[selectedLanguage].potpisnik} *</label>
-                            <Dropdown id="potpisnik"
-                                value={ddCoffZapItem}
-                                options={ddCoffZapItems}
-                                onChange={(e) => onInputChange(e, "options", 'potpisnik')}
-                                required
-                                optionLabel="name"
-                                placeholder="Select One"
-                                className={classNames({ 'p-invalid': submitted && !coffDoc.potpisnik })}
-                            />
-                            {submitted && !coffDoc.potpisnik && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
-                        </div>
+                        {(user?.tip=='1') ?
+                            <div className="field col-12 md:col-6">
+                                <label htmlFor="potpisnik">{translations[selectedLanguage].potpisnik} *</label>
+                                <Dropdown id="potpisnik"
+                                    value={ddCoffZapItem}
+                                    options={ddCoffZapItems}
+                                    onChange={(e) => onInputChange(e, "options", 'potpisnik')}
+                                    required
+                                    optionLabel="name"
+                                    placeholder="Select One"
+                                    className={classNames({ 'p-invalid': submitted && !coffDoc.potpisnik })}
+                                />
+                                {submitted && !coffDoc.potpisnik && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
+                            </div> : null}
                         <div className="field col-12 md:col-4">
                             <label htmlFor="coff">{translations[selectedLanguage].Coff} *</label>
                             <Dropdown id="coff"
@@ -294,10 +353,7 @@ const CoffDoc = (props) => {
                             <InputText
                                 id="mesto"
                                 value={coffDoc.mesto} onChange={(e) => onInputChange(e, "text", 'mesto')}
-                                required
-                                className={classNames({ 'p-invalid': submitted && !coffDoc.mesto })}
                             />
-                            {submitted && !coffDoc.mesto && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
                         </div>
                         {(props.doctp) ? (
                             <div className="field col-12 md:col-6">
@@ -333,7 +389,7 @@ const CoffDoc = (props) => {
                     <div className="flex flex-wrap gap-1">
                         {props.dialog ? (
                             <Button
-                                label={translations[selectedLanguage].Cancel}
+                                label={translations[selectedLanguage].Close}
                                 icon="pi pi-times"
                                 className="p-button-outlined p-button-secondary"
                                 onClick={handleCancelClick}

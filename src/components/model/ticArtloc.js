@@ -10,6 +10,7 @@ import { translations } from "../../configs/translations";
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from "primereact/calendar";
 import DateFunction from "../../utilities/DateFunction"
+import { CoffDocService } from "../../service/model/CoffDocService";
 
 const TicArtloc = (props) => {
 
@@ -23,17 +24,21 @@ const TicArtloc = (props) => {
     const [cmnLocItems, setCmnLocItems] = useState(null);   
     
     const [begda, setBegda] = useState(new Date(DateFunction.formatJsDate(props.ticArtloc.begda || DateFunction.currDate())));
-    const [endda, setEndda] = useState(new Date(DateFunction.formatJsDate(props.ticArtloc.endda || DateFunction.currDate())))
+    const [endda, setEndda] = useState(new Date(DateFunction.formatJsDate(props.ticArtloc.endda || '99991231')))
 
     const calendarRef = useRef(null);
 
     const toast = useRef(null);
 
+    
+
     useEffect(() => {
         async function fetchData() {
             try {               
-                const ticArtlocService = new TicArtlocService();
-                const data = await ticArtlocService.getCmnLocs();
+                // const ticArtlocService = new TicArtlocService();
+                // const data = await ticArtlocService.getCmnLocs();
+                const coffDocService = new CoffDocService();
+                const data = await coffDocService.getCmnObjListaLL('COFFLOC');
                 setCmnLocItems(data)
                 const dataDD = data.map(({ textx, id }) => ({ name: textx, code: id }));
                 setDdCmnLocItems(dataDD);

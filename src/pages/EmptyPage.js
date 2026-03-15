@@ -28,6 +28,7 @@ const EmptyPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [dataTab, setDataTab] = useState('1');
+    const [tabKey, setTabKey] = useState(0);
 
     useEffect(() => {
         // Postavljanje atributa na <body> tag
@@ -43,8 +44,15 @@ const EmptyPage = () => {
             top: sectionRef.current.offsetTop,
             behavior: 'smooth',
         });
+
+        if (sectionRef === orderRef) {
+            setTabKey((prevKey) => prevKey + 1); // Menjanje ključa za remount
+        }
     };
 
+    const handleRefreshTab = () => {
+            setTabKey((prevKey) => prevKey + 1); // Menjanje ključa za remount
+    };
     const handleDataUpdate = (updatedTab) => {
         setDataTab(updatedTab);
     };
@@ -63,15 +71,15 @@ const EmptyPage = () => {
                         <Ordermenu onDataUpdate={handleDataUpdate} />
                     </div>
                     <div className={`col-lg-4 menu-item `}>
-                        <Tab dataTab={dataTab} onDataUpdate={handleDataUpdate} />
+                        <Tab key={tabKey} dataTab={dataTab} onDataUpdate={handleDataUpdate} handleRefreshTab={handleRefreshTab}/>
                     </div>
                 </div>
             </div>
             <div ref={statusRef} className=""><StatsCounter /> </div>
-
-            <div ref={carouselRef} className="menuheight">
-                <div className="row " data-aos="fade-up" data-aos-delay="100" >
-                    <div className={`col-lg-9 menu-item `}>
+{/* Nema slika pa sklanjam */}
+            {/* <div ref={carouselRef} className="menuheight">
+                <div className="row " data-aos="fade-up" data-aos-delay="100" >                    
+                       <div className={`col-lg-9 menu-item `}>
                         <Carousel />
                     </div>
                     <div className={`col-lg-3 menu-item `}>
@@ -99,9 +107,9 @@ const EmptyPage = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
-            <div ref={docRef} ><AboutDoc dataTab={dataTab} onDataUpdate={handleDataUpdate} /></div>
+            <div ref={docRef} ><AboutDoc dataTab={dataTab} onDataUpdate={handleDataUpdate} scrollToSection={scrollToSection} orderRef={orderRef}/></div>
             {/* <div ref={menuRef} className="menuheight"><Menu /></div>     */}
 
         </>

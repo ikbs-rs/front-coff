@@ -71,7 +71,7 @@ console.log("Tab ===============================================================
                             <div className={`tab-pane ${activeTab === 'tab-1' ? 'active' : ''}`} id="tab-1">
                                 <div className="row">
                                     <div className="col-lg-12 details order-1 order-lg-1">
-                                        < OrderL  currCoffOrder={currCoffOrder} datarefresh={props.dataTab} onDataUpdate={handleDataUpdate}/>
+                                        < OrderL  currCoffOrder={currCoffOrder} datarefresh={props.dataTab} onDataUpdate={handleDataUpdate} handleRefreshTab={props.handleRefreshTab}/>
                                     </div>
                                 </div>
                             </div>

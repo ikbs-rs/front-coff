@@ -262,9 +262,9 @@ export default function CoffDocsL(props) {
         scrollable
         sortField="code"        
         sortOrder={1}
-        scrollHeight="350px"
-        virtualScrollerOptions={{ itemSize: 46 }}
-        tableStyle={{ minWidth: "50rem" }}
+        scrollHeight="850px"
+        //virtualScrollerOptions={{ itemSize: 46 }}
+        //tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}
         paginator
         rows={10}

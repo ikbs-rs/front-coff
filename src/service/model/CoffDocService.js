@@ -73,6 +73,44 @@ export class CoffDocService {
     }
   }
 
+  async getCoffDocsUser(userId) {
+    const selectedLanguage = localStorage.getItem('sl') || 'en'
+    const url = `${env.COFF_BACK_URL}/coff/doc/_v/lista/?stm=coff_docuser_v&objid=${userId}&sl=${selectedLanguage}`
+
+    const tokenLocal = await Token.getTokensLS();
+    const headers = {
+      Authorization: tokenLocal.token
+    };
+
+    try {
+      const response = await axios.get(url, { headers });
+      // console.log(response.data, "00-USRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSR")
+      return response.data.item;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async getCoffDocsUserCoff(userId, objTp) {
+    const selectedLanguage = localStorage.getItem('sl') || 'en'
+    const url = `${env.COFF_BACK_URL}/coff/doc/_v/lista/?stm=coff_docusercoff_v&objid=${userId}&par1=${objTp}&sl=${selectedLanguage}`
+
+    const tokenLocal = await Token.getTokensLS();
+    const headers = {
+      Authorization: tokenLocal.token
+    };
+
+    try {
+      const response = await axios.get(url, { headers });
+      // console.log(response.data, "00-USRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSR")
+      return response.data.item;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
   async getCoffDocsPorudzbinaTp(doctp) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const url = `${env.COFF_BACK_URL}/coff/doc/_v/lista/?stm=coff_docstpporudzbina_v&objid=${doctp}&sl=${selectedLanguage}`
@@ -115,7 +153,7 @@ export class CoffDocService {
       const selectedLanguage = localStorage.getItem('sl') || 'en'
       newObj.usr = localStorage.getItem('userId') 
 
-      if (newObj.mesto.trim() === '' || newObj.potpisnik === null) {
+      if (newObj.potpisnik === null) {
         throw new Error(
           "Items must be filled!"
         );
@@ -140,15 +178,16 @@ export class CoffDocService {
 
   }
 
-  async putCoffDoc(newObj) {
+  async putCoffDoc(newObj1) {
     try {
-      newObj = { ...newObj, obj: -1 }
+      const newObj = { ...newObj1, obj: -1 }
       const selectedLanguage = localStorage.getItem('sl') || 'en'
-      if (newObj?.mesto.trim() === '' || newObj.potpisnik === null) {
+      if (newObj.potpisnik === null) {
         throw new Error(
           "Items must be filled!"
         );
       }
+
       const currCoffOrder = localStorage.getItem('currCoffOrder')
 
       const url = `${env.COFF_BACK_URL}/coff/doc/?sl=${selectedLanguage}`;

@@ -164,11 +164,12 @@ export default function OrderL(props) {
     const data = await coffDocService.putCoffDoc(_coffDoc);   
     setCoffDoc(_coffDoc)
     localStorage.setItem('currCoffOrder', "-1");
+    console.log("##############################################################")
     seRefresh(++refresh)
     if (websocket && websocket.readyState === WebSocket.OPEN) {
       websocket.send('{"data":[{"id":"TRECA"}]}');
     }
-
+    props.handleRefreshTab()
   };
 
   const onRowSelect = (event) => {
@@ -318,12 +319,12 @@ export default function OrderL(props) {
             severity="warning" onClick={openDocNew} raised />
           </div>
           <div className="field col-12 md:col-4">
-            <Button label={translations[selectedLanguage].Update} 
+            <Button label={translations[selectedLanguage].UpdPor} 
             // icon="pi pi-cog" 
             severity="warning" onClick={openDoc} raised />
           </div>
           <div className="field col-12 md:col-4">
-            <Button label={translations[selectedLanguage].Zavrsi} 
+            <Button label={translations[selectedLanguage].EndPor} 
             // icon="pi pi-check" 
             severity="danger" onClick={handleZavrsi} raised />
           </div>

@@ -6,6 +6,7 @@ import './Index.css'; // Pretpostavimo da imate CSS fajl za stilizovanje
 import CoffDocPorudzbineL from '../components/model/coffDocPorudzbineL';
 
 const AboutDoc = (props) => {
+  console.log(props.scrollToSection, props.docRef,"00-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
   useEffect(() => {
     AOS.init({
       duration: 1000,
@@ -21,7 +22,7 @@ const AboutDoc = (props) => {
       <div className="container" data-aos="fade-up">
         <div className="row">
           <div className="col-lg-12 pt-4 pt-lg-0 order-2 order-lg-1 content">
-            < CoffDocPorudzbineL datarefresh={props.dataTab} doctp={1} onDataUpdate={handleDataUpdate} />
+            < CoffDocPorudzbineL datarefresh={props.dataTab} doctp={1} onDataUpdate={handleDataUpdate} scrollToSection={props.scrollToSection} orderRef={props.orderRef}/>
           </div>
         </div>
       </div>

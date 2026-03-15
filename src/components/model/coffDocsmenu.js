@@ -255,7 +255,7 @@ const Order = (props) => {
                     <div className="flex flex-wrap gap-1">
                         {props.dialog ? (
                             <Button
-                                label={translations[selectedLanguage].CancelNext}
+                                label={translations[selectedLanguage].Close}
                                 // icon="pi pi-times"
                                 // className="p-button-outlined p-button-secondary"
                                 onClick={handleCancelClick}

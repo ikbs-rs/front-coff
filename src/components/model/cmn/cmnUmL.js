@@ -8,44 +8,35 @@ import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import { Toast } from "primereact/toast";
 import './index.css';
-import { CoffDocService } from "../../service/model/CoffDocService";
-import CoffDoc from './coffDoc';
-import { EmptyEntities } from '../../service/model/EmptyEntities';
+import { CmnUmService } from "../../../service/model/cmn/CmnUmService";
+import CmnUm from './cmnUm';
+import { EmptyEntities } from '../../../service/model/EmptyEntities';
 import { Dialog } from 'primereact/dialog';
-import { translations } from "../../configs/translations";
+import { translations } from "../../../configs/translations";
 
-export default function CoffDocL(props) {
-  console.log(props, "@@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDocL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+export default function CmnUmL(props) {
   let i = 0
-  const objName = "coff_doc"
+  const objName = "cmn_um"
   const selectedLanguage = localStorage.getItem('sl')||'en'
-  const emptyCoffDoc = EmptyEntities[objName]
-  emptyCoffDoc.doctp = props.doctp
+  const emptyCmnUm = EmptyEntities[objName]
   const [showMyComponent, setShowMyComponent] = useState(true);
-  const [coffDocs, setCoffDocs] = useState([]);
-  const [coffDoc, setCoffDoc] = useState(emptyCoffDoc);
+  const [cmnUms, setCmnUms] = useState([]);
+  const [cmnUm, setCmnUm] = useState(emptyCmnUm);
   const [filters, setFilters] = useState('');
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [loading, setLoading] = useState(false);
   const toast = useRef(null);
-  const [coffDocVisible, setCoffDocVisible] = useState(false);
-  const [docTip, setDocTip] = useState('');
-  const [ndoctp, setNdoctp] = useState('');
+  const [visible, setVisible] = useState(false);
+  const [umTip, setUmTip] = useState('');
 
   useEffect(() => {
     async function fetchData() {
       try {
         ++i
         if (i<2) {  
-        const coffDocService = new CoffDocService();
-        const data = await coffDocService.getCoffDocsTp(props.doctp);
-        console.log(data, "@@@@@@@@@@@@@@@@@@@@@@@@@@ getCoffDocsTp @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", props.doctp)
-        if (data) {
-          const data0 = data[0]
-          setNdoctp(data0.ndoctp)
-        }
-
-        setCoffDocs(data);
+        const cmnUmService = new CmnUmService();
+        const data = await cmnUmService.getCmnUms();
+        setCmnUms(data);
         initFilters();
         }
       } catch (error) {
@@ -54,37 +45,36 @@ export default function CoffDocL(props) {
       }
     }
     fetchData();
-  }, [props.datarefresh]);
+  }, []);
 
   const handleDialogClose = (newObj) => {
-    console.log(newObj, "%%%%%%%%%%###%%%%%%%%%%%%%%%%%%%%%%%%%%######%%%%%%%%%%%%%%%%%%%%%%%####%%%%%%%%%%%%%%%")
     const localObj = { newObj };
 
-    let _coffDocs = [...coffDocs];
-    let _coffDoc = { ...localObj.newObj.obj };
+    let _cmnUms = [...cmnUms];
+    let _cmnUm = { ...localObj.newObj.obj };
 
     //setSubmitted(true);
-    if (localObj.newObj.docTip === "CREATE") {
-      _coffDocs.push(_coffDoc);
-    } else if (localObj.newObj.docTip === "UPDATE") {
+    if (localObj.newObj.umTip === "CREATE") {
+      _cmnUms.push(_cmnUm);
+    } else if (localObj.newObj.umTip === "UPDATE") {
       const index = findIndexById(localObj.newObj.obj.id);
-      _coffDocs[index] = _coffDoc;
-    } else if ((localObj.newObj.docTip === "DELETE")) {
-      _coffDocs = coffDocs.filter((val) => val.id !== localObj.newObj.obj.id);
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDoc Delete', life: 3000 });
+      _cmnUms[index] = _cmnUm;
+    } else if ((localObj.newObj.umTip === "DELETE")) {
+      _cmnUms = cmnUms.filter((val) => val.id !== localObj.newObj.obj.id);
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CmnUm Delete', life: 3000 });
     } else {
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDoc ?', life: 3000 });
+      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CmnUm ?', life: 3000 });
     }
-    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.docTip}`, life: 3000 });
-    setCoffDocs(_coffDocs);
-    setCoffDoc(emptyCoffDoc);
+    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.umTip}`, life: 3000 });
+    setCmnUms(_cmnUms);
+    setCmnUm(emptyCmnUm);
   };
 
   const findIndexById = (id) => {
     let index = -1;
 
-    for (let i = 0; i < coffDocs.length; i++) {
-      if (coffDocs[i].id === id) {
+    for (let i = 0; i < cmnUms.length; i++) {
+      if (cmnUms[i].id === id) {
         index = i;
         break;
       }
@@ -94,7 +84,7 @@ export default function CoffDocL(props) {
   };
 
   const openNew = () => {
-    setCoffDocDialog(emptyCoffDoc);
+    setCmnUmDialog(emptyCmnUm);
   };
 
   const onRowSelect = (event) => {
@@ -152,7 +142,7 @@ export default function CoffDocL(props) {
           <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
         </div>
         <div className="flex-grow-1" />
-        <b>{translations[selectedLanguage].DocsList}</b>
+        <b>{translations[selectedLanguage].UmList}</b>
         <div className="flex-grow-1"></div>
         <div className="flex flex-wrap gap-1">
           <span className="p-input-icon-left">
@@ -204,11 +194,10 @@ export default function CoffDocL(props) {
   };
 
   // <--- Dialog
-  const setCoffDocDialog = (coffDoc) => {
-    setCoffDoc({ ...coffDoc });
-    setCoffDocVisible(true)
-    setDocTip("CREATE")
-
+  const setCmnUmDialog = (cmnUm) => {
+    setVisible(true)
+    setUmTip("CREATE")
+    setCmnUm({ ...cmnUm });
   }
   //  Dialog --->
 
@@ -224,8 +213,8 @@ export default function CoffDocL(props) {
           icon="pi pi-pencil"
           style={{ width: '24px', height: '24px' }}
           onClick={() => {
-            setCoffDocDialog(rowData)
-            setDocTip("UPDATE")
+            setCmnUmDialog(rowData)
+            setUmTip("UPDATE")
           }}
           text
           raised ></Button>
@@ -234,38 +223,33 @@ export default function CoffDocL(props) {
     );
   };
 
-  const handleDataUpdate = (updatedTab) => {
-    props.onDataUpdate(updatedTab);
-    // setDataTab(updatedTab);
-  };
   return (
     <div className="card">
       <Toast ref={toast} />
       <DataTable
-        id="coffDocL"
         dataKey="id"
         selectionMode="single"
-        size={"small"}
-        selection={coffDoc}
+        selection={cmnUm}
         loading={loading}
-        value={coffDocs}
+        value={cmnUms}
         header={header}
         showGridlines
         removableSort
         filters={filters}
         scrollable
-        sortField="vreme" defaultSortOrder={-1}       
-        scrollHeight="850px"
+        sortField="code"        
+        sortOrder={1}
+        scrollHeight="750px"
         //virtualScrollerOptions={{ itemSize: 46 }}
-        //tableStyle={{ minWidth: "50rem" }}
+        tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}
         paginator
-        rows={50}
-        rowsPerPageOptions={[50, 100, 250, 500]}
-        onSelectionChange={(e) => setCoffDoc(e.value)}
+        rows={25}
+        rowsPerPageOptions={[25, 50, 100, 200]}
+        onSelectionChange={(e) => setCmnUm(e.value)}
         onRowSelect={onRowSelect}
         onRowUnselect={onRowUnselect}
-      >       
+      >
         <Column
           //bodyClassName="text-center"
           body={actionTemplate}
@@ -274,62 +258,49 @@ export default function CoffDocL(props) {
           style={{ minWidth: '4rem' }}
         />        
         <Column
-          field="ndoctp"
-          header={translations[selectedLanguage].ndoctp}
+          field="code"
+          header={translations[selectedLanguage].Code}
           sortable
           filter
-          style={{ width: "20%" }}
+          style={{ width: "25%" }}
         ></Column>
         <Column
-          field="mesto"
-          header={translations[selectedLanguage].Mestoporudzbina}
+          field="textx"
+          header={translations[selectedLanguage].Text}
           sortable
           filter
-          style={{ width: "30%" }}
+          style={{ width: "60%" }}
         ></Column>
         <Column
-          field="nzap"
-          header={translations[selectedLanguage].potpisnik}
+          field="valid"
+          filterField="valid"
+          dataType="numeric"
+          header={translations[selectedLanguage].Valid}
           sortable
           filter
-          style={{ width: "20%" }}
-        ></Column>  
-        <Column
-          field="vreme"
-          header={translations[selectedLanguage].Vreme}
-          sortable
-          filter
-          style={{ width: "20%" }}
-        ></Column>   
-        {/* <Column
-          field="status"
-          header={translations[selectedLanguage].status}
-          sortable
-          filter
-          style={{ width: "10%" }}
-        ></Column>                     */}
+          filterElement={validFilterTemplate}
+          style={{ width: "15%" }}
+          bodyClassName="text-center"
+          body={validBodyTemplate}
+        ></Column>
       </DataTable>
       <Dialog
-        header={translations[selectedLanguage].Docs}
-        visible={coffDocVisible}
-        style={{ width: '70%' }}
+        header={translations[selectedLanguage].Um}
+        visible={visible}
+        style={{ width: '50%' }}
         onHide={() => {
-          setCoffDocVisible(false);
+          setVisible(false);
           setShowMyComponent(false);
         }}
       >
         {showMyComponent && (
-          <CoffDoc
+          <CmnUm
             parameter={"inputTextValue"}
-            coffDoc={coffDoc}
+            cmnUm={cmnUm}
             handleDialogClose={handleDialogClose}
-            setCoffDocVisible={setCoffDocVisible}
+            setVisible={setVisible}
             dialog={true}
-            docTip={docTip}
-            doctp={props.doctp}
-            stVisible={true}
-            standard={true}
-            ndoctp={ndoctp}
+            umTip={umTip}
           />
         )}
       </Dialog>

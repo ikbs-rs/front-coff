@@ -31,6 +31,7 @@ import ArtGrp from './components/model/ticArtgrpL';
 import ArtTp from './components/model/ticArttpL';
 import Cena from './components/model/ticCenaL';
 import CenaTp from './components/model/ticCenatpL';
+import Um from './components/model/cmn/cmnUmL';
 
 import Izv01 from './components/model/coffIzv01L';
 import Stanje from './components/model/coffIzv01StanjeL';
@@ -103,6 +104,7 @@ const App = () => {
             label: translations[selectedLanguage].Administration_elements,
             icon: 'pi pi-wrench',
             items: [
+                { label: translations[selectedLanguage].Um, icon: 'pi pi-database', to: '/um' },
                 { label: translations[selectedLanguage].Item_type, icon: 'pi pi-database', to: '/arttp' },
                 { label: translations[selectedLanguage].Groups_of_items, icon: 'pi pi-fw pi-clone', to: '/artgrp' },
                 { label: translations[selectedLanguage].Item, icon: 'pi pi-fw pi-clone', to: '/art' },
@@ -118,7 +120,7 @@ const App = () => {
             items: [
                 { label: translations[selectedLanguage].Zaduzenje, icon: 'pi pi-fw pi-clone', to: '/doc/2' },
                 { label: translations[selectedLanguage].Porudzbine, icon: 'pi pi-fw pi-clone', to: '/doc/1' },
-                { label: translations[selectedLanguage].coffee, icon: 'pi pi-fw pi-clone', to: '/coff' },
+                // { label: translations[selectedLanguage].coffee, icon: 'pi pi-fw pi-clone', to: '/coff' },
             ]
         },
         {
@@ -131,8 +133,8 @@ const App = () => {
                     items: [
                         { label: translations[selectedLanguage].Pregled, icon: 'pi pi-database', to: '/izv01' },
                         { label: translations[selectedLanguage].Stanje, icon: 'pi pi-database', to: '/stanje' },
-                        { label: translations[selectedLanguage].Kartica, icon: 'pi pi-database', to: '/kartica' },
-                        { label: translations[selectedLanguage].WSC, icon: 'pi pi-database', to: '/wsc' }
+                        // { label: translations[selectedLanguage].Kartica, icon: 'pi pi-database', to: '/kartica' },
+                        // { label: translations[selectedLanguage].WSC, icon: 'pi pi-database', to: '/wsc' }
                     ]
                 }
                 // {
@@ -172,10 +174,10 @@ const App = () => {
     let rightMenuClick;
     let userMenuClick;
     let configClick = false;
-    
+
     // useEffect(() => {
     //     WebSocketService.connect();
-    
+
     //     return () => {
     //         console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
     //     //   WebSocketService.disconnect();
@@ -428,11 +430,11 @@ const App = () => {
     const inlineUserTimeout = layoutMode === 'slim' ? 0 : { enter: 1000, exit: 450 };
 
     return (
-<WebSocketProvider>       
-        <div className={layoutClassName} onClick={onDocumentClick}>
+        <WebSocketProvider>
+            <div className={layoutClassName} onClick={onDocumentClick}>
 
-            <Tooltip ref={copyTooltipRef} target=".block-action-copy" position="bottom" content="Copied to clipboard" event="focus" />
-            {/* 
+                <Tooltip ref={copyTooltipRef} target=".block-action-copy" position="bottom" content="Copied to clipboard" event="focus" />
+                {/* 
             <AppTopbar
                 topbarMenuActive={topbarMenuActive}
                 activeTopbarItem={activeTopbarItem}
@@ -444,116 +446,117 @@ const App = () => {
             /> 
             */}
 
-            <AppRightMenu rightPanelMenuActive={rightPanelMenuActive} onRightMenuClick={onRightMenuClick}></AppRightMenu>
+                <AppRightMenu rightPanelMenuActive={rightPanelMenuActive} onRightMenuClick={onRightMenuClick}></AppRightMenu>
 
-            <div className="layout-menu-container" onClick={onMenuClick} >
-                {inlineUser && (
-                    <div className="layout-profile">
-                        <button type="button" className="p-link layout-profile-button" onClick={onInlineUserClick}>
-                            <img src="assets/layout/images/avatar.png" alt="roma-layout" />
-                            <div className="layout-profile-userinfo">
-                                <span className="layout-profile-name">Arlene Welch</span>
-                                <span className="layout-profile-role">Design Ops</span>
-                            </div>
-                        </button>
-                        <CSSTransition nodeRef={inlineUserRef} classNames="p-toggleable-content" timeout={inlineUserTimeout} in={inlineUserMenuActive} unmountOnExit>
-                            <ul ref={inlineUserRef} className={classNames('layout-profile-menu', { 'profile-menu-active': inlineUserMenuActive })}>
-                                <li>
-                                    <button type="button" className="p-link">
-                                        <i className="pi pi-fw pi-user"></i>
-                                        <span>Profile</span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button" className="p-link">
-                                        <i className="pi pi-fw pi-cog"></i>
-                                        <span>Settings</span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button" className="p-link">
-                                        <i className="pi pi-fw pi-envelope"></i>
-                                        <span>Messages</span>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button" className="p-link">
-                                        <i className="pi pi-fw pi-bell"></i>
-                                        <span>Notifications</span>
-                                    </button>
-                                </li>
-                            </ul>
-                        </CSSTransition>
-                    </div>
-                )}
-                <AppMenu
-                    model={menu}
-                    onMenuItemClick={onMenuItemClick}
-                    onRootMenuItemClick={onRootMenuItemClick}
-                    layoutMode={layoutMode}
-                    active={menuActive}
-                    mobileMenuActive={staticMenuMobileActive}
-                />
-            </div>
+                <div className="layout-menu-container" onClick={onMenuClick} >
+                    {inlineUser && (
+                        <div className="layout-profile">
+                            <button type="button" className="p-link layout-profile-button" onClick={onInlineUserClick}>
+                                <img src="assets/layout/images/avatar.png" alt="roma-layout" />
+                                <div className="layout-profile-userinfo">
+                                    <span className="layout-profile-name">Arlene Welch</span>
+                                    <span className="layout-profile-role">Design Ops</span>
+                                </div>
+                            </button>
+                            <CSSTransition nodeRef={inlineUserRef} classNames="p-toggleable-content" timeout={inlineUserTimeout} in={inlineUserMenuActive} unmountOnExit>
+                                <ul ref={inlineUserRef} className={classNames('layout-profile-menu', { 'profile-menu-active': inlineUserMenuActive })}>
+                                    <li>
+                                        <button type="button" className="p-link">
+                                            <i className="pi pi-fw pi-user"></i>
+                                            <span>Profile</span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button type="button" className="p-link">
+                                            <i className="pi pi-fw pi-cog"></i>
+                                            <span>Settings</span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button type="button" className="p-link">
+                                            <i className="pi pi-fw pi-envelope"></i>
+                                            <span>Messages</span>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button type="button" className="p-link">
+                                            <i className="pi pi-fw pi-bell"></i>
+                                            <span>Notifications</span>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </CSSTransition>
+                        </div>
+                    )}
+                    <AppMenu
+                        model={menu}
+                        onMenuItemClick={onMenuItemClick}
+                        onRootMenuItemClick={onRootMenuItemClick}
+                        layoutMode={layoutMode}
+                        active={menuActive}
+                        mobileMenuActive={staticMenuMobileActive}
+                    />
+                </div>
 
-            <div className="layout-main">
-                <div className="layout-content">
-                    <Routes>
-                        <Route path="/" element={<EmptyPage />} />
+                <div className="layout-main">
+                    <div className="layout-content">
+                        <Routes>
+                            <Route path="/" element={<EmptyPage />} />
 
 
-                        <Route path="/zaptp" element={<Zaptp />} />
-                        <Route path="/zap" element={<Zap />} />
-                        <Route path="/saporg" element={<Saporg />} />
-                        <Route path="/zapcoff" element={<Zapcoff />} />
+                            <Route path="/zaptp" element={<Zaptp />} />
+                            <Route path="/zap" element={<Zap />} />
+                            <Route path="/saporg" element={<Saporg />} />
+                            <Route path="/zapcoff" element={<Zapcoff />} />
 
-                        <Route path="/izv01" element={<Izv01 />} />
-                        <Route path="/stanje" element={<Stanje />} />
-                        <Route path="/kartica" element={<Kartica />} />
-                        <Route path="/wsc" element={<WsComponent />} />
+                            <Route path="/izv01" element={<Izv01 />} />
+                            <Route path="/stanje" element={<Stanje />} />
+                            <Route path="/kartica" element={<Kartica />} />
+                            <Route path="/wsc" element={<WsComponent />} />
 
-                        <Route path="/objtp" element={<ObjW endpoint="objtpend" />} />
-                        <Route path="/objpk/:objtpCode" element={<ObjW endpoint="objend" />} />
-                        <Route path="/objpm/:objtpCode" element={<ObjW endpoint="objend" />} />
-                        <Route path="/objorg/:objtpCode" element={<ObjW endpoint="objend" />} />
-                        <Route path="/objtctp/:objtpCode" element={<ObjW endpoint="objend" />} />
-                        <Route path="/objdoc/:objtpCode" element={<ObjW endpoint="objend" />} />
-                        <Route path="/obj/:objtpCode" element={<ObjW endpoint="objend" />} />
-                        <Route path="/objatt" element={<ObjW endpoint="objattend" />} />
-                        <Route path="/objatttp" element={<ObjW endpoint="objatttpend" />} />
+                            <Route path="/objtp" element={<ObjW endpoint="objtpend" />} />
+                            <Route path="/objpk/:objtpCode" element={<ObjW endpoint="objend" />} />
+                            <Route path="/objpm/:objtpCode" element={<ObjW endpoint="objend" />} />
+                            <Route path="/objorg/:objtpCode" element={<ObjW endpoint="objend" />} />
+                            <Route path="/objtctp/:objtpCode" element={<ObjW endpoint="objend" />} />
+                            <Route path="/objdoc/:objtpCode" element={<ObjW endpoint="objend" />} />
+                            <Route path="/obj/:objtpCode" element={<ObjW endpoint="objend" />} />
+                            <Route path="/objatt" element={<ObjW endpoint="objattend" />} />
+                            <Route path="/objatttp" element={<ObjW endpoint="objatttpend" />} />
 
-                        <Route path="/usergrp" element={<EventAtt />} />
-                        <Route path="/action" element={<EventAtt />} />
+                            <Route path="/usergrp" element={<EventAtt />} />
+                            <Route path="/action" element={<EventAtt />} />
 
-                        {/* <Route path="/doc1" element={<Doc1 doctp={1} />} />
+                            {/* <Route path="/doc1" element={<Doc1 doctp={1} />} />
                         <Route path="/doc2" element={<Doc2 doctp={2} />} /> */}
 
-                        <Route path="/doc/:doctp" element={<DocW />} />
-                        <Route path="/doc/:doctp" element={<DocW />} />
+                            <Route path="/doc/:doctp" element={<DocW />} />
+                            <Route path="/doc/:doctp" element={<DocW />} />
 
-                        <Route path="/coff" element={<Coff />} />
-                        <Route path="/doctp" element={<DocTp />} />
-                        <Route path="/eventtp" element={<EventTP />} />
-                        <Route path="/eventctg" element={<EventCtg />} />
-                        <Route path="/eventatttp" element={<EventAtttp />} />
-                        <Route path="/eventatt" element={<EventAtt />} />
-                        <Route path="/agendatp" element={<AgendaTp />} />
-                        <Route path="/agenda" element={<Agenda />} />
-                        <Route path="/season" element={<Season />} />
-                        <Route path="/artgrp" element={<ArtGrp />} />
-                        <Route path="/arttp" element={<ArtTp />} />
-                        <Route path="/art" element={<Art />} />
-                        <Route path="/cena" element={<Cena />} />
-                        <Route path="/cenatp" element={<CenaTp />} />
-                        <Route path="/docvr" element={<DocVr />} />
+                            <Route path="/coff" element={<Coff />} />
+                            <Route path="/doctp" element={<DocTp />} />
+                            <Route path="/eventtp" element={<EventTP />} />
+                            <Route path="/eventctg" element={<EventCtg />} />
+                            <Route path="/eventatttp" element={<EventAtttp />} />
+                            <Route path="/eventatt" element={<EventAtt />} />
+                            <Route path="/agendatp" element={<AgendaTp />} />
+                            <Route path="/agenda" element={<Agenda />} />
+                            <Route path="/season" element={<Season />} />
+                            <Route path="/artgrp" element={<ArtGrp />} />
+                            <Route path="/arttp" element={<ArtTp />} />
+                            <Route path="/art" element={<Art />} />
+                            <Route path="/cena" element={<Cena />} />
+                            <Route path="/cenatp" element={<CenaTp />} />
+                            <Route path="/docvr" element={<DocVr />} />
+                            <Route path="/um" element={<Um />} />
 
-                        <Route path="/atest" element={<Atest />} />
-                        <Route path="/sal" element={<Sal />} />
-                        <Route path="/public/assets/img/" element={<Sal />} />
-                        
-                    </Routes>
-                </div>
-                {/* 
+                            <Route path="/atest" element={<Atest />} />
+                            <Route path="/sal" element={<Sal />} />
+                            <Route path="/public/assets/img/" element={<Sal />} />
+
+                        </Routes>
+                    </div>
+                    {/* 
                 <AppConfig
                     configActive={configActive}
                     onConfigClick={onConfigClick}
@@ -576,13 +579,13 @@ const App = () => {
                     onMenuColorChange={onMenuColorChange}
                 ></AppConfig> */}
 
-                <AppFooter />
-            </div>
+                    <AppFooter />
+                </div>
 
-            <div className="layout-content-mask"></div>
-          
-        </div>
-        </WebSocketProvider>         
+                <div className="layout-content-mask"></div>
+
+            </div>
+        </WebSocketProvider>
     );
 };
 

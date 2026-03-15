@@ -1,5 +1,6 @@
 // src/components/Header.js
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Index.css';
 import { Badge } from 'primereact/badge';
 import { translations } from "../configs/translations";
@@ -25,6 +26,7 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
   const [slika, setSlika] = useState('');
   let [brojPoruka, setBrojPoruka] = useState(0);
   const websocket = useWebSocket();
+  const navigate = useNavigate();
 
 
 
@@ -45,7 +47,7 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
       if (websocket) {     
         websocket.addEventListener('message', async (message) => {
           const obj = JSON.parse(message.data)
-          if (obj.data[0].id == 'TRECA') {
+          if (obj?.data?.[0]?.id == 'TRECA') {
             const coffDocService = new CoffDocService();
             const data = await coffDocService.getCoffDocsCountTp(1);            
             setBrojPoruka(data.count)  
@@ -142,13 +144,13 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
                   toggleMobileMenu();
                 }
               }}>Почетна</a></li>
-              <li><a href="status/" onClick={(e) => {
+              {/* <li><a href="status/" onClick={(e) => {
                 e.preventDefault();
                 scrollToSection(statusRef);
                 if (mobileMenuOpen) {
                   toggleMobileMenu();
                 }
-              }}>Статус</a></li>
+              }}>Статус</a></li> */}
               <li><a href="/order" onClick={(e) => {
                 e.preventDefault();
                 scrollToSection(orderRef);
@@ -225,13 +227,13 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
               </ul>
             </li>
             */}
-              <li><a href="#" onClick={(e) => {
+              {/* <li><a href="#" onClick={(e) => {
                 handleOvlascenjeClick(e);
                 // scrollToSection(docRef);
                 if (mobileMenuOpen) {
                   toggleMobileMenu();
                 }
-              }}>Овлашћење</a></li>
+              }}>Овлашћење</a></li> */}
             </ul>
 
             <i className={`bi mobile-nav-toggle ${mobileMenuOpen ? 'bi-x' : 'bi-list'}`} onClick={toggleMobileMenu}></i>
@@ -253,7 +255,17 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', "padding-right": "20px", "padding-top": "8px" }} >
             <div style={{ "padding-right": "5px" }}>
               <i className="pi pi-bell p-overlay-badge" style={{ fontSize: '2rem', color: '#cda45e' }}>
-                {brojPoruka == '0' ? (null) : (<Badge value={brojPoruka} severity="danger"></Badge>)}
+                {brojPoruka == '0' ? (null) : (
+                  <Badge 
+                    value={brojPoruka} 
+                    severity="danger"
+                    onClick={(e) => {
+                      e.preventDefault(); 
+                      scrollToSection(docRef); 
+                    }} 
+                    style={{ cursor: 'pointer' }}              
+                    >
+                    </Badge>)}
               </i>
             </div>
             <div>

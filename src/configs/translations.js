@@ -801,13 +801,17 @@ export const translations = {
         Porudzbina: "Поруџбина",
         Zavrsi: "Заврши",
         Coff: "Кухиња",
-        NewPor: "Нова поруџба",
+        NewPor: "Нова поруџбина",
+        UpdPor: "Измени поруџбину",
+        EndPor: "Заврши поруџбину",
         CancelNext: "Сачувај и настави",
         TipJM: "Тип ЈМ",
         Logout: "Одјави се",
         Zaplink: "Овлашћени запослени Листа",
         WSC: "WSC",
         Selekcija: "Селекција",
+        Close: "Затвори",
+        Sala: "Сала",
     }
   };
   

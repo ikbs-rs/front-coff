@@ -81,7 +81,7 @@ const Menu = () => {
                         <div key={item.id} className={`col-lg-3 menu-item ${item.category}`} onClick={(e) => handleItemClick(item, e)}>
                             <img src={item.img} className="menu-img" alt={item.name} style={{ cursor: 'pointer' }} />
                             <div className="menu-content" style={{ cursor: 'pointer' }} >
-                                <aa href="/menu">{item.name}</aa>
+                                <a href="/menu">{item.name}</a>
                                 {/* <span>{item.price}</span> */}
                             </div>
                             <div className="menu-ingredients" style={{ cursor: 'pointer' }} >

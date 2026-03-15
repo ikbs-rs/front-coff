@@ -17,7 +17,7 @@ const Ordermenu = (props) => {
     const isotopeOrder = useRef();
     const objName = "tic_docs"
     const selectedLanguage = localStorage.getItem('sl') || 'en'
-    
+
     const emptyTicCena = EmptyEntities[objName]
     const [showMyComponent, setShowMyComponent] = useState(true);
     const [filterKey, setFilterKey] = React.useState('*')
@@ -30,7 +30,9 @@ const Ordermenu = (props) => {
     const [menItems, setMenuItems] = useState([]);
     const [dataTab, setDataTab] = useState('');
     const [docId, setDocId] = useState('');
-    
+    const [activeFilterKey, setActiveFilterKey] = useState('*');
+
+
 
     // const orderItems = [
 
@@ -75,8 +77,8 @@ const Ordermenu = (props) => {
     }
 
     const handleFilterKeyChange = key => () => {
-        console.log("@@@------------------------handleFilterKeyChange--------------------@@@@@@");
-        setFilterKey(key)
+        setFilterKey(key);
+        setActiveFilterKey(key);
     }
 
 
@@ -121,7 +123,7 @@ const Ordermenu = (props) => {
         props.onDataUpdate(updatedTab);
         // setDataTab(updatedTab);
     };
-  
+
     return (
         <section id="menu" className="menu section-bg ">
             <div className="container" data-aos="fade-up">
@@ -133,21 +135,12 @@ const Ordermenu = (props) => {
                 <div id="mnu01" className="row" data-aos="fade-up" data-aos-delay="800">
                     <div id="mnu02" className="col-lg-12 d-flex justify-content-center">
                         <ul id="order-flters">
-                            <li onClick={handleFilterKeyChange('*')} className="filter-active">Све</li>
-                            <li onClick={handleFilterKeyChange('B-KAFA')}>Кафа</li>
-                            <li onClick={handleFilterKeyChange('B-VODA')}>Вода</li>
-                            <li onClick={handleFilterKeyChange('B-SOK')}>Сокови</li>
-                            <li onClick={handleFilterKeyChange('B-TN')}>Остало</li>
+                            <li onClick={handleFilterKeyChange('*')} className={activeFilterKey === '*' ? 'filter-active' : ''}>Све</li>
+                            <li onClick={handleFilterKeyChange('B-KAFA')} className={activeFilterKey === 'B-KAFA' ? 'filter-active' : ''}>Кафа</li>
+                            <li onClick={handleFilterKeyChange('B-VODA')} className={activeFilterKey === 'B-VODA' ? 'filter-active' : ''}>Вода</li>
+                            <li onClick={handleFilterKeyChange('B-SOK')} className={activeFilterKey === 'B-SOK' ? 'filter-active' : ''}>Сокови</li>
+                            <li onClick={handleFilterKeyChange('B-TN')} className={activeFilterKey === 'B-TN' ? 'filter-active' : ''}>Остало</li>
                         </ul>
-                        {/* 
-                        <ul id="order-flters">
-                            {filterKeys.map((filterKey) => (
-                                <li key={filterKey.id} onClick={() => handleFilterKeyChange(filterKey.code)}>
-                                    {filterKey.text}
-                                </li>
-                            ))}
-                        </ul> 
-                        */}
                     </div>
                 </div>
 

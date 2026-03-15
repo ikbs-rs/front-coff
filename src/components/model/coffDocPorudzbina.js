@@ -62,7 +62,10 @@ const CoffDocPorudzbina = (props) => {
                     const foundItem = data.find((item) => item.id === props.coffDoc.potpisnik);
                     // console.log(props.coffDoc.potpisnik, "---------------foundItem-----------------", foundItem)
                     setCoffZapItem(foundItem || null);
-                    coffZapItem.potpisnik = foundItem?.id
+                    if (coffZapItem?.potpisnik) {
+                        coffZapItem.potpisnik = foundItem?.id
+                    }
+                    
                 }
             } catch (error) {
                 console.error(error);
@@ -89,7 +92,9 @@ const CoffDocPorudzbina = (props) => {
                     const foundItem = data.find((item) => item.id === props.coffDoc.coff);
                     // console.log(props.coffDoc.coff, "---------------foundItem----coffCoffService-------------", foundItem)
                     setCoffCoffItem(foundItem || null);
-                    coffCoffItem.coff = foundItem?.id
+                    if (coffCoffItem?.coff) {
+                        coffCoffItem.coff = foundItem?.id
+                    }                  
                 }
             } catch (error) {
                 console.error(error);
@@ -300,7 +305,7 @@ const CoffDocPorudzbina = (props) => {
                             />
                             {submitted && !coffDoc.mesto && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
                         </div>
-                        {(props.doctp) ? (
+                        {(props.doctp!=1) ? (
                             <div className="field col-12 md:col-6">
                                 <label htmlFor="eksternibroj">{translations[selectedLanguage].eksternibroj}</label>
                                 <InputText
