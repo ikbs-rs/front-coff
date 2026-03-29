@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Galleria } from 'primereact/galleria';
 import { Sale } from './json/Sale.js';
 import './Index.css';
 
-const Carousel = (orderedRef) => {
+const Carousel = () => {
   const [images, setImages] = useState(null);
   const responsiveOptions = [
     {

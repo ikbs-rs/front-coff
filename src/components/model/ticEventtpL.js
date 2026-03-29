@@ -146,7 +146,7 @@ export default function TicEventtpL(props) {
 
     const renderHeader = () => {
         return (
-            <div className="flex card-container">
+    <div className="flex card-container">
                 <div className="flex flex-wrap gap-1">
                     <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
                 </div>
@@ -226,7 +226,7 @@ export default function TicEventtpL(props) {
     };
 
     return (
-        <div className="card">
+        <div className="card model-grid-page">
             <Toast ref={toast} />
             <DataTable
                 dataKey="id"
@@ -241,7 +241,7 @@ export default function TicEventtpL(props) {
                 scrollable
                 sortField="code"
                 sortOrder={1}
-                scrollHeight="750px"
+                scrollHeight="flex"
                 virtualScrollerOptions={{ itemSize: 46 }}
                 tableStyle={{ minWidth: '50rem' }}
                 metaKeySelection={false}

@@ -226,7 +226,7 @@ Click Handle *******************************************************************
 
   const renderHeader = () => {
     return (
-      <div className="flex card-container">
+    <div className="flex card-container">
         <div className="flex flex-wrap gap-1" />
         {(props.dialog) ? (<Button label={translations[selectedLanguage].Cancel} icon="pi pi-times" onClick={handleCancelClick} text raised/>): null}
         {/* <div className="flex flex-wrap gap-1">
@@ -283,7 +283,7 @@ Click Handle *******************************************************************
   };
 
   return (
-    <div className="card">
+    <div className="card model-grid-page">
       <Toast ref={toast} />
       <DataTable
         id="DocOrderL"
@@ -297,7 +297,7 @@ Click Handle *******************************************************************
         removableSort
         filters={filters}
         scrollable
-        scrollHeight="500px"
+        scrollHeight="flex"
         virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}

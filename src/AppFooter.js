@@ -5,7 +5,7 @@ const AppFooter = () => {
         <div className="layout-footer">
             <div>
                 <img src="assets/layout/images/logo-ikbs.svg" alt="IKBS" />
-                <p>IKBS Solutions</p>
+                <p>ai:KB Solutions</p>
             </div>
             <div className="footer-icons">
                 <button type="button" className="p-link">

@@ -5,7 +5,7 @@ import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
-import { TriStateCheckbox } from "primereact/tristatecheckbox";
+import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import './index.css';
 import { CoffZapService } from "../../service/model/CoffZapService";
@@ -13,12 +13,13 @@ import CoffZap from './coffZap';
 import { EmptyEntities } from '../../service/model/EmptyEntities';
 import { Dialog } from 'primereact/dialog';
 import { translations } from "../../configs/translations";
+import CoffZaplinkL from "./coffZaplinkL";
 
 export default function CoffZapL(props) {
   let i = 0
   const objName = "coff_zap"
   const selectedLanguage = localStorage.getItem('sl')||'en'
-  const emptyCoffZap = EmptyEntities[objName]
+  const emptyCoffZap = { ...EmptyEntities[objName] }
   const [showMyComponent, setShowMyComponent] = useState(true);
   const [coffZaps, setCoffZaps] = useState([]);
   const [coffZap, setCoffZap] = useState(emptyCoffZap);
@@ -28,6 +29,7 @@ export default function CoffZapL(props) {
   const toast = useRef(null);
   const [visible, setVisible] = useState(false);
   const [zapTip, setZapTip] = useState('');
+  const [coffZaplinkLVisible, setCoffZaplinkLVisible] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -36,7 +38,6 @@ export default function CoffZapL(props) {
         if (i<2) {  
         const coffZapService = new CoffZapService();
         const data = await coffZapService.getLista('/zap');
-        console.log(data, "******************************  Zap data**********************************")
         setCoffZaps(data);
         initFilters();
         }
@@ -68,7 +69,7 @@ export default function CoffZapL(props) {
     }
     toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.zapTip}`, life: 3000 });
     setCoffZaps(_coffZaps);
-    setCoffZap(emptyCoffZap);
+    setCoffZap({ ...emptyCoffZap });
   };
 
   const findIndexById = (id) => {
@@ -86,6 +87,11 @@ export default function CoffZapL(props) {
 
   const openNew = () => {
     setCoffZapDialog(emptyCoffZap);
+  };
+
+  const handleZaplinkClick = () => {
+    setShowMyComponent(true);
+    setCoffZaplinkLVisible(true);
   };
 
   const onRowSelect = (event) => {
@@ -138,10 +144,19 @@ export default function CoffZapL(props) {
 
   const renderHeader = () => {
     return (
-      <div className="flex card-container">
+    <div className="flex card-container">
         <div className="flex flex-wrap gap-1">
           <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
         </div>
+        <div className="flex flex-wrap gap-1" />
+        <Button
+          label={translations[selectedLanguage].Zaplink}
+          icon="pi pi-link"
+          onClick={handleZaplinkClick}
+          text
+          raised
+          disabled={!coffZap?.id}
+        />
         <div className="flex-grow-1" />
         <b>{translations[selectedLanguage].ZapList}</b>
         <div className="flex-grow-1"></div>
@@ -168,27 +183,28 @@ export default function CoffZapL(props) {
   };
 
   const validBodyTemplate = (rowData) => {
-    const valid = rowData.valid == 1?true:false
-    return (
-      <i
-        className={classNames("pi", {
-          "text-green-500 pi-check-circle": valid,
-          "text-red-500 pi-times-circle": !valid
-        })}
-      ></i>
-    );
+    return Number(rowData.valid) === 1
+      ? translations[selectedLanguage].Yes
+      : translations[selectedLanguage].No;
   };
 
   const validFilterTemplate = (options) => {
+    const validOptions = [
+      { name: translations[selectedLanguage].Yes, code: '1' },
+      { name: translations[selectedLanguage].No, code: '0' },
+    ];
+
     return (
       <div className="flex align-items-center gap-2">
-        <label htmlFor="verified-filter" className="font-bold">
-        {translations[selectedLanguage].Valid}
-        </label>
-        <TriStateCheckbox
-          inputId="verified-filter"
-          value={options.value}
+        <Dropdown
+          value={options.value ?? null}
+          options={validOptions}
           onChange={(e) => options.filterCallback(e.value)}
+          optionLabel="name"
+          optionValue="code"
+          placeholder={translations[selectedLanguage].Selekcija || "Select"}
+          showClear
+          className="w-full"
         />
       </div>
     );
@@ -196,6 +212,7 @@ export default function CoffZapL(props) {
 
   // <--- Dialog
   const setCoffZapDialog = (coffZap) => {
+    setShowMyComponent(true)
     setVisible(true)
     setZapTip("CREATE")
     setCoffZap({ ...coffZap });
@@ -225,7 +242,7 @@ export default function CoffZapL(props) {
   };
 
   return (
-    <div className="card">
+    <div className="card model-grid-page">
       <Toast ref={toast} />
       <DataTable
         dataKey="id"
@@ -240,7 +257,7 @@ export default function CoffZapL(props) {
         scrollable
         sortField="code"        
         sortOrder={1}
-        scrollHeight="750px"
+        scrollHeight="flex"
         virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}
@@ -280,6 +297,13 @@ export default function CoffZapL(props) {
           style={{ width: "20%" }}
         ></Column>                
         <Column
+          field="email"
+          header="Email"
+          sortable
+          filter
+          style={{ width: "25%" }}
+        ></Column>
+        <Column
           field="NRM"
           header={translations[selectedLanguage].nrm}
           sortable
@@ -292,7 +316,18 @@ export default function CoffZapL(props) {
           sortable
           filter
           style={{ width: "25%" }}
-        ></Column>        
+        ></Column>
+        <Column
+          field="valid"
+          filterField="valid"
+          header={translations[selectedLanguage].Valid}
+          sortable
+          filter
+          filterElement={validFilterTemplate}
+          style={{ width: "10%" }}
+          bodyClassName="text-center"
+          body={validBodyTemplate}
+        ></Column>
       </DataTable>
       <Dialog
         header={translations[selectedLanguage].Zap}
@@ -311,6 +346,23 @@ export default function CoffZapL(props) {
             setVisible={setVisible}
             dialog={true}
             zapTip={zapTip}
+          />
+        )}
+      </Dialog>
+      <Dialog
+        header={translations[selectedLanguage].ZaplinkList}
+        visible={coffZaplinkLVisible}
+        style={{ width: '90%' }}
+        onHide={() => {
+          setCoffZaplinkLVisible(false);
+          setShowMyComponent(false);
+        }}
+      >
+        {showMyComponent && (
+          <CoffZaplinkL
+            coffZap={coffZap}
+            setCoffZaplinkLVisible={setCoffZaplinkLVisible}
+            dialog={true}
           />
         )}
       </Dialog>

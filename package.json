@@ -47,7 +47,7 @@
         "sdev": "copy .\\src\\configs\\env.sdev.local .\\src\\configs\\env.js && set PORT=8356 && react-scripts start /coff/",
         "boban": "copy .\\src\\configs\\env.boban.local .\\src\\configs\\env.js && set PORT=8356 && react-scripts start /coff/",
         "prod": "copy .\\src\\configs\\env.prod.local .\\src\\configs\\env.js && set PORT=8356 && react-scripts start /coff/",
-        "build": "copy .\\src\\configs\\env.prod.local .\\src\\configs\\env.js && set GENERATE_SOURCEMAP=false && react-scripts build",
+        "build": "copy .\\src\\configs\\env.brztest.local .\\src\\configs\\env.js && set GENERATE_SOURCEMAP=false && react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
         "format": "prettier --write \"src/**/*.{js,ts,tsx}\""

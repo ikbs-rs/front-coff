@@ -1,102 +1,146 @@
-import React, { useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Checkbox } from 'primereact/checkbox';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import env from "../configs/env"
+import env from '../configs/env';
 import { useDispatch } from 'react-redux';
 import { setLanguage } from '../store/actions';
-//import https from 'https'
+import { translations } from '../configs/translations';
+
+const DEFAULT_LANGUAGE = 'en';
+
+const LOGIN_COPY = {
+    en: {
+        welcome: 'Welcome, use the form to sign in to the EMS network',
+        username: 'Username',
+        password: 'Password',
+        language: 'Language',
+        rememberMe: 'Remember me',
+        signIn: 'Sign in',
+    },
+    sr_lat: {
+        welcome: 'Dobrodošli, koristite formular za prijavu na EMS mrežu',
+        username: 'Korisnik',
+        password: 'Lozinka',
+        language: 'Jezik',
+        rememberMe: 'Zapamti me',
+        signIn: 'Prijavite se',
+    },
+    sr_cyr: {
+        welcome: 'Добродошли, користите формулар за пријаву на ЕМС мрежу',
+        username: 'Корисник',
+        password: 'Лозинка',
+        language: 'Језик',
+        rememberMe: 'Запамти ме',
+        signIn: 'Пријавите се',
+    },
+    fr: {
+        welcome: "Bienvenue, utilisez le formulaire pour vous connecter au reseau EMS",
+        username: "Utilisateur",
+        password: "Mot de passe",
+        language: 'Langue',
+        rememberMe: 'Se souvenir de moi',
+        signIn: 'Se connecter',
+    },
+    de: {
+        welcome: 'Willkommen, verwenden Sie das Formular zur Anmeldung im EMS-Netzwerk',
+        username: 'Benutzer',
+        password: 'Passwort',
+        language: 'Sprache',
+        rememberMe: 'Angemeldet bleiben',
+        signIn: 'Anmelden',
+    },
+};
+
+const LANGUAGE_OPTIONS = [
+    { value: 'en', label: 'English' },
+    { value: 'sr_cyr', label: 'Српски (ћирилица)' },
+    { value: 'sr_lat', label: 'Srpski (latinica)' },
+    { value: 'fr', label: 'French' },
+    { value: 'de', label: 'German' },
+];
+
+const getLoginCopy = (language) => LOGIN_COPY[language] || LOGIN_COPY.sr_cyr;
+
+const isSuccessfulLoginResponse = (response) => response?.status === 200;
+
+const persistLoginSession = (responseData, selectedLanguage) => {
+    localStorage.setItem('token', responseData.token);
+    localStorage.setItem('refreshToken', responseData.refreshToken);
+    localStorage.setItem('userId', responseData.userId);
+    localStorage.setItem('sl', selectedLanguage || DEFAULT_LANGUAGE);
+    sessionStorage.setItem('isLoggedIn', 'true');
+};
 
 export const Login = () => {
-
     const [checked, setChecked] = useState(false);
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [selectedLanguage, setSelectedLanguageState] = useState(localStorage.getItem('sl') || DEFAULT_LANGUAGE);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    // const search = window.location.search;    
-    // const params = new URLSearchParams(search);
-    let sl = localStorage.getItem('sl')||'en' //params.get('sl');   
 
-    const onInputChange = (e, name) => {
-        sl= e.target.value
-        // setCurrentLanguage(sl)
-        dispatch(setLanguage(sl));
-    }
+    useEffect(() => {
+        dispatch(setLanguage(selectedLanguage));
+    }, [dispatch, selectedLanguage]);
 
-    const handleButtonClick = async (parameter) => {
-        //console.log("***************DOSAO***********************")
-        // Ovde nedostaje kod za logovanje
-        // let isLoggedIn = true;
-        const usernameInput = document.getElementById("input").value; // Koristimo document.getElementById da bismo dohvatili vrijednost polja Username
-        const passwordInput = document.getElementById("password-input").value; // Koristimo document.getElementById da bismo dohvatili vrijednost polja Password
-        
+    const translate = (key) => {
+        const fallbackCopy = getLoginCopy(selectedLanguage);
+        const baseTranslations = translations[selectedLanguage] || translations[DEFAULT_LANGUAGE] || {};
+
+        switch (key) {
+            case 'username':
+                return baseTranslations.User || baseTranslations.Username || fallbackCopy.username;
+            case 'password':
+                return fallbackCopy.password;
+            case 'language':
+                return fallbackCopy.language;
+            case 'rememberMe':
+                return fallbackCopy.rememberMe;
+            case 'signIn':
+                return fallbackCopy.signIn;
+            case 'welcome':
+            default:
+                return fallbackCopy.welcome;
+        }
+    };
+
+    const handleLanguageChange = (event) => {
+        const nextLanguage = event.target.value;
+        setSelectedLanguageState(nextLanguage);
+        localStorage.setItem('sl', nextLanguage);
+    };
+
+    const handleLogin = async () => {
         const requestData = {
-          username: usernameInput,
-          password: passwordInput
+            username,
+            password,
         };
-       const url = `${env.JWT_BACK_URL}/adm/services/sign/in`;
-       // const url = `https://dev.app.ems.rs/badm/adm/services/sign/in`;
-       // console.log(url, requestData, "*****333333333333333333333333333333333333333333**************")
+        const url = `${env.JWT_BACK_URL}/adm/services/sign/in`;
 
-    // Postavljanje opcija zahteva za onemogućavanje provere validnosti sertifikata
-        // const axiosOptions = {
-        //     httpsAgent: new https.Agent({
-        //     rejectUnauthorized: false, // Postavljanje na `false` onemogućava proveru validnosti sertifikata
-        //     }),7
-        // };        
+        setIsSubmitting(true);
+
         try {
-            //console.log(url, requestData, "*****************url*********************")
             const response = await axios.post(url, requestData);
-            if (response.status === 200) {
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('refreshToken', response.data.refreshToken);
-                localStorage.setItem('userId', response.data.userId);
-                sessionStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('sl', sl || "en");
-                navigate('/');
-            } else {
-                console.log("******************response.login********************")
+
+            // Kriticna tacka: samo eksplicitni HTTP 200 tretiramo kao uspesno logovanje.
+            if (!isSuccessfulLoginResponse(response)) {
                 navigate('/login');
+                return;
             }
-            console.log("******************kraj********************")
+
+            persistLoginSession(response.data, selectedLanguage);
+            navigate('/');
         } catch (error) {
             console.error(error);
-            // Handle error and possibly navigate back to login
             navigate('/login');
-        }       
-
-        //dispatch(setLanguage(sl)); // Postavite željeni jezik umesto 'en'
-/*
-        axios
-         .post(`${env.JWT_BACK_URL}/adm/services/sign/in`, requestData)
-         .then((response) => {
-           isLoggedIn = response.status === 200; // Ako je status 200, isLoggedIn će biti true
-           if (isLoggedIn) {
-             //TODO idi na pocetnu stranicu
-             localStorage.setItem('token', response.data.token);
-             localStorage.setItem('refreshToken', response.data.refreshToken);
-             sessionStorage.setItem('isLoggedIn', 'true');
-             localStorage.setItem('sl', sl||"en");
-             navigate(`/login}`);
-             //const newUrl = `${window.location.pathname}?sl=${sl||"en"}`;
-             //window.location.replace(newUrl);
-             //dispatch(setLanguage(sl));
-
-            navigate('/');
-           } else {
-             //TODO vrati se na login
-             navigate(`/login}`);
-           }
-         })
-         .catch((error) => {
-            console.log(`${env.JWT_BACK_URL}/adm/services/sign/in`, "*-*-*-*-*-*-*-*ERROR-*-*-*-*-*-*-*-*", error)
-           console.error(error);
-           isLoggedIn = false; // Ako se dogodila pogreška, isLoggedIn će biti false
-           //TODO vrati se na login
-         }); 
-         */       
-    }    
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <div className="login-body">
@@ -106,36 +150,52 @@ export const Login = () => {
                         <div className="col-12 sm:col-8 md:col-8 logo-container">
                             {/* <img src="start/assets/layout/images/logo-tl.png" alt="Ticketline" style={{ width: "155.88px", height: "46.25px" }}/> */}
                             <img src="assets/layout/images/logo-tl.png" alt="Ticketline" style={{ height: "150px" }}/>
-                            <span className="guest-sign-in">Добродошли, користите формулар за пријаву на ЕМС мрежу</span>
+                            <span className="guest-sign-in">{translate('welcome')}</span>
                         </div>
                         <div className="col-12 username-container">
-                            <label>Корисник</label>
+                            <label htmlFor="input">{translate('username')}</label>
                             <div className="login-input">
-                                <InputText id="input" type="text" />
+                                <InputText
+                                    id="input"
+                                    type="text"
+                                    value={username}
+                                    onChange={(event) => setUsername(event.target.value)}
+                                    autoComplete="username"
+                                />
                             </div>
                         </div>
                         <div className="col-12 password-container">
-                            <label>Лозинка</label>
+                            <label htmlFor="password-input">{translate('password')}</label>
                             <div className="login-input">
-                                <InputText id="password-input" type="password" />
+                                <InputText
+                                    id="password-input"
+                                    type="password"
+                                    value={password}
+                                    onChange={(event) => setPassword(event.target.value)}
+                                    autoComplete="current-password"
+                                    onKeyDown={(event) => {
+                                        if (event.key === 'Enter') {
+                                            handleLogin();
+                                        }
+                                    }}
+                                />
                             </div>
                         </div>
                         <div className="col-12 language-container">
-                            <label>Језик</label>
+                            <label htmlFor="language-input">{translate('language')}</label>
                             <div className="login-input">
-                                <select id="language-input" onChange={(e) => onInputChange(e, 'language-input')} defaultValue={sl || "en"}>
-                                    <option value="en">English</option>
-                                    <option value="sr_cyr">Српски (ћирилица)</option>
-                                    <option value="sr_lat">Srpski (latinica)</option>
-                                    <option value="fr">French</option>
-                                    <option value="de">German</option>
-                                    {/* Dodajte ostale jezike po potrebi */}
+                                <select id="language-input" onChange={handleLanguageChange} value={selectedLanguage}>
+                                    {LANGUAGE_OPTIONS.map((option) => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
-                        </div>                        
+                        </div>
                         <div className="col-12 sm:col-6 md:col-6 rememberme-container">
                             <Checkbox checked={checked} onChange={(e) => setChecked(e.checked)} />
-                            <label> Запамти ме</label>
+                            <label> {translate('rememberMe')}</label>
                         </div>
 
                         {/* <div className="col-12 sm:col-6 md:col-6 forgetpassword-container">
@@ -145,7 +205,13 @@ export const Login = () => {
                         </div> */}
 
                         <div className="col-12 sm:col-6 md:col-6">
-                            <Button label="Пријавите се" icon="pi pi-check" onClick={() => handleButtonClick('app')}/>
+                            <Button
+                                label={translate('signIn')}
+                                icon="pi pi-check"
+                                onClick={handleLogin}
+                                loading={isSubmitting}
+                                disabled={isSubmitting}
+                            />
                         </div>
                     </div>
                 </div>

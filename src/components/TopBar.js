@@ -33,7 +33,7 @@ const TopBar = () => {
                 <div className="languages d-none d-md-flex align-items-center">
                     <ul>
                         <li>Рс</li>
-                        <li><a href="#">Ен</a></li>
+                        <li><span>Ен</span></li>
                     </ul>
                 </div>
             </div>

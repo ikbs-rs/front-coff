@@ -1,6 +1,5 @@
 // src/components/Header.js
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './Index.css';
 import { Badge } from 'primereact/badge';
 import { translations } from "../configs/translations";
@@ -10,52 +9,54 @@ import { AdmUserService } from "../service/model/cmn/AdmUserService";
 import { Avatar } from 'primereact/avatar';
 import { useWebSocket } from '../utilities/WebSocketContext';
 import { CoffDocService } from "../service/model/CoffDocService";
+import env from '../configs/env';
 
 const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef, docRef }) => {
-  let i = 0
-  const b = "http://brztest.ems.local/coff/assets/img/zap/1774496601038262272.jpg"
   const selectedLanguage = localStorage.getItem('sl') || 'en'
   const userId = localStorage.getItem('userId') || -1
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showMyComponent, setShowMyComponent] = useState(true);
-  const [coffZap, setCoffZap] = useState({});
+  const [coffZap] = useState({});
   const [user, setUser] = useState({});
   const [coffZapVisible, setCoffZaplinkLVisible] = useState(false);
-  const [visible, setVisible] = useState(false);
   const [slika, setSlika] = useState('');
-  let [brojPoruka, setBrojPoruka] = useState(0);
+  const [brojPoruka, setBrojPoruka] = useState(0);
   const websocket = useWebSocket();
-  const navigate = useNavigate();
 
+  const refreshBrojPoruka = async () => {
+    const coffDocService = new CoffDocService();
+    const data = await coffDocService.getCoffDocsCountTp(1);
 
+    setBrojPoruka(data.count);
+  };
 
   useEffect(() => {
-    async function fetchData() {
-
-        const coffDocService = new CoffDocService();
-        const data = await coffDocService.getCoffDocsCountTp(1);       
-        setBrojPoruka(data.count)
-
-    }
-    fetchData();
+    refreshBrojPoruka();
   }, []);
 
   useEffect(() => {
-    async function fetchData() {
-      
-      if (websocket) {     
-        websocket.addEventListener('message', async (message) => {
-          const obj = JSON.parse(message.data)
-          if (obj?.data?.[0]?.id == 'TRECA') {
-            const coffDocService = new CoffDocService();
-            const data = await coffDocService.getCoffDocsCountTp(1);            
-            setBrojPoruka(data.count)  
-          }
-        });
-      }
+    if (!websocket) {
+      return undefined;
     }
-    fetchData();
+
+    const handleMessage = async (message) => {
+      try {
+        const obj = JSON.parse(message.data);
+
+        if (obj?.data?.[0]?.id === 'TRECA') {
+          await refreshBrojPoruka();
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    websocket.addEventListener('message', handleMessage);
+
+    return () => {
+      websocket.removeEventListener('message', handleMessage);
+    };
   }, [websocket]);
 
   useEffect(() => {
@@ -75,59 +76,25 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
   }, []);
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchUser() {
       try {
-        ++i
-        if (i < 2) {
-          const admUserService = new AdmUserService();
-          const data = await admUserService.getAdmUser(userId);
-          console.log(data, "/////////////////////////////////////////////////////////////getListaLL////////////////////////////////////////////////////////////////////////")
-          setUser(data);
-          setSlika(`http://brztest.ems.local/coff/assets/img/zap/${data.id}.jpg`)
-        }
+        const admUserService = new AdmUserService();
+        const data = await admUserService.getAdmUser(userId);
+        setUser(data);
+        setSlika(`${env.COFF_URL}assets/img/zap/${data.id}.jpg`);
       } catch (error) {
         console.error(error);
-        // Obrada greške ako je potrebna
       }
     }
-    fetchData();
-  }, []);
+
+    fetchUser();
+  }, [userId]);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
-  const handleOvlascenjeClick = (e) => {
-    if (websocket && websocket.readyState === WebSocket.OPEN) {
-      websocket.send('{"data":[{"id":"TRECA"}]}');
-    }
-    // setCoffZamDialog(e);
-  }
-
-  const setCoffZamDialog = (e) => {
-    setCoffZaplinkLVisible(true)
-    setShowMyComponent(true)
-  }
-
-  const handleDropdownClick = (event) => {
-    console.log(event, "*************event*******************")
-    event.preventDefault();
-    const childUl = event.currentTarget.querySelector('ul');
-    const hasDropdownActiveClass = childUl.classList.contains('dropdown-active')
-
-    console.log(childUl, "*************childUl*******************", childUl.classList.contains('dropdown-active'))
-
-    if (hasDropdownActiveClass) {
-      childUl.classList.remove('dropdown-active');
-    } else {
-      childUl.classList.add('dropdown-active');
-    }
-    event.stopPropagation();
-  };
-
-  const handleDialogClose = (newObj) => {
-    const localObj = { newObj };
-  }
+  const handleDialogClose = () => {};
 
   return (
     <>
@@ -136,7 +103,7 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
           {/* <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '10px', alignItems: 'center' }} /> */}
           <h1 className="logo me-auto me-lg-0"><a href="/" onClick={(e) => { e.preventDefault(); scrollToSection(heroSectionRef); }} style={{ "padding-left": "50px" }}>ЕМС - БИФЕ </a></h1>
           <nav id="navbar" className={`navbar order-last order-lg-0 ${mobileMenuOpen ? 'navbar-mobile' : ''}`}>
-            <ul class>
+            <ul>
               <li><a href="/hero" onClick={(e) => {
                 e.preventDefault();
                 scrollToSection(heroSectionRef);
@@ -255,7 +222,7 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', "padding-right": "20px", "padding-top": "8px" }} >
             <div style={{ "padding-right": "5px" }}>
               <i className="pi pi-bell p-overlay-badge" style={{ fontSize: '2rem', color: '#cda45e' }}>
-                {brojPoruka == '0' ? (null) : (
+                {brojPoruka === 0 || brojPoruka === '0' ? null : (
                   <Badge 
                     value={brojPoruka} 
                     severity="danger"

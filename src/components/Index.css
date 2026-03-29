@@ -1321,13 +1321,32 @@ section {
 /*-------------------------------------*/
 .menu .menu-item {
   margin-top: 30px;
+  display: flow-root;
+  min-height: 120px;
+  padding-right: 1rem;
+}
+
+.menu .order-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1.25rem 1rem;
+  align-items: start;
+}
+
+.menu .order-grid .order-item {
+  margin-top: 0;
+  width: 100%;
+  transition: transform 0.18s ease, filter 0.18s ease;
 }
 
 .menu .menu-img {
   width: 110px;
+  height: 110px;
+  object-fit: cover;
   border-radius: 50%;
   float: left;
   border: 5px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, filter 0.18s ease;
 }
 
 .menu .room-img {
@@ -1338,11 +1357,12 @@ section {
 }
 
 .menu .menu-content {
-  margin-left: 85px;
+  margin-left: 130px;
   overflow: hidden;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   position: relative;
+  min-height: 56px;
 }
 
 .menu .menu-content::after {
@@ -1370,6 +1390,31 @@ section {
   color: #cda45e;
 }
 
+.menu .order-grid .order-item:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.04);
+}
+
+.menu .order-grid .order-item:hover .menu-img {
+  transform: scale(1.04);
+  border-color: rgba(255, 193, 7, 0.82);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28), 0 0 0 6px rgba(255, 193, 7, 0.08);
+  filter: saturate(1.05);
+}
+
+.menu .order-grid .order-item:hover .menu-content a {
+  color: #f4c96a;
+}
+
+.menu .order-grid .order-item:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+.menu .order-grid .order-item:active .menu-img {
+  transform: scale(0.98);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22), 0 0 0 4px rgba(255, 193, 7, 0.14);
+}
+
 .menu .menu-content span {
   background: #1a1814;
   position: relative;
@@ -1380,11 +1425,23 @@ section {
 }
 
 .menu .menu-ingredients {
-  margin-left: 85px;
+  margin-left: 130px;
   font-style: italic;
   font-size: 14px;
   font-family: "Poppins", sans-serif;
   color: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 1199px) {
+  .menu .order-grid {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .menu .order-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 
@@ -1591,6 +1648,307 @@ section {
 
 .specials .details p:last-child {
   margin-bottom: 0;
+}
+
+.specials-glass .specials-glass-panel {
+  padding: 1rem;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(36, 39, 46, 0.74), rgba(12, 14, 19, 0.56));
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.26);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.specials-glass .nav-tabs {
+  gap: 0.35rem;
+  margin-bottom: 0.85rem;
+}
+
+.specials-glass .nav-link {
+  border-right: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px 12px 0 0;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.specials-glass .nav-link.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.specials-glass .tab-content {
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.specials-glass label,
+.specials-glass .details h3,
+.specials-glass .details p,
+.specials-glass .p-inputtext,
+.specials-glass .p-inputtext::placeholder,
+.specials-glass .p-datatable .p-datatable-header,
+.specials-glass .p-datatable .p-datatable-thead > tr > th,
+.specials-glass .p-datatable .p-datatable-tbody > tr > td,
+.specials-glass .p-datatable .p-datatable-tbody > tr,
+.specials-glass .p-paginator,
+.specials-glass .p-paginator .p-paginator-pages .p-paginator-page,
+.specials-glass .p-paginator .p-paginator-next,
+.specials-glass .p-paginator .p-paginator-prev,
+.specials-glass .p-paginator .p-paginator-first,
+.specials-glass .p-paginator .p-paginator-last,
+.specials-glass .p-dropdown-label,
+.specials-glass .p-column-title,
+.specials-glass .p-sortable-column-icon {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.specials-glass .p-inputtext,
+.specials-glass .p-dropdown {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.specials-glass .p-inputtext:enabled:focus,
+.specials-glass .p-dropdown:not(.p-disabled).p-focus {
+  box-shadow: 0 0 0 0.16rem rgba(205, 164, 94, 0.18);
+  border-color: rgba(205, 164, 94, 0.45);
+}
+
+.specials-glass .p-datatable-wrapper,
+.specials-glass .p-datatable table,
+.specials-glass .p-paginator {
+  background: transparent;
+}
+
+.specials-glass .p-datatable .p-datatable-header,
+.specials-glass .p-datatable .p-datatable-thead > tr > th {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.specials-glass .p-datatable .p-datatable-tbody > tr {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.specials-glass .p-datatable .p-datatable-tbody > tr:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.specials-glass .p-datatable .p-datatable-tbody > tr > td,
+.specials-glass .p-paginator {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.glass-card,
+.specials-glass .glass-card.card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(34, 37, 44, 0.86), rgba(11, 13, 18, 0.72)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.32) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+  opacity: 0.7;
+}
+
+.glass-card,
+.glass-card .card,
+.glass-card .p-component,
+.glass-card .p-datatable,
+.glass-card .p-datatable-wrapper,
+.glass-card .p-datatable-table-container,
+.glass-card .p-virtualscroller,
+.glass-card .p-virtualscroller-content,
+.glass-card .p-paginator {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.glass-form > * {
+  position: relative;
+  z-index: 1;
+}
+
+.glass-form label {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.glass-form .p-inputtext {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f8fafc !important;
+}
+
+.glass-form .p-inputtext:disabled {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.86) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.86) !important;
+}
+
+.glass-form .p-button {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.glass-form .p-button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.glass-form .p-button.p-button-warning:hover {
+  box-shadow: 0 12px 24px rgba(255, 193, 7, 0.22);
+}
+
+.glass-form .p-button.p-button-danger:hover {
+  box-shadow: 0 12px 24px rgba(220, 53, 69, 0.24);
+}
+
+.glass-table-shell {
+  position: relative;
+  z-index: 1;
+  margin-top: 1rem;
+  padding: 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.glass-datatable,
+.glass-datatable.p-datatable,
+.glass-datatable.p-datatable-gridlines,
+.glass-datatable .p-datatable-wrapper,
+.glass-datatable .p-datatable-table-container,
+.glass-datatable .p-datatable-table,
+.glass-datatable .p-datatable-scrollable-wrapper,
+.glass-datatable .p-datatable-scrollable-view,
+.glass-datatable .p-datatable-scrollable-header,
+.glass-datatable .p-datatable-scrollable-header-box,
+.glass-datatable .p-datatable-scrollable-body,
+.glass-datatable .p-virtualscroller,
+.glass-datatable .p-virtualscroller-content,
+.glass-datatable .p-virtualscroller-spacer,
+.glass-datatable .p-paginator {
+  background: transparent !important;
+}
+
+.glass-datatable.p-datatable .p-datatable-header,
+.glass-datatable.p-datatable-gridlines .p-datatable-header,
+.glass-datatable .p-datatable-thead,
+.glass-datatable .p-datatable-thead > tr,
+.glass-datatable.p-datatable .p-datatable-thead > tr > th,
+.glass-datatable.p-datatable-gridlines .p-datatable-thead > tr > th,
+.glass-datatable .p-sortable-column,
+.glass-datatable .p-sortable-column:focus,
+.glass-datatable .p-sortable-column:not(.p-highlight):hover {
+  background: rgba(46, 50, 58, 0.94) !important;
+  border-color: rgba(255, 193, 7, 0.9) !important;
+  color: #f8fafc !important;
+}
+
+.glass-datatable.p-datatable .p-datatable-thead > tr > th,
+.glass-datatable.p-datatable-gridlines .p-datatable-thead > tr > th,
+.glass-datatable .p-sortable-column {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease, background-color 0.18s ease;
+  box-shadow: 0 8px 18px rgba(255, 193, 7, 0.08);
+}
+
+.glass-datatable.p-datatable .p-datatable-thead > tr > th:hover,
+.glass-datatable.p-datatable-gridlines .p-datatable-thead > tr > th:hover,
+.glass-datatable .p-sortable-column:not(.p-highlight):hover,
+.glass-datatable .p-sortable-column:focus {
+  background: rgba(58, 63, 72, 0.98) !important;
+  border-color: rgba(255, 193, 7, 1) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 20px rgba(255, 193, 7, 0.18);
+  transform: translateY(-1px);
+}
+
+.glass-datatable .p-column-header-content {
+  background: rgba(46, 50, 58, 0.94) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.glass-datatable .p-datatable-scrollable-header,
+.glass-datatable .p-datatable-scrollable-header-box {
+  background: rgba(46, 50, 58, 0.94) !important;
+}
+
+.glass-datatable.p-datatable .p-datatable-tbody > tr,
+.glass-datatable.p-datatable-gridlines .p-datatable-tbody > tr,
+.glass-datatable .p-datatable-emptymessage {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.glass-datatable.p-datatable .p-datatable-tbody > tr > td,
+.glass-datatable.p-datatable-gridlines .p-datatable-tbody > tr > td,
+.glass-datatable .p-datatable-emptymessage > td {
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.glass-datatable.p-datatable .p-datatable-tbody > tr:hover,
+.glass-datatable.p-datatable-gridlines .p-datatable-tbody > tr:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.glass-datatable .p-sortable-column,
+.glass-datatable .p-sortable-column .p-sortable-column-icon,
+.glass-datatable .p-column-title,
+.glass-datatable .p-paginator,
+.glass-datatable .p-paginator .p-paginator-current,
+.glass-datatable .p-paginator .p-paginator-pages .p-paginator-page,
+.glass-datatable .p-paginator .p-paginator-first,
+.glass-datatable .p-paginator .p-paginator-prev,
+.glass-datatable .p-paginator .p-paginator-next,
+.glass-datatable .p-paginator .p-paginator-last,
+.glass-datatable .p-dropdown-label,
+.glass-datatable .p-dropdown-trigger,
+.glass-datatable .p-paginator .p-paginator-rpp-options {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.glass-datatable .p-column-title,
+.glass-datatable .p-sortable-column .p-sortable-column-icon {
+  color: #f8fafc !important;
+}
+
+.glass-datatable.p-datatable .p-datatable-thead > tr > th:hover .p-column-title,
+.glass-datatable.p-datatable-gridlines .p-datatable-thead > tr > th:hover .p-column-title,
+.glass-datatable.p-datatable .p-datatable-thead > tr > th:hover .p-sortable-column-icon,
+.glass-datatable.p-datatable-gridlines .p-datatable-thead > tr > th:hover .p-sortable-column-icon {
+  color: #ffffff !important;
+}
+
+.glass-datatable .p-paginator,
+.glass-datatable .p-dropdown,
+.glass-datatable .p-paginator .p-dropdown,
+.glass-datatable .p-paginator .p-paginator-pages .p-paginator-page,
+.glass-datatable .p-paginator .p-paginator-first,
+.glass-datatable .p-paginator .p-paginator-prev,
+.glass-datatable .p-paginator .p-paginator-next,
+.glass-datatable .p-paginator .p-paginator-last {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 @media (max-width: 992px) {

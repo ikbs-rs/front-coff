@@ -175,7 +175,7 @@ export default function CoffIzv01L(props) {
 
   const renderHeader = () => {
     return (
-      <div className="flex card-container">
+    <div className="flex card-container">
         <div className="flex flex-wrap gap-1">
           <Button label={translations[selectedLanguage].Potvrdi} icon="pi pi-plus" severity="success" onClick={handleClick} text raised />
         </div>
@@ -264,7 +264,7 @@ export default function CoffIzv01L(props) {
   };
 
   return (
-    <div className="card">
+    <div className="card model-grid-page">
       <Toast ref={toast} />
       {/* <div className="col-12"> */}
       <div >
@@ -313,7 +313,7 @@ export default function CoffIzv01L(props) {
         removableSort
         filters={filters}
         scrollable
-        scrollHeight="640px"
+        scrollHeight="flex"
         virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}

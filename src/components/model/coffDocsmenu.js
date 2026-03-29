@@ -259,8 +259,9 @@ const Order = (props) => {
                                 // icon="pi pi-times"
                                 // className="p-button-outlined p-button-secondary"
                                 onClick={handleCancelClick}
-                                className="p-button-raised p-button-secondary"
+                                className="dialog-close-outline"
                                 severity="warning"
+                                outlined
                                 style={{ width: '100%', fontSize: '1.2rem' }}
 
                             />

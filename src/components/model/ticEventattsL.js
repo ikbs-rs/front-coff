@@ -441,7 +441,7 @@ export default function TicEventattsL(props) {
 
     const renderHeader = () => {
         return (
-            <div className="flex card-container">
+    <div className="flex card-container">
                 <div className="flex flex-wrap gap-1" />
                 <Button label={translations[selectedLanguage].Cancel} icon="pi pi-times" onClick={handleCancelClick} text raised />
                 <div className="flex flex-wrap gap-1">
@@ -597,7 +597,7 @@ export default function TicEventattsL(props) {
         switch (rowData.inputtp) {
             case '4':
                 return (
-                    <div className="card flex justify-content-center">
+                    <div className="card flex justify-content-center model-grid-page">
                         <FileUpload
                             //mode="basic"
                             name="Fajl"
@@ -875,7 +875,7 @@ export default function TicEventattsL(props) {
 
                 filters={filters}
                 scrollable
-                scrollHeight="550px"
+                scrollHeight="flex"
                 //virtualScrollerOptions={{ itemSize: 46 }}
                 tableStyle={{ minWidth: '50rem' }}
                 //metaKeySelection={false}

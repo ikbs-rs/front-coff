@@ -1,8 +1,7 @@
 // src/components/Menu.js
 import './Index.css';
 import '../assets/css/bootstrap-icons.css'
-import React, { useState, useEffect, useRef } from 'react';
-import Isotope, { select, on } from 'isotope-layout';
+import React, { useState, useEffect } from 'react';
 import { FilterMatchMode, FilterOperator } from "primereact/api";
 import AOS from 'aos';
 import { EmptyEntities } from '../service/model/EmptyEntities';
@@ -14,7 +13,6 @@ import { CoffDocService } from "../service/model/CoffDocService";
 
 const Ordermenu = (props) => {
     let i = 0
-    const isotopeOrder = useRef();
     const objName = "tic_docs"
     const selectedLanguage = localStorage.getItem('sl') || 'en'
 
@@ -55,22 +53,6 @@ const Ordermenu = (props) => {
         fetchData();
     }, []);
 
-    React.useEffect(() => {
-
-        isotopeOrder.current = new Isotope('.order-container', {
-            itemSelector: '.order-item',
-            layoutMode: 'fitRows',
-        })
-        return () => isotopeOrder.current.destroy()
-    }, [menItems])
-
-    // handling filter key change
-    React.useEffect(() => {
-        filterKey === '*'
-            ? isotopeOrder.current.arrange({ filter: `*` })
-            : isotopeOrder.current.arrange({ filter: `.${filterKey}` })
-    }, [filterKey])
-
     const handleDialogClose = (newObj) => {
         console.log("@@@------------------------handleDialogClose--------------------@@@@@@");
 
@@ -84,7 +66,7 @@ const Ordermenu = (props) => {
 
     const handleItemClick = (item, event) => {
         const currCoffOrder = localStorage.getItem('currCoffOrder')
-        setDocId(currCoffOrder)
+        setDocId(currCoffOrder ? String(currCoffOrder) : "-1")
         setArtCurr({ ...item })
         setTicCenaDialog(emptyTicCena);
         event.stopPropagation();
@@ -124,6 +106,10 @@ const Ordermenu = (props) => {
         // setDataTab(updatedTab);
     };
 
+    const filteredMenuItems = filterKey === '*'
+        ? menItems
+        : menItems.filter((item) => item.category === filterKey);
+
     return (
         <section id="menu" className="menu section-bg ">
             <div className="container" data-aos="fade-up">
@@ -144,10 +130,15 @@ const Ordermenu = (props) => {
                     </div>
                 </div>
 
-                <div id="mnu03" className="row order-container" data-aos="fade-up" data-aos-delay="200" style={{ position: 'relative', height: '950px ' }}>
-                    {menItems.map(item => (
-                        <div key={item.id} className={`col-lg-3 menu-item order-item ${item.category}`} onClick={(e) => handleItemClick(item, e)}>
-                            <img src={item.img} className="menu-img" alt={item.name} style={{ cursor: 'pointer' }} />
+                <div id="mnu03" className="order-container order-grid" data-aos="fade-up" data-aos-delay="200">
+                    {filteredMenuItems.map(item => (
+                        <div key={item.id} className={`menu-item order-item ${item.category}`} onClick={(e) => handleItemClick(item, e)}>
+                            <img
+                                src={item.img}
+                                className="menu-img"
+                                alt={item.name}
+                                style={{ cursor: 'pointer' }}
+                            />
                             <div className="menu-content" style={{ cursor: 'pointer' }} >
                                 <aa href="/menu">{item.name}</aa>
                                 {/* <span>{item.price}</span> */}

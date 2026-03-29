@@ -168,7 +168,7 @@ console.log(props, "------------------------------------------------------------
 
   const renderHeader = () => {
     return (
-      <div className="flex card-container">
+    <div className="flex card-container">
         <div className="flex flex-wrap gap-1" />
         <Button label={translations[selectedLanguage].Cancel} icon="pi pi-times" onClick={handleCancelClick} text raised
         />
@@ -263,7 +263,7 @@ console.log(props, "------------------------------------------------------------
     );
   };  
   return (
-    <div className="card">
+    <div className="card model-grid-page">
       <Toast ref={toast} />
       <div className="col-12">
         <div className="card">
@@ -297,7 +297,7 @@ console.log(props, "------------------------------------------------------------
         removableSort
         filters={filters}
         scrollable
-        scrollHeight="550px"
+        scrollHeight="flex"
         virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}

@@ -251,7 +251,7 @@ export default function CmnParL(props) {
 
   const renderHeader = () => {
     return (
-      <div className="flex card-container">
+    <div className="flex card-container">
         <div className="flex flex-wrap gap-1" />
         {(parentData || props.dialog) && (
           <>
@@ -348,7 +348,7 @@ export default function CmnParL(props) {
   };
 
   return (
-    <div className="card">
+    <div className="card model-grid-page">
       <Toast ref={toast} />
 
       <DataTable
@@ -362,7 +362,7 @@ export default function CmnParL(props) {
         removableSort
         filters={filters}
         scrollable
-        scrollHeight="550px"
+        scrollHeight="flex"
         virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}

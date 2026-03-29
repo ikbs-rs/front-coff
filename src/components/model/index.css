@@ -154,3 +154,353 @@ body {
   /* color: #252529; */
   opacity: 0.95; 
 }
+
+.model-grid-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 76px);
+  min-height: calc(100dvh - 76px);
+  max-height: calc(100dvh - 76px);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.model-grid-page.model-grid-page-order {
+  height: calc((100dvh - 76px) * 0.75);
+  min-height: calc((100dvh - 76px) * 0.75);
+  max-height: calc((100dvh - 76px) * 0.75);
+}
+
+.model-grid-page.model-grid-page-docs {
+  height: calc((100dvh - 76px) * 0.85);
+  min-height: calc((100dvh - 76px) * 0.85);
+  max-height: calc((100dvh - 76px) * 0.85);
+}
+
+.model-grid-page.model-grid-page-dialog-list {
+  height: auto;
+  min-height: 0;
+  max-height: min(50dvh, 560px);
+  overflow: hidden;
+}
+
+.doc-entry-dialog .p-dialog-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.doc-entry-dialog .p-dialog-content > .doc-entry-dialog-layout {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+}
+
+.doc-entry-dialog-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.doc-entry-dialog-main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0;
+}
+
+.doc-entry-dialog-main > .glass-card {
+  flex: 0 0 auto;
+}
+
+.doc-entry-dialog-items {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: 1rem;
+  padding: 0;
+}
+
+.doc-entry-dialog-items > .card,
+.doc-entry-dialog-items > .model-grid-page {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.doc-entry-dialog-items .model-grid-page.model-grid-page-dialog-list {
+  height: 100%;
+  max-height: none;
+}
+
+.model-grid-page.model-grid-page-dialog-list > .p-datatable {
+  height: 100%;
+  max-height: 100%;
+}
+
+.model-grid-page.model-grid-page-dialog-list .p-datatable-wrapper {
+  padding: 8px 10px 0 !important;
+}
+
+.model-grid-page.model-grid-page-dialog-list .p-paginator {
+  padding-top: 8px;
+}
+
+.model-grid-page > .p-datatable,
+.model-grid-page > .glass-table-shell,
+.model-grid-page > .card,
+.model-grid-page .glass-table-shell > .p-datatable {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.model-grid-page .p-datatable-wrapper,
+.model-grid-page .p-datatable-table-container,
+.model-grid-page .p-datatable-scrollable-wrapper,
+.model-grid-page .p-datatable-scrollable-view,
+.model-grid-page .p-datatable-scrollable-body,
+.model-grid-page .p-virtualscroller,
+.model-grid-page .p-virtualscroller-content {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.model-grid-page .p-datatable-header,
+.model-grid-page .p-datatable-scrollable-header,
+.model-grid-page .p-paginator {
+  flex: 0 0 auto;
+}
+
+.model-grid-page .p-datatable-scrollable-body,
+.model-grid-page .p-virtualscroller {
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+}
+
+.card:has(.p-datatable) {
+  background: linear-gradient(180deg, rgba(36, 39, 46, 0.78), rgba(12, 14, 19, 0.62)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.28) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.layout-wrapper .layout-main .layout-content:has(.card .p-datatable) {
+  padding: 14px;
+  box-sizing: border-box;
+}
+
+.layout-wrapper .layout-main .layout-content.home-layout-content {
+  padding: 0 !important;
+}
+
+.card:has(.p-datatable) .p-datatable,
+.card:has(.p-datatable) .p-datatable-wrapper,
+.card:has(.p-datatable) .p-datatable-table-container,
+.card:has(.p-datatable) .p-datatable-table,
+.card:has(.p-datatable) .p-datatable-scrollable-wrapper,
+.card:has(.p-datatable) .p-datatable-scrollable-view,
+.card:has(.p-datatable) .p-datatable-scrollable-header,
+.card:has(.p-datatable) .p-datatable-scrollable-header-box,
+.card:has(.p-datatable) .p-datatable-scrollable-body,
+.card:has(.p-datatable) .p-virtualscroller,
+.card:has(.p-datatable) .p-virtualscroller-content,
+.card:has(.p-datatable) .p-paginator {
+  background: transparent !important;
+}
+
+.card:has(.p-datatable) .p-datatable .p-datatable-header,
+.card:has(.p-datatable) .p-datatable .p-datatable-thead,
+.card:has(.p-datatable) .p-datatable .p-datatable-thead > tr,
+.card:has(.p-datatable) .p-datatable .p-datatable-thead > tr > th,
+.card:has(.p-datatable) .p-datatable.p-datatable-gridlines .p-datatable-thead > tr > th,
+.card:has(.p-datatable) .p-datatable .p-column-header-content,
+.card:has(.p-datatable) .p-datatable .p-sortable-column {
+  background: rgba(46, 50, 58, 0.94) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+}
+
+.card:has(.p-datatable) .p-datatable .p-column-header-content {
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+.card:has(.p-datatable) .p-datatable-scrollable-header,
+.card:has(.p-datatable) .p-datatable-scrollable-header-box {
+  background: rgba(46, 50, 58, 0.94) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.card:has(.p-datatable) .p-datatable .p-datatable-thead > tr,
+.card:has(.p-datatable) .p-datatable.p-datatable-gridlines .p-datatable-thead > tr {
+  box-shadow: none !important;
+}
+
+.card:has(.p-datatable) .p-datatable .p-datatable-thead > tr > th,
+.card:has(.p-datatable) .p-datatable.p-datatable-gridlines .p-datatable-thead > tr > th {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+}
+
+.card:has(.p-datatable) .p-datatable .p-datatable-thead > tr > th:first-child,
+.card:has(.p-datatable) .p-datatable.p-datatable-gridlines .p-datatable-thead > tr > th:first-child {
+  border-left: 0 !important;
+}
+
+.card:has(.p-datatable) .p-datatable .p-datatable-thead > tr > th:last-child,
+.card:has(.p-datatable) .p-datatable.p-datatable-gridlines .p-datatable-thead > tr > th:last-child {
+  border-right: 0 !important;
+}
+
+.card:has(.p-datatable) .p-datatable .p-datatable-tbody > tr,
+.card:has(.p-datatable) .p-datatable.p-datatable-gridlines .p-datatable-tbody > tr {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.card:has(.p-datatable) .p-datatable .p-datatable-tbody > tr > td,
+.card:has(.p-datatable) .p-datatable.p-datatable-gridlines .p-datatable-tbody > tr > td,
+.card:has(.p-datatable) .p-datatable .p-datatable-emptymessage > td {
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+.card:has(.p-datatable) .p-datatable .p-datatable-tbody > tr:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+.card:has(.p-datatable) .p-datatable .p-datatable-tbody > tr.p-highlight,
+.card:has(.p-datatable) .p-datatable.p-datatable-gridlines .p-datatable-tbody > tr.p-highlight {
+  background: rgba(255, 193, 7, 0.18) !important;
+  box-shadow: inset 4px 0 0 rgba(255, 193, 7, 0.95), inset 0 1px 0 rgba(255, 193, 7, 0.32), inset 0 -1px 0 rgba(255, 193, 7, 0.32) !important;
+}
+
+.card:has(.p-datatable) .p-datatable .p-datatable-tbody > tr.p-highlight > td,
+.card:has(.p-datatable) .p-datatable.p-datatable-gridlines .p-datatable-tbody > tr.p-highlight > td {
+  background: transparent !important;
+  color: #fff7d6 !important;
+  font-weight: 600;
+  border-color: rgba(255, 193, 7, 0.24) !important;
+}
+
+.card:has(.p-datatable) .p-datatable .p-datatable-tbody > tr.p-highlight:hover {
+  background: rgba(255, 193, 7, 0.24) !important;
+}
+
+.order-grid-table .p-datatable-table,
+.order-grid-table .p-datatable-scrollable-header-box table,
+.order-grid-table .p-datatable-scrollable-body table {
+  min-width: 100% !important;
+  width: max-content !important;
+  table-layout: auto !important;
+}
+
+.order-grid-table .p-datatable-scrollable-body {
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+}
+
+.order-grid-table .p-datatable-thead > tr > th:first-child,
+.order-grid-table .p-datatable-tbody > tr > td:first-child {
+  width: 3rem !important;
+  min-width: 3rem !important;
+  max-width: 3rem !important;
+  white-space: nowrap !important;
+}
+
+.order-grid-table .p-datatable-thead > tr > th,
+.order-grid-table .p-datatable-tbody > tr > td {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.order-grid-table .p-datatable-thead > tr > th .p-column-header-content {
+  display: flex !important;
+  align-items: center;
+  min-width: max-content;
+  overflow: visible;
+}
+
+.order-grid-table .p-datatable-thead > tr > th .p-column-title {
+  display: block;
+  min-width: max-content;
+  overflow: visible;
+  white-space: nowrap;
+}
+
+.order-grid-table .p-datatable-thead > tr > th:last-child,
+.order-grid-table .p-datatable-tbody > tr > td:last-child {
+  min-width: 7rem !important;
+  padding-right: 10px !important;
+  white-space: nowrap;
+  border-right: 1px solid rgba(255, 193, 7, 0.9) !important;
+}
+
+.order-grid-table .p-datatable-wrapper,
+.order-grid-table .p-datatable-table-container,
+.order-grid-table .p-datatable-scrollable-wrapper,
+.order-grid-table .p-datatable-scrollable-view {
+  overflow-x: auto !important;
+}
+
+.order-grid-table .p-datatable-wrapper {
+  padding: 10px !important;
+  box-sizing: border-box;
+}
+
+.card:has(.p-datatable) .p-paginator,
+.card:has(.p-datatable) .p-paginator .p-paginator-current,
+.card:has(.p-datatable) .p-paginator .p-paginator-pages .p-paginator-page,
+.card:has(.p-datatable) .p-paginator .p-paginator-first,
+.card:has(.p-datatable) .p-paginator .p-paginator-prev,
+.card:has(.p-datatable) .p-paginator .p-paginator-next,
+.card:has(.p-datatable) .p-paginator .p-paginator-last,
+.card:has(.p-datatable) .p-dropdown-label,
+.card:has(.p-datatable) .p-dropdown-trigger,
+.card:has(.p-datatable) .p-column-title,
+.card:has(.p-datatable) .p-sortable-column-icon {
+  color: #ffffff !important;
+}
+
+.card:has(.p-datatable) .p-paginator .p-dropdown,
+.card:has(.p-datatable) .p-paginator .p-paginator-rpp-options,
+.card:has(.p-datatable) .p-paginator .p-dropdown .p-inputtext {
+  background: rgba(34, 37, 43, 0.92) !important;
+  border: 1px solid rgba(255, 193, 7, 0.4) !important;
+  color: #ffffff !important;
+}
+
+.card:has(.p-datatable) .p-paginator .p-dropdown-label,
+.card:has(.p-datatable) .p-paginator .p-dropdown-trigger,
+.card:has(.p-datatable) .p-paginator .p-dropdown-trigger .pi {
+  color: #ffffff !important;
+}
+
+.p-dropdown-panel:has(.p-dropdown-items-wrapper .p-dropdown-item),
+.p-paginator-rpp-options-panel {
+  background: rgba(34, 37, 43, 0.96) !important;
+  border: 1px solid rgba(255, 193, 7, 0.28) !important;
+  color: #ffffff !important;
+}
+
+.p-dropdown-panel:has(.p-dropdown-items-wrapper .p-dropdown-item) .p-dropdown-item,
+.p-paginator-rpp-options-panel .p-dropdown-item {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+.p-dropdown-panel:has(.p-dropdown-items-wrapper .p-dropdown-item) .p-dropdown-item.p-highlight,
+.p-dropdown-panel:has(.p-dropdown-items-wrapper .p-dropdown-item) .p-dropdown-item:hover,
+.p-paginator-rpp-options-panel .p-dropdown-item.p-highlight,
+.p-paginator-rpp-options-panel .p-dropdown-item:hover {
+  background: rgba(255, 193, 7, 0.18) !important;
+  color: #ffffff !important;
+}

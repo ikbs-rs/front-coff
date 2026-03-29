@@ -2,28 +2,15 @@
 import React from 'react';
 import './Index.css'; // Pretpostavimo da imate CSS fajl za stilizovanje
 
-const HeroSection = ({scrollToSection, menuRef, orderedRef, carouselRef}) => {
-  // Funkcija za upravljanje klikom na dugme, ako je potrebno
-  const handleMenuClick = () => {
-    // Implementacija navigacije do sekcije menija
-  };
-
-  const handleBookTableClick = () => {
-    // Implementacija navigacije do sekcije za rezervaciju
-  };
-
+const HeroSection = ({ scrollToSection, orderedRef, carouselRef }) => {
   const openPopup = (url, width, height) => {
-    // Izračunajte položaj središta ekrana
-    console.log("Otvaram prozor 01")
     const windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     const windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
     const left = (windowWidth - width) / 2;
     const top = (windowHeight - height) / 2;
-    
-    // Otvorite novi prozor sa određenim dimenzijama i položajem
+
     window.open(url, '_blank', 'width=' + width + ', height=' + height + ', left=' + left + ', top=' + top);
   };
-   
 
   return (
     <section id="hero" className="d-flex align-items-center">
@@ -39,8 +26,12 @@ const HeroSection = ({scrollToSection, menuRef, orderedRef, carouselRef}) => {
             </div>
           </div>
           <div className="col-lg-4 d-flex align-items-center justify-content-center position-relative" data-aos="zoom-in" data-aos-delay="200">
-            {/* <a onClick={() => openPopup('https://www.youtube.com/watch?v=u6BOC7CDUTQ', 800, 600)} className="glightbox play-btn"></a> */}
-            <a onClick={() => openPopup('https://www.youtube.com/embed/rVb400kUX5Q?autoplay=1&vq=hd720', 800, 600)} className="glightbox play-btn"></a>
+            <button
+              type="button"
+              onClick={() => openPopup('https://www.youtube.com/embed/rVb400kUX5Q?autoplay=1&vq=hd720', 800, 600)}
+              className="glightbox play-btn"
+              aria-label="Pusti promotivni video"
+            />
           </div>
         </div>
       </div>

@@ -138,7 +138,7 @@ console.log(props, "********************TicEventLTmp****************************
 
     const renderHeader = () => {
         return (
-            <div className="flex card-container">
+    <div className="flex card-container">
                 <div className="flex flex-wrap gap-1" />
                 <Button label={translations[selectedLanguage].Cancel} icon="pi pi-times" onClick={handleCancelClick} text raised
                 />
@@ -218,7 +218,7 @@ console.log(props, "********************TicEventLTmp****************************
     // heder za filter/>
 
     return (
-        <div className="card">
+        <div className="card model-grid-page">
             <Toast ref={toast} />
             <DataTable
                 dataKey="id"
@@ -233,7 +233,7 @@ console.log(props, "********************TicEventLTmp****************************
                 scrollable
                 sortField="code"
                 sortOrder={1}
-                scrollHeight="650px"
+                scrollHeight="flex"
                 virtualScrollerOptions={{ itemSize: 46 }}
                 tableStyle={{ minWidth: '50rem' }}
                 metaKeySelection={false}

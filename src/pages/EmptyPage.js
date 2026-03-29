@@ -59,7 +59,7 @@ const EmptyPage = () => {
 
 
     return (
-        <>
+        <div className="home-page">
             <TopBar />
             <Header scrollToSection={scrollToSection} heroSectionRef={heroSectionRef} aboutRef={aboutRef} menuRef={menuRef} orderRef={orderRef} statusRef={statusRef} docRef={docRef} carouselRef={carouselRef} />
             <div ref={heroSectionRef}><HeroSection scrollToSection={scrollToSection} menuRef={menuRef} orderedRef={orderRef} carouselRef={carouselRef} /></div>
@@ -112,7 +112,7 @@ const EmptyPage = () => {
             <div ref={docRef} ><AboutDoc dataTab={dataTab} onDataUpdate={handleDataUpdate} scrollToSection={scrollToSection} orderRef={orderRef}/></div>
             {/* <div ref={menuRef} className="menuheight"><Menu /></div>     */}
 
-        </>
+        </div>
     );
 };
 

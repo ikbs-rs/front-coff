@@ -1,9 +1,8 @@
 // src/components/Menu.js
 import './Index.css';
 import '../assets/css/bootstrap-icons.css'
-import React, { useEffect, useRef } from 'react';
-import Isotope, { select, on } from 'isotope-layout';
-import AOS from 'aos';
+import React, { useRef } from 'react';
+import Isotope from 'isotope-layout';
 import 'aos/dist/aos.css';
 
 const Menu = () => {

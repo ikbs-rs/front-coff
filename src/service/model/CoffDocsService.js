@@ -2,13 +2,22 @@ import axios from 'axios';
 import env from "../../configs/env"
 import Token from "../../utilities/Token";
 
+const normalizeParamId = (value, fallback = "-1") => {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+
+  const normalizedValue = String(value).trim();
+  return normalizedValue === '' ? fallback : normalizedValue;
+};
+	
 export class CoffDocsService {
 
   // Vraca varijante jedinice mera za unos kolicine KOM/FLASA
   async getDocsorder(objId, id) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     // const currCoffOrder = localStorage.getItem('currCoffOrder')
-    const url = `${env.COFF_BACK_URL}/coff/docs/_v/lista/?stm=coff_docsorder_v&objid=${objId||1}&id=${id||-1}&sl=${selectedLanguage}`;
+    const url = `${env.COFF_BACK_URL}/coff/docs/_v/lista/?stm=coff_docsorder_v&objid=${normalizeParamId(objId, "1")}&id=${normalizeParamId(id)}&sl=${selectedLanguage}`;
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token
@@ -29,7 +38,7 @@ export class CoffDocsService {
   async getCurrCoffOrder(objId) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const currCoffOrder = localStorage.getItem('currCoffOrder')
-    const url = `${env.COFF_BACK_URL}/coff/docs/_v/lista/?stm=coff_currcofforder_v&objid=${objId}&id=${currCoffOrder||-1}&sl=${selectedLanguage}`;
+    const url = `${env.COFF_BACK_URL}/coff/docs/_v/lista/?stm=coff_currcofforder_v&objid=${normalizeParamId(objId)}&id=${normalizeParamId(currCoffOrder)}&sl=${selectedLanguage}`;
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token

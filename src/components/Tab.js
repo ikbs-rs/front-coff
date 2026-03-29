@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import OrderL from '../components/model/OrderL';
-import CoffDocL from '../components/model/coffDocL';
 // import OrderlistL from '../components/model/ticArttpL';
 
 const Tab = (props) => {
@@ -33,14 +32,14 @@ console.log("Tab ===============================================================
         // setDataTab(updatedTab);
     };
     return (
-        <section id="specials" className="specials ">
+        <section id="specials" className="specials specials-glass">
             <div className="container" data-aos="fade-up">
                 <div className="section-title">
                     <h2>Поруџбине</h2>
                     <p></p>
                 </div>
                 <div className="row" data-aos="fade-up" data-aos-delay="100">
-                    <div className="col-lg-12 mt-4 mt-lg-0">
+                    <div className="col-lg-12 mt-4 mt-lg-0 specials-glass-panel">
                         <ul className="nav nav-tabs">
                             <li className="nav-item">
                                 <button

@@ -148,7 +148,7 @@ export default function TicEventattsgrpL(props) {
   };
   const renderHeader = () => {
     return (
-      <div className="flex card-container">
+    <div className="flex card-container">
         <div className="flex flex-wrap gap-1" />
         <Button label={translations[selectedLanguage].Cancel} icon="pi pi-times" onClick={handleCancelClick} text raised
         />
@@ -186,7 +186,7 @@ export default function TicEventattsgrpL(props) {
 
   const header = renderHeader();
   return (
-    <div className="card">
+    <div className="card model-grid-page">
       <Toast ref={toast} />
       {/* <div className="flex justify-content-center align-items-center mb-4 gap-2">
         <InputSwitch
@@ -210,7 +210,7 @@ export default function TicEventattsgrpL(props) {
         sortField="code" sortOrder={1}
         header={header}
         scrollable
-        scrollHeight="650px"
+        scrollHeight="flex"
         showGridlines
         removableSort
         filters={filters}

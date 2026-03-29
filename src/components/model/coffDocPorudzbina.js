@@ -128,6 +128,7 @@ const CoffDocPorudzbina = (props) => {
             const _coffDoc = { ...coffDoc }
 
             coffDoc.nzap = coffZapItem.N2ZAP
+            coffDoc.nzap2 = coffZapItem.N2ZAP
 
             coffDoc.vreme = DateFunction.formatDatetimeR(DateFunction.currDatetime())
             coffDoc.ndoctp = props.ndoctp
@@ -152,6 +153,7 @@ const CoffDocPorudzbina = (props) => {
         try {
             setSubmitted(true);
             coffDoc.nzap = coffZapItem.N2ZAP
+            coffDoc.nzap2 = coffZapItem.N2ZAP
             coffDoc.vreme = DateFunction.formatDatetimeR(DateFunction.currDatetime())
             const coffDocService = new CoffDocService();
             await setCoffDoc({ ...coffDoc });
@@ -176,6 +178,7 @@ const CoffDocPorudzbina = (props) => {
             setSubmitted(true);
             const _coffDoc = { ...coffDoc }
             coffDoc.nzap = coffZapItem.N2ZAP
+            coffDoc.nzap2 = coffZapItem.N2ZAP
             coffDoc.vreme = DateFunction.formatDatetimeR(DateFunction.currDatetime())
             coffDoc.ndoctp = props.ndoctp
             coffDoc.obj = -1
@@ -232,6 +235,7 @@ const CoffDocPorudzbina = (props) => {
                 // console.log(foundItem, "-*-*-*-*-***-**-*-*-*-*-*-*-*-*--onInputChange000*-*-*-*-*-*-*-*-*--**--*-*-*-*-*-*-*-*-*-*-*-", foundItem.NZAP)
                 setCoffZapItem(foundItem || null);
                 coffDoc.nzap = foundItem.NZAP
+                coffDoc.nzap2 = foundItem.NZAP
                 coffDoc.obj = foundItem.obj
                 // ticEventatt.ctp = foundItem.code
             } else if (name == "coff") {

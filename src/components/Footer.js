@@ -1,6 +1,5 @@
 // src/components/Footer.js
 import React from 'react';
-import { Link } from 'react-router-dom'; // Ako planirate da koristite React Router za navigaciju
 import './Index.css'; // Pretpostavimo da imate CSS fajl za stilizovanje
 
 const Footer = () => {
@@ -20,8 +19,12 @@ const Footer = () => {
                 </p>
                 <div className="social-links mt-3">
                   {/* Primena ikona iz biblioteke react-icons ili slično */}
-                  <a href="#" className="twitter"><i className="bx bxl-twitter"></i></a>
-                  <a href="#" className="facebook"><i className="bx bxl-facebook"></i></a>
+                  <button type="button" className="twitter" aria-label="Twitter">
+                    <i className="bx bxl-twitter"></i>
+                  </button>
+                  <button type="button" className="facebook" aria-label="Facebook">
+                    <i className="bx bxl-facebook"></i>
+                  </button>
                   {/* Dodajte ostale društvene mreže */}
                 </div>
               </div>
@@ -30,7 +33,7 @@ const Footer = () => {
             <div className="col-lg-2 col-md-6 footer-links">
               <h4>Useful Links</h4>
               <ul>
-                <li><i className="bx bx-chevron-right"></i> <a href="#">Home</a></li>
+                <li><i className="bx bx-chevron-right"></i> <span>Home</span></li>
                 {/* Dodajte ostale korisne linkove */}
               </ul>
             </div>

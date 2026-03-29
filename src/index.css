@@ -18,6 +18,14 @@
   border-radius: 3px;
 } 
 
+.p-button,
+.p-button .p-button-label,
+.p-button .p-button-icon,
+.p-button .pi {
+  color: #ffffff !important;
+  border: "";
+}
+
 aa {
   font-size: 13px;
   color: #f5f4f2;
@@ -60,8 +68,19 @@ body {
 }
 
 /* END FONT */
+.p-dialog {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
 .p-dialog .p-dialog-header {
-  background: #df5959;
+  background: linear-gradient(180deg, rgba(58, 63, 74, 0.92), rgba(35, 39, 48, 0.88));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
 }
 .layout-wrapper .layout-menu-container {
   height: calc(100% - 0px);
@@ -73,6 +92,379 @@ body {
 }
 .layout-wrapper .layout-main .layout-content {
   padding: 0px;
+  background-color: #495057;
+}
+
+@media screen and (min-width: 1026px) {
+  .layout-wrapper.accordion-sidebar .layout-menu-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 52px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: linear-gradient(180deg, rgba(36, 38, 45, 0.98), rgba(22, 24, 30, 0.96));
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    transition: width 0.22s ease, box-shadow 0.22s ease;
+    z-index: 1002;
+    box-shadow: 8px 0 24px rgba(0, 0, 0, 0.18);
+  }
+
+  .layout-wrapper.accordion-sidebar.accordion-sidebar-expanded .layout-menu-container {
+    width: 244px;
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-main {
+    margin-left: 52px;
+    transition: margin-left 0.22s ease;
+  }
+
+  .layout-wrapper.accordion-sidebar.accordion-sidebar-expanded .layout-main {
+    margin-left: 244px;
+  }
+
+  .layout-wrapper.accordion-sidebar .app-sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: 8px 0 16px;
+  }
+
+  .layout-wrapper.accordion-sidebar .accordion-sidebar-shell {
+    display: flex;
+    align-items: flex-start;
+    min-height: 100%;
+  }
+
+  .layout-wrapper.accordion-sidebar .accordion-root-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 52px;
+    min-width: 52px;
+    margin: 0;
+    padding: 0 6px;
+    list-style: none;
+  }
+
+  .layout-wrapper.accordion-sidebar .accordion-root-item {
+    margin: 0;
+    padding: 0;
+  }
+
+  .layout-wrapper.accordion-sidebar .accordion-root-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin: 0 auto;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  }
+
+  .layout-wrapper.accordion-sidebar .accordion-root-link:hover,
+  .layout-wrapper.accordion-sidebar .accordion-root-link.active-root-item,
+  .layout-wrapper.accordion-sidebar .accordion-root-link.active-menuitem-routelink {
+    background: rgba(255, 193, 7, 0.14);
+    color: #ffffff;
+  }
+
+  .layout-wrapper.accordion-sidebar .accordion-sidebar-panel {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 2px 10px 0 4px;
+  }
+
+  .layout-wrapper.accordion-sidebar .accordion-sidebar-panel-title {
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .layout-wrapper.accordion-sidebar .accordion-submenu {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .layout-wrapper.accordion-sidebar .accordion-submenu li {
+    margin: 0 0 4px;
+  }
+
+  .layout-wrapper.accordion-sidebar .accordion-submenu a,
+  .layout-wrapper.accordion-sidebar .accordion-submenu button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 40px;
+    padding: 0.64rem 0.9rem;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    text-align: left;
+    transition: background-color 0.18s ease, color 0.18s ease;
+  }
+
+  .layout-wrapper.accordion-sidebar .accordion-submenu a:hover,
+  .layout-wrapper.accordion-sidebar .accordion-submenu button:hover,
+  .layout-wrapper.accordion-sidebar .accordion-submenu .active-menuitem > a,
+  .layout-wrapper.accordion-sidebar .accordion-submenu .active-menuitem > button,
+  .layout-wrapper.accordion-sidebar .accordion-submenu a.active-menuitem-routelink {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+  }
+
+  .layout-wrapper.accordion-sidebar .accordion-submenu .layout-menuitem-icon {
+    flex: 0 0 18px;
+    font-size: 0.95rem;
+    text-align: center;
+  }
+
+  .layout-wrapper.accordion-sidebar .accordion-submenu .layout-menuitem-text,
+  .layout-wrapper.accordion-sidebar .accordion-submenu .layout-submenu-toggler {
+    display: inline-flex !important;
+  }
+
+  .layout-wrapper.accordion-sidebar .accordion-submenu .layout-submenu-toggler {
+    margin-left: auto;
+  }
+
+  .layout-wrapper.accordion-sidebar .accordion-submenu ul {
+    margin: 4px 0 0;
+    padding: 0 0 0 10px;
+    list-style: none;
+  }
+
+  .layout-wrapper.accordion-sidebar .sidebar-collapse-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin: 0 0 8px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #f8fafc;
+    transition: background-color 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+  }
+
+  .layout-wrapper.accordion-sidebar .sidebar-collapse-toggle:hover {
+    background: rgba(255, 193, 7, 0.14);
+    border-color: rgba(255, 193, 7, 0.5);
+    transform: translateY(-1px);
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu {
+    margin: 0.5em 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu > li {
+    position: relative;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    margin-bottom: 2px;
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu a,
+  .layout-wrapper.accordion-sidebar .layout-menu button {
+    display: block;
+    width: 100%;
+    position: relative;
+    border: 0;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.9);
+    border-radius: 0;
+    text-decoration: none;
+    transition: color 0.18s ease, background-color 0.18s ease, border-left-color 0.18s ease;
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu > li.active-menuitem {
+    border-left-color: rgba(255, 193, 7, 0.92);
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu > li > .layout-menuitem-root-text {
+    display: none !important;
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu li a,
+  .layout-wrapper.accordion-sidebar .layout-menu li button {
+    padding: 0.78rem 1rem;
+    border-radius: 12px;
+    margin: 0 0.45rem;
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu li a .layout-menuitem-text,
+  .layout-wrapper.accordion-sidebar .layout-menu li button .layout-menuitem-text {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu li a .layout-menuitem-icon,
+  .layout-wrapper.accordion-sidebar .layout-menu li button .layout-menuitem-icon {
+    margin-right: 0.6em;
+    vertical-align: middle;
+    font-size: 18px;
+    width: 18px;
+    text-align: center;
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu li a .layout-submenu-toggler,
+  .layout-wrapper.accordion-sidebar .layout-menu li button .layout-submenu-toggler {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    font-size: 15px;
+    margin-top: -7px;
+    transition: transform 0.18s ease;
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu li.active-menuitem > a .layout-submenu-toggler,
+  .layout-wrapper.accordion-sidebar .layout-menu li.active-menuitem > button .layout-submenu-toggler {
+    transform: rotate(-180deg);
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu li a:hover,
+  .layout-wrapper.accordion-sidebar .layout-menu li button:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu li > a.active-menuitem-routelink,
+  .layout-wrapper.accordion-sidebar .layout-menu li > button.active-menuitem-routelink,
+  .layout-wrapper.accordion-sidebar .layout-menu li.active-menuitem > a,
+  .layout-wrapper.accordion-sidebar .layout-menu li.active-menuitem > button {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu li ul {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0.2rem;
+    overflow: hidden;
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu li ul li a,
+  .layout-wrapper.accordion-sidebar .layout-menu li ul li button {
+    padding-left: 2.6rem;
+    margin-left: 0.45rem;
+    margin-right: 0.45rem;
+    font-size: 0.95rem;
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu li ul li ul li a,
+  .layout-wrapper.accordion-sidebar .layout-menu li ul li ul li button {
+    padding-left: 3em;
+  }
+
+  .layout-wrapper.accordion-sidebar .layout-menu li ul li ul li ul li a,
+  .layout-wrapper.accordion-sidebar .layout-menu li ul li ul li ul li button {
+    padding-left: 4em;
+  }
+
+  .layout-wrapper.accordion-sidebar:not(.accordion-sidebar-expanded) .layout-menu > li.has-submenu > .layout-menuitem-root-text,
+  .layout-wrapper.accordion-sidebar:not(.accordion-sidebar-expanded) .layout-menuitem-text,
+  .layout-wrapper.accordion-sidebar:not(.accordion-sidebar-expanded) .layout-submenu-toggler,
+  .layout-wrapper.accordion-sidebar:not(.accordion-sidebar-expanded) .layout-menu > li > .p-toggleable-content {
+    display: none !important;
+  }
+
+  .layout-wrapper.accordion-sidebar:not(.accordion-sidebar-expanded) .layout-menu > li > a,
+  .layout-wrapper.accordion-sidebar:not(.accordion-sidebar-expanded) .layout-menu > li > button {
+    display: block;
+    text-align: center;
+    padding: 1em 0;
+    margin: 0 0.25rem;
+    border-radius: 10px;
+  }
+
+  .layout-wrapper.accordion-sidebar:not(.accordion-sidebar-expanded) .layout-menu > li > a .layout-menuitem-icon,
+  .layout-wrapper.accordion-sidebar:not(.accordion-sidebar-expanded) .layout-menu > li > button .layout-menuitem-icon {
+    margin-right: 0;
+    font-size: 18px;
+    width: 18px;
+  }
+
+  .layout-wrapper.accordion-sidebar.accordion-sidebar-expanded .layout-menu > li > a,
+  .layout-wrapper.accordion-sidebar.accordion-sidebar-expanded .layout-menu > li > button {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    justify-content: flex-start;
+  }
+
+  .layout-wrapper.accordion-sidebar.accordion-sidebar-expanded .layout-menu > li.has-submenu > .p-toggleable-content,
+  .layout-wrapper.accordion-sidebar.accordion-sidebar-expanded .layout-menu > li.has-submenu.active-menuitem > .p-toggleable-content {
+    display: block !important;
+  }
+
+  .layout-wrapper.accordion-sidebar.accordion-sidebar-expanded .layout-menuitem-text,
+  .layout-wrapper.accordion-sidebar.accordion-sidebar-expanded .layout-submenu-toggler {
+    display: inline-flex;
+  }
+
+  .layout-wrapper.layout-slim.accordion-sidebar.accordion-sidebar-expanded .layout-menu-container .layout-menu > li > a,
+  .layout-wrapper.layout-slim.accordion-sidebar.accordion-sidebar-expanded .layout-menu-container .layout-menu > li > .p-link {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left !important;
+    padding: 0.78rem 1rem !important;
+  }
+
+  .layout-wrapper.layout-slim.accordion-sidebar.accordion-sidebar-expanded .layout-menu-container .layout-menu > li > a .layout-menuitem-icon,
+  .layout-wrapper.layout-slim.accordion-sidebar.accordion-sidebar-expanded .layout-menu-container .layout-menu > li > .p-link .layout-menuitem-icon {
+    margin-right: 0.6em !important;
+    font-size: 18px !important;
+    width: 18px;
+  }
+
+  .layout-wrapper.layout-slim.accordion-sidebar.accordion-sidebar-expanded .layout-menu-container .layout-menu > li > a .layout-menuitem-text,
+  .layout-wrapper.layout-slim.accordion-sidebar.accordion-sidebar-expanded .layout-menu-container .layout-menu > li > .p-link .layout-menuitem-text {
+    display: inline-block !important;
+  }
+
+  .layout-wrapper.layout-slim.accordion-sidebar.accordion-sidebar-expanded .layout-menu-container .layout-menu > li > a .layout-submenu-toggler,
+  .layout-wrapper.layout-slim.accordion-sidebar.accordion-sidebar-expanded .layout-menu-container .layout-menu > li > .p-link .layout-submenu-toggler {
+    display: block !important;
+    right: 16px;
+    left: auto;
+  }
+
+  .layout-wrapper.layout-slim.accordion-sidebar.accordion-sidebar-expanded .layout-menu-container .layout-menu > li > ul,
+  .layout-wrapper.layout-slim.accordion-sidebar.accordion-sidebar-expanded .layout-menu-container .layout-menu > li > .p-toggleable-content {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    min-width: 0 !important;
+    width: 100%;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  .layout-wrapper.accordion-sidebar:not(.accordion-sidebar-expanded) .layout-menu-tooltip {
+    display: block;
+  }
+
+  .layout-wrapper.accordion-sidebar.accordion-sidebar-expanded .layout-menu-tooltip {
+    display: none !important;
+  }
 }
 
   /* .p-datatable .p-datatable-tbody > tr > td {
@@ -93,9 +485,77 @@ body {
 /* } */
 
 .p-dialog .p-dialog-content {
-  background: #ffffff;
-  color: #495057;
-  padding: 0 1.5rem;
+  background: linear-gradient(180deg, rgba(38, 42, 50, 0.94), rgba(22, 25, 31, 0.92));
+  color: rgba(255, 255, 255, 0.9);
+  padding: 0 1.5rem 1.5rem;
+}
+
+.p-dialog .card {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.p-dialog .p-inputtext,
+.p-dialog .p-dropdown,
+.p-dialog .p-inputtextarea,
+.p-dialog .p-calendar .p-inputtext {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.p-dialog .p-inputtext::placeholder,
+.p-dialog .p-inputtextarea::placeholder,
+.p-dialog .p-dropdown .p-dropdown-label {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.p-dialog .p-dropdown-trigger,
+.p-dialog label,
+.p-dialog .p-dialog-title,
+.p-dialog .p-component,
+.p-dialog .p-button-label,
+.p-dialog .p-button-icon {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.p-dialog .p-inputtext:enabled:focus,
+.p-dialog .p-dropdown:not(.p-disabled).p-focus,
+.p-dialog .p-inputtextarea:enabled:focus {
+  box-shadow: 0 0 0 0.16rem rgba(205, 164, 94, 0.18) !important;
+  border-color: rgba(205, 164, 94, 0.5) !important;
+}
+
+.p-4.border-1.surface-border.surface-card.border-round,
+.surface-card {
+  background: transparent !important;
+}
+
+.text-2xl.font-bold {
+  color: #ffffff !important;
+}
+
+.dialog-close-outline.p-button.p-button-warning,
+.dialog-close-outline.p-button.p-button-warning.p-button-outlined {
+  background: transparent !important;
+  box-shadow: none !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, border-color 0.18s ease !important;
+}
+
+.dialog-close-outline.p-button.p-button-warning:hover,
+.dialog-close-outline.p-button.p-button-warning.p-button-outlined:hover {
+  background: rgba(255, 193, 7, 0.12) !important;
+  border-color: rgba(255, 193, 7, 0.95) !important;
+  box-shadow: 0 8px 20px rgba(255, 193, 7, 0.16) !important;
+  transform: translateY(-2px);
+}
+
+.dialog-close-outline.p-button.p-button-warning:active,
+.dialog-close-outline.p-button.p-button-warning.p-button-outlined:active {
+  background: rgba(255, 193, 7, 0.18) !important;
+  box-shadow: 0 4px 10px rgba(255, 193, 7, 0.14) !important;
+  transform: translateY(0) scale(0.985);
 }
 /***********************************************************/
 

@@ -237,7 +237,7 @@ export default function CoffDocL(props) {
 
   const renderHeader = () => {
     return (
-      <div className="flex card-container">
+    <div className="flex card-container">
         <div className="flex flex-wrap gap-1">
           <span className="p-input-icon-left">
             <i className="pi pi-search" />
@@ -326,7 +326,7 @@ export default function CoffDocL(props) {
   };
 
   return (
-    <div className="card">
+    <div className="card model-grid-page">
       <Toast ref={toast} />
       <DataTable
         dataKey="id"
@@ -341,7 +341,7 @@ export default function CoffDocL(props) {
         scrollable
         sortField="date"
         sortOrder={1}
-        scrollHeight="650px"
+        scrollHeight="flex"
         virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}

@@ -14,7 +14,9 @@ export class CoffZaplinkService {
 
         try {
             const response = await axios.get(url, { headers });
-            return response.data.item;
+            const items = response.data.items || response.data.item || [];
+            console.log("[CoffZaplinkService.getLista]", { url, objId, items });
+            return items;
         } catch (error) {
             console.error(error);
             throw error;
@@ -31,6 +33,7 @@ export class CoffZaplinkService {
 
         try {
             const response = await axios.get(url, { headers });
+            console.log(url, "******************************getZapByUser*********************************", response.data.items)
             return response.data.item||response.data.items;
         } catch (error) {
             console.error(error);
@@ -83,6 +86,7 @@ export class CoffZaplinkService {
 
         try {
             const response = await axios.get(url, { headers });
+            console.log(url, "******************************getCoffZaplink*********************************", response.data.items)
             return response.data.items;
         } catch (error) {
             console.error(error);
@@ -94,7 +98,7 @@ export class CoffZaplinkService {
     async postCoffZaplink(newObj) {
         try {
             const selectedLanguage = localStorage.getItem('sl') || 'en'
-            if (newObj.obj === null || newObj.objtp === null) {
+            if (!newObj.zap1 || !newObj.zap2) {
                 throw new Error(
                     "Items must be filled!"
                 );
@@ -118,7 +122,7 @@ export class CoffZaplinkService {
     async putCoffZaplink(newObj) {
         try {
             const selectedLanguage = localStorage.getItem('sl') || 'en'
-            if (newObj.obj === null || newObj.objtp === null) {
+            if (!newObj.zap1 || !newObj.zap2) {
                 throw new Error(
                     "Items must be filled!"
                 );

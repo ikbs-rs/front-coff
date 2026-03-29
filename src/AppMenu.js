@@ -7,6 +7,16 @@ import { Badge } from 'primereact/badge';
 
 const AppSubmenu = forwardRef((props, ref) => {
     const [activeIndex, setActiveIndex] = useState(null);
+    const resolvedActiveIndex = props.root && props.accordionMode ? props.controlledActiveIndex : activeIndex;
+
+    const setResolvedActiveIndex = (index) => {
+        if (props.root && props.accordionMode) {
+            props.onControlledActiveIndexChange?.(index);
+            return;
+        }
+
+        setActiveIndex(index);
+    };
 
     const onMenuItemClick = (event, item, index) => {
         if (item.disabled) {
@@ -23,11 +33,21 @@ const AppSubmenu = forwardRef((props, ref) => {
         }
         if (props.root) {
             props.onRootMenuItemClick({
-                originalEvent: event
+                originalEvent: event,
+                item,
+                index
             });
         }
         if (item.items) {
-            setActiveIndex(index === activeIndex ? null : index);
+            if (props.root && props.accordionMode) {
+                props.onSidebarExpand?.();
+                setResolvedActiveIndex(index);
+            } else {
+                setResolvedActiveIndex(index === resolvedActiveIndex ? null : index);
+            }
+        } else if (props.root && props.accordionMode && item.to === '/') {
+            props.onSidebarCollapse?.();
+            setResolvedActiveIndex(null);
         }
 
         props.onMenuItemClick({
@@ -37,8 +57,12 @@ const AppSubmenu = forwardRef((props, ref) => {
     };
 
     const onMenuItemMouseEnter = (index) => {
+        if (props.accordionMode) {
+            return;
+        }
+
         if (props.root && props.menuActive && isHorizontalOrSlim() && !isMobile()) {
-            setActiveIndex(index);
+            setResolvedActiveIndex(index);
         }
     };
 
@@ -102,7 +126,15 @@ const AppSubmenu = forwardRef((props, ref) => {
     };
 
     const isMenuActive = (item, index) => {
-        return item.items && (props.root && (!isSlim() || (isSlim() && (props.mobileMenuActive || activeIndex !== null))) ? true : activeIndex === index);
+        if (!item.items) {
+            return false;
+        }
+
+        if (props.root && props.accordionMode) {
+            return props.sidebarExpanded && resolvedActiveIndex === index;
+        }
+
+        return props.root && (!isSlim() || (isSlim() && (props.mobileMenuActive || resolvedActiveIndex !== null))) ? true : resolvedActiveIndex === index;
     };
 
     const getItems = () => {
@@ -110,11 +142,13 @@ const AppSubmenu = forwardRef((props, ref) => {
         return props.items.map((item, i) => {
             if (visible(item)) {
                 const submenuRef = createRef();
+                const isActiveItem = props.root && props.accordionMode ? resolvedActiveIndex === i : activeIndex === i;
                 const menuitemClassName = classNames({
                     'layout-root-menuitem': props.root,
-                    'active-menuitem': activeIndex === i && !item.disabled
+                    'has-submenu': !!item.items,
+                    'active-menuitem': isActiveItem && !item.disabled
                 });
-                const rootMenuItem = props.root && <div className="layout-menuitem-root-text">{item.label}</div>;
+                const rootMenuItem = props.root && !props.accordionMode && item.items ? <div className="layout-menuitem-root-text">{item.label}</div> : null;
                 const link = getLink(item, i);
                 const tooltip = (
                     <div className="layout-menu-tooltip">
@@ -129,7 +163,7 @@ const AppSubmenu = forwardRef((props, ref) => {
                         {link}
                         {tooltip}
                         <CSSTransition nodeRef={submenuRef} classNames="p-toggleable-content" timeout={transitionTimeout} in={isMenuActive(item, i)} unmountOnExit>
-                            <AppSubmenu ref={submenuRef} items={visible(item) && item.items} menuActive={props.menuActive} layoutMode={props.layoutMode} parentMenuItemActive={activeIndex === i} onMenuItemClick={props.onMenuItemClick}></AppSubmenu>
+                            <AppSubmenu ref={submenuRef} items={visible(item) && item.items} menuActive={props.menuActive} layoutMode={props.layoutMode} parentMenuItemActive={resolvedActiveIndex === i} onMenuItemClick={props.onMenuItemClick} accordionMode={props.accordionMode} sidebarExpanded={props.sidebarExpanded}></AppSubmenu>
                         </CSSTransition>
                     </li>
                 );
@@ -140,10 +174,10 @@ const AppSubmenu = forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        if (!props.menuActive && isHorizontalOrSlim()) {
+        if (!props.menuActive && isHorizontalOrSlim() && !(props.root && props.accordionMode)) {
             setActiveIndex(null);
         }
-    }, [props.menuActive, isHorizontalOrSlim]);
+    }, [props.menuActive, isHorizontalOrSlim, props.root, props.accordionMode]);
 
     if (!props.items) {
         return null;
@@ -159,17 +193,33 @@ const AppSubmenu = forwardRef((props, ref) => {
 
 const AppMenu = (props) => {
     return (
-        <AppSubmenu
-            items={props.model}
-            className="layout-menu"
-            menuActive={props.active}
-            onRootMenuItemClick={props.onRootMenuItemClick}
-            mobileMenuActive={props.mobileMenuActive}
-            onMenuItemClick={props.onMenuItemClick}
-            root
-            layoutMode={props.layoutMode}
-            parentMenuItemActive
-        />
+        <div className="app-sidebar-menu">
+            <button
+                type="button"
+                className="sidebar-collapse-toggle p-ripple"
+                onClick={props.sidebarExpanded ? props.onSidebarCollapse : props.onSidebarExpand}
+            >
+                    <i className="pi pi-bars"></i>
+                    <Ripple />
+            </button>
+            <AppSubmenu
+                items={props.model}
+                className="layout-menu"
+                menuActive={props.active}
+                onRootMenuItemClick={props.onRootMenuItemClick}
+                mobileMenuActive={props.mobileMenuActive}
+                onMenuItemClick={props.onMenuItemClick}
+                root
+                layoutMode={props.layoutMode}
+                parentMenuItemActive
+                accordionMode={props.accordionMode}
+                sidebarExpanded={props.sidebarExpanded}
+                onSidebarExpand={props.onSidebarExpand}
+                onSidebarCollapse={props.onSidebarCollapse}
+                controlledActiveIndex={props.activeRootIndex}
+                onControlledActiveIndexChange={props.onActiveRootIndexChange}
+            />
+        </div>
     );
 };
 

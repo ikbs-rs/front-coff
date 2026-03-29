@@ -17,6 +17,10 @@ import { translations } from "../../configs/translations";
 export default function CoffDocsL(props) {
   console.log(props, "@!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDocsL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!!!!@")
   let i = 0
+  const dialogGridClassName = classNames("card", "model-grid-page", {
+    "model-grid-page-dialog-list": props.dialog
+  });
+  const dialogGridScrollHeight = props.dialog ? "18rem" : "flex";
   const objName = "coff_doc"
   const selectedLanguage = localStorage.getItem('sl')||'en'
   const emptyCoffDocs = EmptyEntities[objName]
@@ -146,7 +150,7 @@ export default function CoffDocsL(props) {
 
   const renderHeader = () => {
     return (
-      <div className="flex card-container">
+    <div className="flex card-container">
         <div className="flex flex-wrap gap-1">
           <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
         </div>
@@ -246,7 +250,7 @@ export default function CoffDocsL(props) {
     // setDataTab(updatedTab);
   };
   return (
-    <div className="card">
+    <div className={dialogGridClassName}>
       <Toast ref={toast} />
       <DataTable
         id="coffDocsL"
@@ -262,7 +266,7 @@ export default function CoffDocsL(props) {
         scrollable
         sortField="code"        
         sortOrder={1}
-        scrollHeight="850px"
+        scrollHeight={dialogGridScrollHeight}
         //virtualScrollerOptions={{ itemSize: 46 }}
         //tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}
@@ -318,8 +322,8 @@ export default function CoffDocsL(props) {
         visible={visibleCoffDocsmenu}
         style={{ width: '40%' }}
         onHide={() => {
-          setVisible={setVisible}
-          setVisibleCoffDocsmenu={setVisibleCoffDocsmenu}
+          setVisible(false);
+          setVisibleCoffDocsmenu(false);
           setShowMyComponent(false);
         }}
       >

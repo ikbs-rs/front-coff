@@ -166,7 +166,7 @@ export default function CoffDocPorudzbineL(props) {
 
   const renderHeader = () => {
     return (
-      <div className="flex card-container">
+    <div className="flex card-container">
         <div className="flex flex-wrap gap-1">
           <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
         </div>
@@ -255,11 +255,11 @@ export default function CoffDocPorudzbineL(props) {
           onClick={async (e) => {
             const currDoc = localStorage.getItem('currCoffOrder');
             console.log(currDoc != -1, currDoc, "11-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
-            if (currDoc == -1) {
+            if (currDoc === "-1") {
               e.preventDefault();
               props.scrollToSection(props.orderRef);
 
-              localStorage.setItem('currCoffOrder', rowData.id);
+              localStorage.setItem('currCoffOrder', String(rowData.id));
               const _coffDoc = {...rowData}
               _coffDoc.status = 0
               const coffDocService = new CoffDocService();
@@ -289,7 +289,7 @@ export default function CoffDocPorudzbineL(props) {
     // setDataTab(updatedTab);
   };
   return (
-    <div className="card">
+    <div className="card model-grid-page">
       <Toast ref={toast} />
       <DataTable
         id="coffDocL"
@@ -306,7 +306,7 @@ export default function CoffDocPorudzbineL(props) {
         scrollable
         sortField="vreme"
         defaultSortOrder={-1}
-        scrollHeight="750px"
+        scrollHeight="flex"
         virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}

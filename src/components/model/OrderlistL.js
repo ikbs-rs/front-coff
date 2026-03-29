@@ -152,7 +152,7 @@ export default function OrderlistL(props) {
 
   const renderHeader = () => {
     return (
-      <div className="flex card-container">
+    <div className="flex card-container">
         <div className="flex flex-wrap gap-1">
           <Button label={translations[selectedLanguage].Copy} icon="pi pi-copy"  severity="danger" onClick={openNew} text raised />
         </div>
@@ -228,7 +228,7 @@ export default function OrderlistL(props) {
   };
 
   return (
-    <div className="card">
+    <div className="card model-grid-page">
       <Toast ref={toast} />
       <DataTable
         id="OrderlistL"
@@ -242,7 +242,7 @@ export default function OrderlistL(props) {
         removableSort
         filters={filters}
         scrollable
-        scrollHeight="650px"
+        scrollHeight="flex"
         virtualScrollerOptions={{ itemSize: 46 }}
         tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}

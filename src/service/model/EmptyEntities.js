@@ -24,6 +24,7 @@ const EmptyEntities =
     "usr": null,
     "status": "0",
     "nzap": "",
+    "nzap2": "",
     "coff": null
   },
   "coff_docs": {
@@ -67,12 +68,22 @@ const EmptyEntities =
     "oblast": "",
     "mtroska": "",
     "nzap": "",
-    "obj": null
+    "email": "",
+    "adkorisnik": "",
+    "obj": null,
+    "valid": "1"
   },
   "coff_zaplink": {
     "id": null,
-    "zap1": null,
-    "zap2": null,
+    "zap1": "",
+    "zap2": "",
+    "nzap1": "",
+    "czap1": "",
+    "obj": null,
+    "nazap1": "",
+    "nobj": "",
+    "email": "",
+    "adkorisnik": "",
     "begda": "",
     "endda": "",
     "descript": ""

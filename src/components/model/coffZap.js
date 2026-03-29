@@ -5,109 +5,72 @@ import './index.css';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
+import { Checkbox } from 'primereact/checkbox';
 import { Toast } from "primereact/toast";
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from "../../configs/translations";
 import { SapDataService } from "../../service/model/SapDataService";
 
 const CoffZap = (props) => {
-    console.log(props, "@@@@@@@@@@@@@@@@@@@@@@ CoffZap @@@@@@@@@@@@@@@@@@@@@@@@@@@")
-
-    const selectedLanguage = localStorage.getItem('sl') || 'en'
+    const selectedLanguage = localStorage.getItem('sl') || 'en';
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
-    const [dropdownItem, setDropdownItem] = useState(null);
-    const [dropdownItems, setDropdownItems] = useState(null);
-    const [coffZap, setCoffZap] = useState(props.coffZap);
+    const [coffZap, setCoffZap] = useState({ ...props.coffZap });
     const [submitted, setSubmitted] = useState(false);
-
-    const [ddZapDDItem, setDdZapDDItem] = useState(null);
-    const [ddZapDDItems, setDdZapDDItems] = useState(null);
-    const [zapDDItem, setZapDDItem] = useState(null);
-    const [zapDDItems, setZapDDItems] = useState(null);
-
-    const [ddObjDDItem, setDdObjDDItem] = useState(null);
-    const [ddObjDDItems, setDdObjDDItems] = useState(null);
-    const [objDDItem, setObjDDItem] = useState(null);
-    const [objDDItems, setObjDDItems] = useState(null);
-
+    const [ddZapDDItems, setDdZapDDItems] = useState([]);
+    const [zapDDItems, setZapDDItems] = useState([]);
+    const [ddObjDDItems, setDdObjDDItems] = useState([]);
+    const [objDDItems, setObjDDItems] = useState([]);
     const toast = useRef(null);
-    const items = [
-        { name: `${translations[selectedLanguage].Yes}`, code: '1' },
-        { name: `${translations[selectedLanguage].No}`, code: '0' }
-    ];
-    let i = 0
+
+    useEffect(() => {
+        setCoffZap({ ...props.coffZap });
+    }, [props.coffZap]);
+
     useEffect(() => {
         async function fetchData() {
             try {
                 const zapDDService = new SapDataService();
-                const data = await zapDDService.getLista('zap');
+                const data = await zapDDService.getZapLista();
 
-                setZapDDItems(data)
-                const dataDD = data.map(({ N2ZAP, ZAP }) => ({ name: N2ZAP, code: ZAP }));
-
-                setDdZapDDItems(dataDD);
-                const foundDD = await dataDD.find((item) => item.code == props.coffZap.zap)
-
-                await setDdZapDDItem(foundDD);
-                if (props.coffZap.zap) {
-                    const foundItem = await data.find((item) => item.ZAP == props.coffZap.zap);
-
-                    setZapDDItem(foundItem || null);
-                    coffZap.IME = foundItem.IME
-                    coffZap.PREZIME = foundItem.PREZIME
-                    coffZap.NRM = foundItem.NRM
-                    coffZap.nzap = foundItem.N2ZAP
-                }
+                setZapDDItems(data || []);
+                setDdZapDDItems((data || []).map(({ N2ZAP, ZAP }) => ({ name: N2ZAP, code: ZAP })));
             } catch (error) {
                 console.error(error);
-                // Obrada greške ako je potrebna
             }
         }
+
         fetchData();
     }, []);
 
     useEffect(() => {
         async function fetchData() {
             try {
-                ++i
-                if (i < 2) {
-                    const cmnObjService = new CoffZapService();
-                    const data = await cmnObjService.getListObjaLL("COFF");
-                    const objIdLocal = props.coffZap.obj||-1 
+                const cmnObjService = new CoffZapService();
+                const data = await cmnObjService.getListObjaLL("COFF");
 
-                    setObjDDItems(data);
-                    const dataDD = data.map(({ text, id }) => ({ name: text, code: id }));
-
-                    setDdObjDDItems(dataDD);
-                    const foundDD = await dataDD.find((item) => item.code == objIdLocal)
-                    console.log(data, "***", objIdLocal, "**********************  OBJ **************************", foundDD)
-                    await setDdObjDDItem(foundDD);
-                    if (props.coffZap.obj) {
-                        const foundItem = await data.find((item) => item.id == objIdLocal);
-    
-                        setObjDDItem(foundItem || null);
-                        coffZap.nobj = foundItem.text
-                    }                    
-                }
+                setObjDDItems(data || []);
+                setDdObjDDItems((data || []).map(({ text, id }) => ({ name: text, code: id })));
             } catch (error) {
                 console.error(error);
-                // Obrada greške ako je potrebna
             }
         }
+
         fetchData();
     }, []);
 
-    useEffect(() => {
-        setDropdownItem(findDropdownItemByCode(props.coffZap.valid));
-    }, []);
-
-    const findDropdownItemByCode = (code) => {
-        return items.find((item) => item.code === code) || null;
-    };
-
-    useEffect(() => {
-        setDropdownItems(items);
-    }, []);
+    const buildPayload = () => ({
+        id: coffZap.id ?? null,
+        zap: `${coffZap.zap ?? ""}`,
+        tp: coffZap.tp ?? 1,
+        pravilnik: coffZap.pravilnik ?? "",
+        oblast: coffZap.oblast ?? "",
+        mtroska: coffZap.mtroska ?? "",
+        nzap: coffZap.nzap ?? "",
+        email: coffZap.email ?? "",
+        adkorisnik: coffZap.adkorisnik ?? "",
+        obj: coffZap.obj ?? null,
+        valid: `${coffZap.valid ?? '1'}`,
+    });
 
     const handleCancelClick = () => {
         props.setVisible(false);
@@ -117,15 +80,17 @@ const CoffZap = (props) => {
         try {
             setSubmitted(true);
             const coffZapService = new CoffZapService();
-            const data = await coffZapService.postCoffZap(coffZap);
-            coffZap.id = data
-            props.handleDialogClose({ obj: coffZap, zapTip: props.zapTip });
+            const payload = buildPayload();
+            const data = await coffZapService.postCoffZap(payload);
+            const createdCoffZap = { ...coffZap, ...payload, id: data };
+
+            props.handleDialogClose({ obj: createdCoffZap, zapTip: props.zapTip });
             props.setVisible(false);
         } catch (err) {
             toast.current.show({
                 severity: "error",
                 summary: "Action ",
-                detail: `${err.response.data.error}`,
+                detail: `${err.response?.data?.error || err.message}`,
                 life: 5000,
             });
         }
@@ -135,14 +100,15 @@ const CoffZap = (props) => {
         try {
             setSubmitted(true);
             const coffZapService = new CoffZapService();
-            await coffZapService.putCoffZap(coffZap);
-            props.handleDialogClose({ obj: coffZap, zapTip: props.zapTip });
+            const payload = buildPayload();
+            await coffZapService.putCoffZap(payload);
+            props.handleDialogClose({ obj: { ...coffZap, ...payload }, zapTip: props.zapTip });
             props.setVisible(false);
         } catch (err) {
             toast.current.show({
                 severity: "error",
                 summary: "Action ",
-                detail: `${err.response.data.error}`,
+                detail: `${err.response?.data?.error || err.message}`,
                 life: 5000,
             });
         }
@@ -164,43 +130,44 @@ const CoffZap = (props) => {
             toast.current.show({
                 severity: "error",
                 summary: "Action ",
-                detail: `${err.response.data.error}`,
+                detail: `${err.response?.data?.error || err.message}`,
                 life: 5000,
             });
         }
     };
 
-    const onInputChange = async (e, type, name) => {
-        let val = ''
+    const onInputChange = (e, type, name) => {
+        let val = '';
+        const nextCoffZap = { ...coffZap };
+
         if (type === "options") {
-            val = (e.target && e.target.value && e.target.value.code) || '';
-            if (name == "zap") {
-                setDdZapDDItem(e.value);
-                const foundItem = await zapDDItems.find((item) => item.ZAP === val);
-                console.log(foundItem, "@#@#@#@#@#@#@#@#@# onInputChange @#@#@#@#@#", val, "@#@#@#@#@#@#@#", zapDDItems)
-                setZapDDItem(foundItem || null);
-                coffZap.IME = foundItem?.IME
-                coffZap.PREZIME = foundItem?.PREZIME
-                coffZap.NRM = foundItem?.NRM
-                coffZap.nzap = foundItem?.N2ZAP
-            } else if (name == "obj") {
-                setDdObjDDItem(e.value);
-                const foundItem = await objDDItems.find((item) => item.id === val);
-                console.log(foundItem, "@#@#@#@#@#@#@#@#@# onInputChange @#@#@#@#@#", val, "@#@#@#@#@#@#@#", zapDDItems)
-                setZapDDItem(foundItem || null);
-                coffZap.nobj = foundItem?.text
-            } else {
-                setDropdownItem(e.value);
+            val = e.value ?? '';
+
+            if (name === "zap") {
+                const foundItem = zapDDItems.find((item) => item.ZAP === val);
+
+                nextCoffZap.zap = `${val}`;
+                nextCoffZap.IME = foundItem?.IME || "";
+                nextCoffZap.PREZIME = foundItem?.PREZIME || "";
+                nextCoffZap.NRM = foundItem?.NRM || "";
+                nextCoffZap.nzap = foundItem?.N2ZAP || "";
+                nextCoffZap.email = foundItem?.email || foundItem?.EMAIL || "";
+                nextCoffZap.adkorisnik = foundItem?.adkorisnik || foundItem?.ADKORISNIK || foundItem?.ADKORISNK || "";
+            } else if (name === "obj") {
+                const foundItem = objDDItems.find((item) => `${item.id}` === `${val}`);
+
+                nextCoffZap.obj = val;
+                nextCoffZap.nobj = foundItem?.text || "";
             }
+        } else if (type === "checkbox") {
+            val = e.checked ? '1' : '0';
+            nextCoffZap.valid = val;
         } else {
             val = (e.target && e.target.value) || '';
+            nextCoffZap[name] = val;
         }
 
-        let _coffZap = { ...coffZap };
-        _coffZap[`${name}`] = val;
-        if (name === `text`) _coffZap[`text`] = val
-
-        setCoffZap(_coffZap);
+        setCoffZap(nextCoffZap);
     };
 
     const hideDeleteDialog = () => {
@@ -215,14 +182,15 @@ const CoffZap = (props) => {
                     <div className="p-fluid formgrid grid">
                         <div className="field col-12 md:col-10">
                             <label htmlFor="zap">{translations[selectedLanguage].Zap} *</label>
-                            <Dropdown id="zap"
-                                value={ddZapDDItem}
+                            <Dropdown
+                                id="zap"
+                                value={coffZap?.zap || null}
                                 options={ddZapDDItems}
                                 onChange={(e) => onInputChange(e, "options", 'zap')}
                                 required
-                                showClear
                                 filter
                                 optionLabel="name"
+                                optionValue="code"
                                 placeholder="Select One"
                                 className={classNames({ 'p-invalid': submitted && !coffZap.zap })}
                             />
@@ -231,8 +199,11 @@ const CoffZap = (props) => {
 
                         <div className="field col-12 md:col-7">
                             <label htmlFor="pravilnik">{translations[selectedLanguage].Pravilnik}</label>
-                            <InputText id="pravilnik" autoFocus
-                                value={coffZap.pravilnik} onChange={(e) => onInputChange(e, "text", 'pravilnik')}
+                            <InputText
+                                id="pravilnik"
+                                autoFocus
+                                value={coffZap.pravilnik || ""}
+                                onChange={(e) => onInputChange(e, "text", 'pravilnik')}
                                 required
                                 className={classNames({ 'p-invalid': submitted && !coffZap.pravilnik })}
                             />
@@ -242,7 +213,8 @@ const CoffZap = (props) => {
                             <label htmlFor="oblast">{translations[selectedLanguage].Oblast}</label>
                             <InputText
                                 id="oblast"
-                                value={coffZap.oblast} onChange={(e) => onInputChange(e, "text", 'oblast')}
+                                value={coffZap.oblast || ""}
+                                onChange={(e) => onInputChange(e, "text", 'oblast')}
                                 required
                                 className={classNames({ 'p-invalid': submitted && !coffZap.oblast })}
                             />
@@ -252,7 +224,8 @@ const CoffZap = (props) => {
                             <label htmlFor="mtroska">{translations[selectedLanguage].Mtroska}</label>
                             <InputText
                                 id="mtroska"
-                                value={coffZap.mtroska} onChange={(e) => onInputChange(e, "text", 'mtroska')}
+                                value={coffZap.mtroska || ""}
+                                onChange={(e) => onInputChange(e, "text", 'mtroska')}
                                 required
                                 className={classNames({ 'p-invalid': submitted && !coffZap.mtroska })}
                             />
@@ -260,18 +233,50 @@ const CoffZap = (props) => {
                         </div>
                         <div className="field col-12 md:col-10">
                             <label htmlFor="obj">{translations[selectedLanguage].Obj} *</label>
-                            <Dropdown id="obj"
-                                value={ddObjDDItem}
+                            <Dropdown
+                                id="obj"
+                                value={coffZap?.obj ?? null}
                                 options={ddObjDDItems}
                                 onChange={(e) => onInputChange(e, "options", 'obj')}
                                 required
-                                showClear
                                 filter
                                 optionLabel="name"
+                                optionValue="code"
                                 placeholder="Select One"
                                 className={classNames({ 'p-invalid': submitted && !coffZap.obj })}
                             />
                             {submitted && !coffZap.obj && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
+                        </div>
+                        <div className="field col-12 md:col-6">
+                            <label htmlFor="email">Email</label>
+                            <InputText
+                                id="email"
+                                value={coffZap.email || ""}
+                                disabled
+                            />
+                        </div>
+                        <div className="field col-12 md:col-6">
+                            <label htmlFor="adkorisnik">{translations[selectedLanguage].ADuser}</label>
+                            <InputText
+                                id="adkorisnik"
+                                value={coffZap.adkorisnik || ""}
+                                disabled
+                            />
+                        </div>
+                        <div className="field col-12 md:col-4">
+                            <label htmlFor="valid">{translations[selectedLanguage].Valid}</label>
+                            <div className="flex align-items-center gap-2 pt-2">
+                                <Checkbox
+                                    inputId="valid"
+                                    checked={`${coffZap.valid ?? '1'}` === '1'}
+                                    onChange={(e) => onInputChange(e, "checkbox", "valid")}
+                                />
+                                <label htmlFor="valid">
+                                    {`${coffZap.valid ?? '1'}` === '1'
+                                        ? translations[selectedLanguage].Yes
+                                        : translations[selectedLanguage].No}
+                                </label>
+                            </div>
                         </div>
                     </div>
 
@@ -287,7 +292,7 @@ const CoffZap = (props) => {
                         ) : null}
                         <div className="flex-grow-1"></div>
                         <div className="flex flex-wrap gap-1">
-                            {(props.zapTip === 'CREATE') ? (
+                            {props.zapTip === 'CREATE' ? (
                                 <Button
                                     label={translations[selectedLanguage].Create}
                                     icon="pi pi-check"
@@ -296,7 +301,7 @@ const CoffZap = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {(props.zapTip !== 'CREATE') ? (
+                            {props.zapTip !== 'CREATE' ? (
                                 <Button
                                     label={translations[selectedLanguage].Delete}
                                     icon="pi pi-trash"
@@ -305,7 +310,7 @@ const CoffZap = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {(props.zapTip !== 'CREATE') ? (
+                            {props.zapTip !== 'CREATE' ? (
                                 <Button
                                     label={translations[selectedLanguage].Save}
                                     icon="pi pi-check"
@@ -321,7 +326,7 @@ const CoffZap = (props) => {
             <DeleteDialog
                 visible={deleteDialogVisible}
                 inAction="delete"
-                item={coffZap.N2ZAP}
+                item={coffZap.nzap}
                 onHide={hideDeleteDialog}
                 onDelete={handleDeleteClick}
             />

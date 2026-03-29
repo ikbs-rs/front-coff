@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { classNames } from 'primereact/utils';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { CSSTransition } from 'react-transition-group';
 
-import AppTopbar from './AppTopbar';
 import AppFooter from './AppFooter';
 // import AppConfig from './AppConfig';
 import AppMenu from './AppMenu';
@@ -15,7 +13,6 @@ import Zap from './components/model/coffZapL';
 import Saporg from './components/model/sapOrgl';
 import Zapcoff from './components/model/sapZapcoffL';
 import DocW from './components/model/coffDocW';
-import Doc2 from './components/model/coffDocL';
 import Coff from './components/model/coffee';
 import DocTp from './components/model/ticDoctpL';
 import DocVr from './components/model/ticDocvrL';
@@ -43,18 +40,15 @@ import Sal from './components/model/ticSal';
 import EmptyPage from './pages/EmptyPage';
 import ObjW from './components/model/ticCmnW';
 
-import PrimeReact from 'primereact/api';
 import { Tooltip } from 'primereact/tooltip';
 
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 import './App.scss';
-import env from "./configs/env"
 import { useDispatch } from 'react-redux';
 import { setLanguage } from './store/actions';
 import { translations } from "./configs/translations";
-import TicArtgrp from './components/model/ticArtgrp';
 import WsComponent from './components/model/wsComponent';
 // import WebSocketService from './utilities/WebSocketService';
 // import WebSocketManager from './utilities/WebSocketManager';
@@ -63,37 +57,108 @@ import { WebSocketProvider } from './utilities/WebSocketContext';
 const App = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const urlParams = new URLSearchParams(window.location.search);
-    let selectedLanguage = localStorage.getItem('sl')
-    //let selectedLanguage = urlParams.get('sl');
-    const [layoutMode, setLayoutMode] = useState('slim');
-    const [lightMenu, setLightMenu] = useState(false);
+    const selectedLanguage = localStorage.getItem('sl') || 'sr_cyr';
+    const layoutMode = 'slim';
+    const lightMenu = false;
     const [overlayMenuActive, setOverlayMenuActive] = useState(false);
     const [staticMenuMobileActive, setStaticMenuMobileActive] = useState(false);
-    const [staticMenuDesktopInactive, setStaticMenuDesktopInactive] = useState(false);
-    const [isRTL, setIsRTL] = useState(false);
-    const [inlineUser, setInlineUser] = useState(false);
-    const [topbarMenuActive, setTopbarMenuActive] = useState(false);
-    const [activeTopbarItem, setActiveTopbarItem] = useState(null);
+    const staticMenuDesktopInactive = false;
+    const isRTL = false;
     const [rightPanelMenuActive, setRightPanelMenuActive] = useState(null);
-    const [inlineUserMenuActive, setInlineUserMenuActive] = useState(false);
     const [menuActive, setMenuActive] = useState(false);
-    const [topbarColor, setTopbarColor] = useState('layout-topbar-blue');
-    const [theme, setTheme] = useState('blue');
-    const [configActive, setConfigActive] = useState(false);
-    const [inputStyle, setInputStyle] = useState('filled');
-    const [ripple, setRipple] = useState(false);
+    const [sidebarExpanded, setSidebarExpanded] = useState(false);
+    const [activeRootIndex, setActiveRootIndex] = useState(null);
+    const topbarColor = 'layout-topbar-blue';
+    const inputStyle = 'filled';
+    const ripple = false;
     const copyTooltipRef = useRef();
     const location = useLocation();
-    const inlineUserRef = useRef();
 
-    const menu = [
+    let menuClick;
+    let rightMenuClick;
+
+    const findRootIndexByPath = (menuItems, path) => {
+        for (let i = 0; i < menuItems.length; i++) {
+            const item = menuItems[i];
+
+            if (item.to === path) {
+                return i;
+            }
+
+            if (item.items?.length) {
+                const hasMatch = item.items.some((child) => {
+                    if (child.to === path) {
+                        return true;
+                    }
+
+                    return child.items?.some((grandChild) => grandChild.to === path);
+                });
+
+                if (hasMatch) {
+                    return i;
+                }
+            }
+        }
+
+        return null;
+    };
+
+    const findMenuLabelByRoute = useCallback((menuItems, route) => {
+        for (const item of menuItems) {
+            if (item.to === route) {
+                return item.label;
+            }
+
+            if (item.items?.length) {
+                const nestedLabel = findMenuLabelByRoute(item.items, route);
+                if (nestedLabel) {
+                    return nestedLabel;
+                }
+            }
+        }
+
+        return null;
+    }, []);
+
+    // useEffect(() => {
+    //     WebSocketService.connect();
+
+    //     return () => {
+    //         console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+    //     //   WebSocketService.disconnect();
+    //     };
+    //   }, []);
+
+    useEffect(() => {
+        if (selectedLanguage) {
+            dispatch(setLanguage(selectedLanguage)); // Postavi jezik iz URL-a u globalni store
+        }
+    }, [dispatch, selectedLanguage]);
+
+    useEffect(() => {
+        copyTooltipRef && copyTooltipRef.current && copyTooltipRef.current.updateTargetEvents();
+    }, [location]);
+
+    useEffect(() => {
+        if (staticMenuMobileActive) {
+            blockBodyScroll();
+        } else {
+            unblockBodyScroll();
+        }
+    }, [staticMenuMobileActive]);
+
+    const handleLogout = useCallback(() => {
+        localStorage.removeItem("token");
+        sessionStorage.removeItem("isLoggedIn");
+        navigate('/login');
+    }, [navigate]);
+
+    const menuModel = useMemo(() => ([
         { label: translations[selectedLanguage].Home, icon: 'pi pi-fw pi-home', to: `/` },
         {
             label: translations[selectedLanguage].HR_books,
             icon: 'pi pi-fw pi-database',
             items: [
-
                 { label: translations[selectedLanguage].Zap_type, icon: 'pi pi-fw pi-calendar', to: '/zaptp' },
                 { label: translations[selectedLanguage].Zap, icon: 'pi pi-fw pi-calendar', to: '/zap' },
                 { label: translations[selectedLanguage].SAP_ORG, icon: 'pi pi-fw pi-calendar', to: '/saporg' },
@@ -118,9 +183,14 @@ const App = () => {
             label: translations[selectedLanguage].Processing,
             icon: 'pi pi-cog',
             items: [
-                { label: translations[selectedLanguage].Zaduzenje, icon: 'pi pi-fw pi-clone', to: '/doc/2' },
-                { label: translations[selectedLanguage].Porudzbine, icon: 'pi pi-fw pi-clone', to: '/doc/1' },
-                // { label: translations[selectedLanguage].coffee, icon: 'pi pi-fw pi-clone', to: '/coff' },
+                { label: translations[selectedLanguage].Prijem_dokumenta, icon: 'pi pi-fw pi-clone', to: '/doc/2?docVr=ZAD' },
+                { label: translations[selectedLanguage].Porudzbine, icon: 'pi pi-fw pi-clone', to: '/doc/1?docVr=ORD' },
+                { label: translations[selectedLanguage].Rashod, icon: 'pi pi-fw pi-clone', to: '/doc/1754623618111115264?docVr=RH' },
+                { label: translations[selectedLanguage].Pocetno_stanje, icon: 'pi pi-fw pi-clone', to: '/doc/1754623246252511232?docVr=PS' },
+                { label: translations[selectedLanguage].Prenos, icon: 'pi pi-fw pi-clone', to: '/doc/2037973410487078912?docVr=PRN' },
+                { label: translations[selectedLanguage].Visak, icon: 'pi pi-fw pi-clone', to: '/doc/1754623711912529920?docVr=VI' },
+                { label: translations[selectedLanguage].Manjak, icon: 'pi pi-fw pi-clone', to: '/doc/1754623869450588160?docVr=MNJ' },
+                { label: translations[selectedLanguage].Rezervacija, icon: 'pi pi-fw pi-clone', to: '/doc/1683550132932841472?docVr=RZ' },               
             ]
         },
         {
@@ -133,17 +203,8 @@ const App = () => {
                     items: [
                         { label: translations[selectedLanguage].Pregled, icon: 'pi pi-database', to: '/izv01' },
                         { label: translations[selectedLanguage].Stanje, icon: 'pi pi-database', to: '/stanje' },
-                        // { label: translations[selectedLanguage].Kartica, icon: 'pi pi-database', to: '/kartica' },
-                        // { label: translations[selectedLanguage].WSC, icon: 'pi pi-database', to: '/wsc' }
                     ]
                 }
-                // {
-                //     label: translations[selectedLanguage].Reports,
-                //     icon: 'pi pi-chart-bar',
-                //     items: [
-                //         { label: translations[selectedLanguage].Report, icon: 'pi pi-chart-bar', to: '/izv2' }
-                //     ]
-                // }
             ]
         },
         {
@@ -152,84 +213,32 @@ const App = () => {
             command: () => {
                 handleLogout();
             }
-
-            // label: translations[selectedLanguage].Moduleselection,
-            // icon: 'pi pi-fw pi-power-off',
-            // items: [
-            //     {
-            //         label: translations[selectedLanguage].Logout, icon: 'pi pi-sign-out',
-            //         // url: `${env.START_URL}?sl=${selectedLanguage}`
-            //         command: () => {
-            //             handleLogout();
-            //         }
-            //     }
-            //     // { label: translations[selectedLanguage].Back, icon: 'pi pi-sign-out', url: `${env.START_URL}?sl=${selectedLanguage}` }
-            // ]
         }
-    ];
+    ]), [selectedLanguage, handleLogout]);
 
-
-    let topbarItemClick;
-    let menuClick;
-    let rightMenuClick;
-    let userMenuClick;
-    let configClick = false;
-
-    // useEffect(() => {
-    //     WebSocketService.connect();
-
-    //     return () => {
-    //         console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-    //     //   WebSocketService.disconnect();
-    //     };
-    //   }, []);
+    const currentDocMenuLabel = useMemo(() => {
+        return findMenuLabelByRoute(menuModel, `${location.pathname}${location.search}`) || findMenuLabelByRoute(menuModel, location.pathname);
+    }, [findMenuLabelByRoute, menuModel, location.pathname, location.search]);
 
     useEffect(() => {
-        if (selectedLanguage) {
-            dispatch(setLanguage(selectedLanguage)); // Postavi jezik iz URL-a u globalni store
+        if (location.pathname === '/') {
+            setSidebarExpanded(false);
+            setActiveRootIndex(null);
+            setMenuActive(false);
+            return;
         }
-    }, [dispatch]);
 
-    useEffect(() => {
-        copyTooltipRef && copyTooltipRef.current && copyTooltipRef.current.updateTargetEvents();
-    }, [location]);
-
-    useEffect(() => {
-        if (staticMenuMobileActive) {
-            blockBodyScroll();
-        } else {
-            unblockBodyScroll();
+        const nextRootIndex = findRootIndexByPath(menuModel, location.pathname);
+        if (nextRootIndex !== null) {
+            setSidebarExpanded(true);
+            setActiveRootIndex(nextRootIndex);
+            setMenuActive(true);
         }
-    }, [staticMenuMobileActive]);
-
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        sessionStorage.removeItem("isLoggedIn");
-        //window.location.reload();
-        navigate('/login');
-    }
-
-    const onInputStyleChange = (inputStyle) => {
-        setInputStyle(inputStyle);
-    };
-
-    const onRippleChange = (e) => {
-        PrimeReact.ripple = e.value;
-        setRipple(e.value);
-    };
+    }, [location.pathname, menuModel]);
 
     const onDocumentClick = () => {
-        if (!topbarItemClick) {
-            setActiveTopbarItem(null);
-            setTopbarMenuActive(false);
-        }
-
         if (!rightMenuClick) {
             setRightPanelMenuActive(false);
-        }
-
-        if (!userMenuClick && isSlim() && !isMobile()) {
-            setInlineUserMenuActive(false);
         }
 
         if (!menuClick) {
@@ -243,73 +252,12 @@ const App = () => {
 
             unblockBodyScroll();
         }
-
-        if (configActive && !configClick) {
-            setConfigActive(false);
-        }
-
-        topbarItemClick = false;
         menuClick = false;
         rightMenuClick = false;
-        userMenuClick = false;
-        configClick = false;
-    };
-
-    const onMenuButtonClick = (event) => {
-        menuClick = true;
-        setTopbarMenuActive(false);
-        setRightPanelMenuActive(false);
-
-        if (layoutMode === 'overlay') {
-            setOverlayMenuActive((prevOverlayMenuActive) => !prevOverlayMenuActive);
-        }
-
-        if (isDesktop()) setStaticMenuDesktopInactive((prevStaticMenuDesktopInactive) => !prevStaticMenuDesktopInactive);
-        else {
-            setStaticMenuMobileActive((prevStaticMenuMobileActive) => !prevStaticMenuMobileActive);
-            if (staticMenuMobileActive) {
-                blockBodyScroll();
-            } else {
-                unblockBodyScroll();
-            }
-        }
-
-        event.preventDefault();
-    };
-
-    const onTopbarMenuButtonClick = (event) => {
-        topbarItemClick = true;
-        setTopbarMenuActive((prevTopbarMenuActive) => !prevTopbarMenuActive);
-        hideOverlayMenu();
-        event.preventDefault();
-    };
-
-    const onTopbarItemClick = (event) => {
-        topbarItemClick = true;
-
-        if (activeTopbarItem === event.item) setActiveTopbarItem(null);
-        else setActiveTopbarItem(event.item);
-
-        event.originalEvent.preventDefault();
     };
 
     const onMenuClick = () => {
         menuClick = true;
-    };
-
-    const onInlineUserClick = () => {
-        userMenuClick = true;
-        setInlineUserMenuActive((prevInlineUserMenuActive) => !prevInlineUserMenuActive);
-        setMenuActive(false);
-    };
-
-    const onConfigClick = () => {
-        configClick = true;
-    };
-
-    const onConfigButtonClick = () => {
-        setConfigActive((prevConfigActive) => !prevConfigActive);
-        configClick = true;
     };
 
     const blockBodyScroll = () => {
@@ -328,15 +276,6 @@ const App = () => {
         }
     };
 
-    const onRightMenuButtonClick = (event) => {
-        rightMenuClick = true;
-        setRightPanelMenuActive((prevRightPanelMenuActive) => !prevRightPanelMenuActive);
-
-        hideOverlayMenu();
-
-        event.preventDefault();
-    };
-
     const onRightMenuClick = () => {
         rightMenuClick = true;
     };
@@ -347,7 +286,6 @@ const App = () => {
     };
 
     const onMenuItemClick = (event) => {
-        console.log("000000000000000000000000000000000000000000000000")
         if (!event.item.items) {
             hideOverlayMenu();
         }
@@ -356,18 +294,22 @@ const App = () => {
         }
     };
 
-    const onRootMenuItemClick = () => {
-        console.log("1111111111111111111111111111111111111111111111")
+    const onRootMenuItemClick = (event) => {
+        if (event?.item?.items) {
+            setSidebarExpanded(true);
+            setActiveRootIndex(event.index);
+            setMenuActive(true);
+            return;
+        }
+
+        if (event?.item?.to === '/') {
+            setSidebarExpanded(false);
+            setActiveRootIndex(null);
+            setMenuActive(false);
+            return;
+        }
+
         setMenuActive((prevMenuActive) => !prevMenuActive);
-        setInlineUserMenuActive(false);
-    };
-
-    const isDesktop = () => {
-        return window.innerWidth > 896;
-    };
-
-    const isMobile = () => {
-        return window.innerWidth <= 1025;
     };
 
     const isHorizontal = () => {
@@ -376,36 +318,6 @@ const App = () => {
 
     const isSlim = () => {
         return layoutMode === 'slim';
-    };
-
-    const onLayoutModeChange = (layoutMode) => {
-        setLayoutMode(layoutMode);
-        setStaticMenuDesktopInactive(false);
-        setOverlayMenuActive(false);
-
-        if (layoutMode === 'horizontal' && inlineUser) {
-            setInlineUser(false);
-        }
-    };
-
-    const onMenuColorChange = (menuColor) => {
-        setLightMenu(menuColor);
-    };
-
-    const onThemeChange = (theme) => {
-        setTheme(theme);
-    };
-
-    const onProfileModeChange = (profileMode) => {
-        setInlineUser(profileMode);
-    };
-
-    const onOrientationChange = (orientation) => {
-        setIsRTL(orientation);
-    };
-
-    const onTopbarColorChange = (color) => {
-        setTopbarColor(color);
     };
 
     const layoutClassName = classNames(
@@ -422,12 +334,12 @@ const App = () => {
             'layout-static-inactive': staticMenuDesktopInactive,
             'layout-rtl': isRTL,
             'p-input-filled': inputStyle === 'filled',
-            'p-ripple-disabled': !ripple
+            'p-ripple-disabled': !ripple,
+            'accordion-sidebar': true,
+            'accordion-sidebar-expanded': sidebarExpanded
         },
         topbarColor
     );
-
-    const inlineUserTimeout = layoutMode === 'slim' ? 0 : { enter: 1000, exit: 450 };
 
     return (
         <WebSocketProvider>
@@ -449,57 +361,31 @@ const App = () => {
                 <AppRightMenu rightPanelMenuActive={rightPanelMenuActive} onRightMenuClick={onRightMenuClick}></AppRightMenu>
 
                 <div className="layout-menu-container" onClick={onMenuClick} >
-                    {inlineUser && (
-                        <div className="layout-profile">
-                            <button type="button" className="p-link layout-profile-button" onClick={onInlineUserClick}>
-                                <img src="assets/layout/images/avatar.png" alt="roma-layout" />
-                                <div className="layout-profile-userinfo">
-                                    <span className="layout-profile-name">Arlene Welch</span>
-                                    <span className="layout-profile-role">Design Ops</span>
-                                </div>
-                            </button>
-                            <CSSTransition nodeRef={inlineUserRef} classNames="p-toggleable-content" timeout={inlineUserTimeout} in={inlineUserMenuActive} unmountOnExit>
-                                <ul ref={inlineUserRef} className={classNames('layout-profile-menu', { 'profile-menu-active': inlineUserMenuActive })}>
-                                    <li>
-                                        <button type="button" className="p-link">
-                                            <i className="pi pi-fw pi-user"></i>
-                                            <span>Profile</span>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button type="button" className="p-link">
-                                            <i className="pi pi-fw pi-cog"></i>
-                                            <span>Settings</span>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button type="button" className="p-link">
-                                            <i className="pi pi-fw pi-envelope"></i>
-                                            <span>Messages</span>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button type="button" className="p-link">
-                                            <i className="pi pi-fw pi-bell"></i>
-                                            <span>Notifications</span>
-                                        </button>
-                                    </li>
-                                </ul>
-                            </CSSTransition>
-                        </div>
-                    )}
                     <AppMenu
-                        model={menu}
+                        model={menuModel}
                         onMenuItemClick={onMenuItemClick}
                         onRootMenuItemClick={onRootMenuItemClick}
                         layoutMode={layoutMode}
-                        active={menuActive}
+                        active={sidebarExpanded || menuActive}
                         mobileMenuActive={staticMenuMobileActive}
+                        accordionMode
+                        sidebarExpanded={sidebarExpanded}
+                        onSidebarExpand={() => {
+                            setSidebarExpanded(true);
+                            setMenuActive(true);
+                        }}
+                        onSidebarCollapse={() => {
+                            setSidebarExpanded(false);
+                            setActiveRootIndex(null);
+                            setMenuActive(false);
+                        }}
+                        activeRootIndex={activeRootIndex}
+                        onActiveRootIndexChange={setActiveRootIndex}
                     />
                 </div>
 
                 <div className="layout-main">
-                    <div className="layout-content">
+                    <div className={classNames('layout-content', { 'home-layout-content': location.pathname === '/' })}>
                         <Routes>
                             <Route path="/" element={<EmptyPage />} />
 
@@ -530,8 +416,7 @@ const App = () => {
                             {/* <Route path="/doc1" element={<Doc1 doctp={1} />} />
                         <Route path="/doc2" element={<Doc2 doctp={2} />} /> */}
 
-                            <Route path="/doc/:doctp" element={<DocW />} />
-                            <Route path="/doc/:doctp" element={<DocW />} />
+                            <Route path="/doc/:doctp" element={<DocW docLabel={currentDocMenuLabel} />} />
 
                             <Route path="/coff" element={<Coff />} />
                             <Route path="/doctp" element={<DocTp />} />

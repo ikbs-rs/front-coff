@@ -15,10 +15,11 @@ import { Dialog } from 'primereact/dialog';
 import { translations } from "../../configs/translations";
 
 export default function CoffDocL(props) {
-  console.log(props, "@@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDocL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+  console.log(props, "============================ CoffDocL ============================")
   let i = 0
   const objName = "coff_doc"
   const selectedLanguage = localStorage.getItem('sl')||'en'
+  const resolvedDocLabel = props.docLabel || ''
   const emptyCoffDoc = EmptyEntities[objName]
   emptyCoffDoc.doctp = props.doctp
   const [showMyComponent, setShowMyComponent] = useState(true);
@@ -42,10 +43,15 @@ export default function CoffDocL(props) {
         console.log(data, "@@@@@@@@@@@@@@@@@@@@@@@@@@ getCoffDocsTp @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", props.doctp)
         if (data) {
           const data0 = data[0]
-          setNdoctp(data0.ndoctp)
+          setNdoctp(resolvedDocLabel || data0.ndoctp)
         }
 
-        setCoffDocs(data);
+        const normalizedDocs = (data || []).map((item) => ({
+          ...item,
+          ndoctp: resolvedDocLabel || item.ndoctp
+        }));
+
+        setCoffDocs(normalizedDocs);
         initFilters();
         }
       } catch (error) {
@@ -54,7 +60,7 @@ export default function CoffDocL(props) {
       }
     }
     fetchData();
-  }, [props.datarefresh]);
+  }, [props.datarefresh, props.doctp, resolvedDocLabel]);
 
   const handleDialogClose = (newObj) => {
     console.log(newObj, "%%%%%%%%%%###%%%%%%%%%%%%%%%%%%%%%%%%%%######%%%%%%%%%%%%%%%%%%%%%%%####%%%%%%%%%%%%%%%")
@@ -147,12 +153,13 @@ export default function CoffDocL(props) {
 
   const renderHeader = () => {
     return (
-      <div className="flex card-container">
+    <div className="flex card-container">
         <div className="flex flex-wrap gap-1">
           <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
         </div>
         <div className="flex-grow-1" />
-        <b>{translations[selectedLanguage].DocsList}</b>
+        {/* <b>{translations[selectedLanguage].DocsList}</b> */}
+        <b>{props.docLabel}</b>
         <div className="flex-grow-1"></div>
         <div className="flex flex-wrap gap-1">
           <span className="p-input-icon-left">
@@ -239,7 +246,7 @@ export default function CoffDocL(props) {
     // setDataTab(updatedTab);
   };
   return (
-    <div className="card">
+    <div className="card model-grid-page model-grid-page-docs">
       <Toast ref={toast} />
       <DataTable
         id="coffDocL"
@@ -255,7 +262,7 @@ export default function CoffDocL(props) {
         filters={filters}
         scrollable
         sortField="vreme" defaultSortOrder={-1}       
-        scrollHeight="850px"
+        scrollHeight="flex"
         //virtualScrollerOptions={{ itemSize: 46 }}
         //tableStyle={{ minWidth: "50rem" }}
         metaKeySelection={false}
@@ -310,9 +317,12 @@ export default function CoffDocL(props) {
         ></Column>                     */}
       </DataTable>
       <Dialog
-        header={translations[selectedLanguage].Docs}
+        // header={translations[selectedLanguage].Docs}
+        header={props.docLabel}
         visible={coffDocVisible}
-        style={{ width: '70%' }}
+        className="doc-entry-dialog"
+        style={{ width: '70%', height: '90vh' }}
+        contentStyle={{ height: 'calc(90vh - 5rem)', overflow: 'hidden' }}
         onHide={() => {
           setCoffDocVisible(false);
           setShowMyComponent(false);
@@ -327,9 +337,10 @@ export default function CoffDocL(props) {
             dialog={true}
             docTip={docTip}
             doctp={props.doctp}
+            // label={props.docLabel}
             stVisible={true}
             standard={true}
-            ndoctp={ndoctp}
+            ndoctp={resolvedDocLabel || ndoctp}
           />
         )}
       </Dialog>

@@ -61,33 +61,27 @@ export default function TemplateDemo() {
             <SplitterPanel className="flex flex-column" size={70} style={{ height: '780px', overflowY: 'auto' }}>
                 <div className="card">
                     <div className="flex flex-wrap gap-1">
-                        {('CREATE' == 'CREATE') ? (
-                            <Button
-                                label={translations[selectedLanguage].Create}
-                                icon="pi pi-check"
-                                onClick={() => handleAction('CREATE')}
-                                severity="success"
-                                outlined
-                            />
-                        ) : null}
-                        {('CREATE' == 'CREATE') ? (
-                            <Button
-                                label={translations[selectedLanguage].Delete}
-                                icon="pi pi-trash"
-                                onClick={() => f1(2)}
-                                className="p-button-outlined p-button-danger"
-                                outlined
-                            />
-                        ) : null}
-                        {('CREATE' == 'CREATE') ? (
-                            <Button
-                                label={translations[selectedLanguage].Save}
-                                icon="pi pi-check"
-                                onClick={() => f1(3)}
-                                severity="success"
-                                outlined
-                            />
-                        ) : null}
+                        <Button
+                            label={translations[selectedLanguage].Create}
+                            icon="pi pi-check"
+                            onClick={() => handleAction('CREATE')}
+                            severity="success"
+                            outlined
+                        />
+                        <Button
+                            label={translations[selectedLanguage].Delete}
+                            icon="pi pi-trash"
+                            onClick={() => f1(2)}
+                            className="p-button-outlined p-button-danger"
+                            outlined
+                        />
+                        <Button
+                            label={translations[selectedLanguage].Save}
+                            icon="pi pi-check"
+                            onClick={() => f1(3)}
+                            severity="success"
+                            outlined
+                        />
                     </div>
                     <Divider />
                     <TabView>

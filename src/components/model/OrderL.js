@@ -17,14 +17,25 @@ import { Dialog } from 'primereact/dialog';
 import { translations } from "../../configs/translations";
 import { useWebSocket } from '../../utilities/WebSocketContext';
 
+const normalizeOrderId = (value) => {
+  if (value === null || value === undefined) {
+    return "-1";
+  }
+
+  const normalizedValue = String(value).trim();
+  return normalizedValue === "" ? "-1" : normalizedValue;
+};
+
+const isValidOrderId = (value) => normalizeOrderId(value) !== "-1";
+
 export default function OrderL(props) {
-  console.log(props, "@@@@@@+++++++++++++++++++++++ OrderL ++++++++++++++++++++++++++++++++@@@@@")
+  // console.log(props, "@@@@@@+++++++++++++++++++++++ OrderL ++++++++++++++++++++++++++++++++@@@@@")
   let i = 0
   let k = 0
   const objName = "coff_docs"
 
   const selectedLanguage = localStorage.getItem('sl') || 'en'
-  let [currCoffOrder, setCurrCoffOrder] = useState(localStorage.getItem('currCoffOrder'))
+  const [currCoffOrder, setCurrCoffOrder] = useState(() => normalizeOrderId(localStorage.getItem('currCoffOrder')))
   const docName = "coff_doc"
   const emptyCoffDoc = EmptyEntities[docName]
   const emptyCoffDocs = EmptyEntities[objName]
@@ -50,6 +61,9 @@ export default function OrderL(props) {
   const [cenaTip, setLocTip] = useState('');
   let [refresh, seRefresh] = useState(props.datarefresh);
   const websocket = useWebSocket();
+  const bumpRefresh = () => {
+    seRefresh((prev) => (Number(prev) || 0) + 1);
+  };
 
   // Setuje docId, tj. id za trenutnu porudzbinu
   useEffect(() => {
@@ -61,8 +75,10 @@ export default function OrderL(props) {
     async function fetchData() {
       try {
         const coffDocsService = new CoffDocsService();
-        if (currCoffOrder<docId){currCoffOrder=docId}
-        const data = await coffDocsService.getCurrCoffOrder(currCoffOrder);
+        const effectiveDocId = isValidOrderId(currCoffOrder) ? normalizeOrderId(currCoffOrder) : normalizeOrderId(docId);
+        console.log("Effective Doc ID:", effectiveDocId);
+        const data = await coffDocsService.getCurrCoffOrder(effectiveDocId);
+        console.log("Fetched CoffDocs:", data);
         setCoffDocss(data);
         initFilters();
       } catch (error) {
@@ -71,7 +87,7 @@ export default function OrderL(props) {
       }
     }
     fetchData();
-  }, [ docId, refresh, props.datarefresh]);
+  }, [currCoffOrder, docId, refresh, props.datarefresh]);
 
   // Setujem zaglavlje porudzbine
   useEffect(() => {
@@ -81,6 +97,7 @@ export default function OrderL(props) {
         // if (i < 2) {
         const coffDocService = new CoffDocService();
         const data = await coffDocService.getCoffDoc(docId);
+        console.log("***************** Fetched CoffDoc:", data);
         if (data) {
           setCoffDoc(data)
         }
@@ -96,30 +113,36 @@ export default function OrderL(props) {
   }, [docId, refresh, props.datarefresh]);
 
   const handleDialogClose = (newObj) => {
-
     const localObj = { newObj };
+    console.log("Dialog closed with newObj ++++++++++++++++++++++++:", newObj);
 
-
-    if (newObj.docId) {
-      currCoffOrder = newObj.docId //localStorage.getItem('currCoffOrder')
-      setDocId(currCoffOrder)
-      seRefresh(++refresh)
+    if (newObj.docId !== null && newObj.docId !== undefined && String(newObj.docId).trim() !== "") {
+      const nextDocId = normalizeOrderId(newObj.docId);
+      localStorage.setItem('currCoffOrder', nextDocId);
+      setCurrCoffOrder(nextDocId)
+      setDocId(nextDocId)
+      setCoffDoc({ ...newObj.obj })
+      bumpRefresh()
     }
 
     let _coffDocss = [...coffDocss];
     let _coffDocs = { ...localObj.newObj.obj };
+    const actionType = localObj.newObj.seattpTip ?? localObj.newObj.docTip;
 
     //setSubmitted(true);
-    if (localObj.newObj.seattpTip === "CREATE") {
+    if (actionType === "CREATE") {
       _coffDocss.push(_coffDocs);
-      seRefresh(++refresh)
-    } else if (localObj.newObj.seattpTip === "UPDATE") {
+      setCoffDoc({ ...localObj.newObj.obj })
+      bumpRefresh()
+    } else if (actionType === "UPDATE") {
       const index = findIndexById(localObj.newObj.obj.id);
-      _coffDocss[index] = _coffDocs;
+      if (index >= 0) {
+        _coffDocss[index] = _coffDocs;
+      }
       if(newObj?.docC=='Z') {
         setCoffDoc(newObj.obj)
       }
-    } else if ((localObj.newObj.seattpTip === "DELETE")) {
+    } else if ((actionType === "DELETE")) {
       _coffDocss = coffDocss.filter((val) => val.id !== localObj.newObj.obj.id);
       toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDocs Delete', life: 500 });
     } else {
@@ -164,8 +187,8 @@ export default function OrderL(props) {
     const data = await coffDocService.putCoffDoc(_coffDoc);   
     setCoffDoc(_coffDoc)
     localStorage.setItem('currCoffOrder', "-1");
-    console.log("##############################################################")
-    seRefresh(++refresh)
+    // console.log("##############################################################")
+    bumpRefresh()
     if (websocket && websocket.readyState === WebSocket.OPEN) {
       websocket.send('{"data":[{"id":"TRECA"}]}');
     }
@@ -221,7 +244,7 @@ export default function OrderL(props) {
   };
   const renderHeader = () => {
     return (
-      <div className="flex card-container">
+    <div className="flex card-container">
         <div className="flex flex-wrap gap-1">
           <Button label={translations[selectedLanguage].New} icon="pi pi-plus" severity="success" onClick={openNew} text raised />
         </div>
@@ -235,7 +258,8 @@ export default function OrderL(props) {
 
   // <--- Dialog
   const setCoffDocsDialog = (coffDocs) => {
-    console.log(coffDocs, "-------------------------------------------------setCoffDocsDialog------------------------------------------------------")
+    // console.log(coffDocs, "-------------------------------------------------setCoffDocsDialog------------------------------------------------------")
+    setShowMyComponent(true)
     setVisibleCoffDocsmenu(true)
     setDocsTip("CREATE")
     const _artCurr = {}
@@ -252,6 +276,7 @@ export default function OrderL(props) {
     const _coffDoc = { ...coffDoc }
     _coffDoc.doctp = "1"
     _coffDoc.obj = null
+    setShowMyComponent(true)
     setCoffDocVisible(true)
     setDocTip(docTip)
     setCoffDocI({ ..._coffDoc });
@@ -260,8 +285,8 @@ export default function OrderL(props) {
     setCoffDoc({ ...emptyCoffDoc });
     setCoffDocs({ ...emptyCoffDocs });
 
-    setCurrCoffOrder(-1)
-    seRefresh(++refresh)
+    setCurrCoffOrder("-1")
+    bumpRefresh()
   }
   //  Dialog --->
 
@@ -291,7 +316,7 @@ export default function OrderL(props) {
     // setDataTab(updatedTab);
   };
   return (
-    <div className="card">
+    <div className="card glass-card glass-form model-grid-page model-grid-page-order">
       <Toast ref={toast} />
       {/* <div className="col-12"> */}
       <div >
@@ -332,66 +357,62 @@ export default function OrderL(props) {
         </div>
       </div>
       {/* </div> */}
-      <DataTable
-        id="OrderL"
-        dataKey="id"
-        selectionMode="single"
-        selection={coffDocs}
-        loading={loading}
-        value={coffDocss}
-        // header={header}
-        showGridlines
-        // removableSort
-        // filters={filters}
-        scrollable
-        scrollHeight="650px"
-        virtualScrollerOptions={{ itemSize: 46 }}
-        tableStyle={{ minWidth: "50rem" }}
-        metaKeySelection={false}
-        paginator
-        rows={50}
-        rowsPerPageOptions={[50, 100, 250, 500]}
-        onSelectionChange={(e) => setCoffDocs(e.value)}
-        onRowSelect={onRowSelect}
-        onRowUnselect={onRowUnselect}
-      >
-        <Column
-          //bodyClassName="text-center"
-          body={actionTemplate}
-          exportable={false}
-          headerClassName="w-10rem"
-          style={{ width: "2%" }}
-        // style={{ minWidth: '4rem' }}
-        />
-        <Column
-          field="text"
-          header={translations[selectedLanguage].Text}
-          // sortable
-          // filter
-          style={{ width: "20%" }}
-        ></Column>
-        <Column
-          field="num"
-          header={translations[selectedLanguage].num}
-          // sortable
-          // filter
-          style={{ width: "10%" }}
-        ></Column>
-        <Column
-          field="izlaz"
-          header={translations[selectedLanguage].Kol}
-          // sortable
-          // filter
-          style={{ width: "5%" }}
-        ></Column>
-        <Column
-          field="xxx"
-          header={translations[selectedLanguage].xxx}
-          // sortable
-          // filter
-          style={{ width: "60%" }}
-        ></Column>
-      </DataTable>
+      <div className="glass-table-shell">
+        <DataTable
+          className="glass-datatable order-grid-table"
+          id="OrderL"
+          dataKey="id"
+          selectionMode="single"
+          selection={coffDocs}
+          loading={loading}
+          value={coffDocss}
+          // header={header}
+          showGridlines
+          // removableSort
+          // filters={filters}
+          scrollable
+          scrollHeight="flex"
+          virtualScrollerOptions={{ itemSize: 46 }}
+          tableStyle={{ minWidth: "34rem", width: "max-content", tableLayout: "auto" }}
+          metaKeySelection={false}
+          paginator
+          rows={50}
+          rowsPerPageOptions={[50, 100, 250, 500]}
+          onSelectionChange={(e) => setCoffDocs(e.value)}
+          onRowSelect={onRowSelect}
+          onRowUnselect={onRowUnselect}
+        >
+          <Column
+            //bodyClassName="text-center"
+            body={actionTemplate}
+            exportable={false}
+            headerClassName="w-10rem"
+            style={{ width: "3rem", minWidth: "3rem" }}
+          // style={{ minWidth: '4rem' }}
+          />
+          <Column
+            field="text"
+            header={translations[selectedLanguage].Text}
+            // sortable
+            // filter
+            style={{ minWidth: "11rem" }}
+          ></Column>
+          <Column
+            field="num"
+            header={translations[selectedLanguage].um}
+            // sortable
+            // filter
+            style={{ minWidth: "4.5rem" }}
+          ></Column>
+          <Column
+            field="izlaz"
+            header={translations[selectedLanguage].Kol}
+            // sortable
+            // filter
+            style={{ minWidth: "4rem" }}
+          ></Column>
+        </DataTable>
+      </div>
       <Dialog
         header={translations[selectedLanguage].Porudzbina}
         visible={coffDocVisible}
