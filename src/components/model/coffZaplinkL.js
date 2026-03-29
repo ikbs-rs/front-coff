@@ -14,6 +14,7 @@ import { translations } from "../../configs/translations";
 import DateFunction from "../../utilities/DateFunction";
 
 export default function CoffZaplinkL(props) {
+  console.log("[CoffZaplinkL] Render", { props });
   const objName = "coff_zaplink";
   const selectedLanguage = localStorage.getItem("sl") || "en";
   const [ownerZap, setOwnerZap] = useState(props.coffZap || props.userZap || null);
@@ -29,6 +30,22 @@ export default function CoffZaplinkL(props) {
     ownerZap?.LOK ||
     ownerZap?.lok ||
     "";
+  const getZaplinkText = (item) =>
+    item?.nzap1 ||
+    item?.NZAP1 ||
+    item?.N2ZAP1 ||
+    item?.n2zap1 ||
+    item?.nzap ||
+    item?.NZAP ||
+    item?.N2ZAP ||
+    item?.n2zap ||
+    [item?.IME1 || item?.ime1 || item?.IME || item?.ime, item?.PREZIME1 || item?.prezime1 || item?.PREZIME || item?.prezime]
+      .filter(Boolean)
+      .join(" ");
+  const normalizeZaplink = (item) => ({
+    ...item,
+    nzap1: getZaplinkText(item) || "",
+  });
   const emptyCoffZaplink = {
     ...EmptyEntities[objName],
     zap2: `${selectedZapKey || ''}`,
@@ -99,7 +116,7 @@ export default function CoffZaplinkL(props) {
         const data = await coffZaplinkService.getLista(selectedZapKey);
         console.log("[CoffZaplinkL] Ucitani niz objekata:", data);
         // console.log("[CoffZaplinkL] Vracan niz objekata:", data);
-        setCoffZaplinks(data || []);
+        setCoffZaplinks((data || []).map(normalizeZaplink));
         initFilters();
       } catch (error) {
         console.error(error);
@@ -124,7 +141,7 @@ export default function CoffZaplinkL(props) {
   const handleDialogClose = (newObj) => {
     const localObj = { newObj };
     let nextCoffZaplinks = [...coffZaplinks];
-    const nextCoffZaplink = { ...localObj.newObj.obj };
+    const nextCoffZaplink = normalizeZaplink({ ...localObj.newObj.obj });
 
     if (localObj.newObj.zaplinkTip === "CREATE") {
       nextCoffZaplinks.push(nextCoffZaplink);
@@ -280,7 +297,7 @@ export default function CoffZaplinkL(props) {
     setZaplinkTip("CREATE");
     setCoffZaplink({
       ...emptyCoffZaplink,
-      ...currentCoffZaplink,
+      ...normalizeZaplink(currentCoffZaplink),
       zap2: `${currentCoffZaplink?.zap2 || selectedZapKey || ''}`,
       obj: currentCoffZaplink?.obj ?? selectedObjId ?? null,
       nazap1: currentCoffZaplink?.nazap1 || selectedZapText || "",

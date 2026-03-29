@@ -113,6 +113,7 @@ const CoffZaplink = (props) => {
 
     useEffect(() => {
         const selectedItem = zapDDItems.find((item) => `${item.ZAP}` === `${coffZaplink?.zap1 ?? ''}`);
+        const resolvedZapText = getZapText(selectedItem);
         const resolvedObj = coffZaplink?.obj ?? selectedObjId ?? null;
         const resolvedObjText = getObjText(resolvedObj, resolvedObj === selectedObjId ? selectedObjText : coffZaplink?.nobj || '');
 
@@ -120,6 +121,7 @@ const CoffZaplink = (props) => {
             ...prev,
             zap2: `${prev?.zap2 || selectedZapKey || ''}`,
             obj: resolvedObj,
+            nzap1: prev?.nzap1 || resolvedZapText || '',
             nazap1: prev?.nazap1 || selectedZapText || '',
             nobj: prev?.nobj || resolvedObjText,
             email: prev?.email || getZapEmail(selectedItem) || '',
