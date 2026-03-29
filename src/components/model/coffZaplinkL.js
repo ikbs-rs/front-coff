@@ -97,7 +97,8 @@ export default function CoffZaplinkL(props) {
         const coffZaplinkService = new CoffZaplinkService();
         console.log("[CoffZaplinkL] Ucitavam zaplink niz.", { selectedZapKey, ownerZap });
         const data = await coffZaplinkService.getLista(selectedZapKey);
-        console.log("[CoffZaplinkL] Vracan niz objekata:", data);
+        console.log("[CoffZaplinkL] Ucitani niz objekata:", data);
+        // console.log("[CoffZaplinkL] Vracan niz objekata:", data);
         setCoffZaplinks(data || []);
         initFilters();
       } catch (error) {
