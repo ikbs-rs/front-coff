@@ -2,8 +2,25 @@ import axios from 'axios';
 import env from "../../configs/env"
 import Token from "../../utilities/Token";
 
+const extractPayloadItem = (responseData) =>
+  responseData?.item ??
+  responseData?.items ??
+  responseData ??
+  null;
+
+const extractPayloadItems = (responseData) => {
+  const items = responseData?.items ?? responseData?.item ?? responseData;
+  return Array.isArray(items) ? items : (items ? [items] : []);
+};
+
+const isForbiddenError = (error) => error?.response?.status === 403;
+
 export class CoffZapService {
 
+
+  async getCoffLocLista() {
+    return this.getListObjaLL('COFFLOC');
+  }
 
   async getListObjaLL(objId) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
@@ -17,6 +34,10 @@ export class CoffZapService {
       const response = await axios.get(url, { headers });
       return response.data.item;
     } catch (error) {
+      if (isForbiddenError(error)) {
+        return [];
+      }
+
       console.error(error);
       throw error;
     }
@@ -60,7 +81,7 @@ export class CoffZapService {
   async getCoffZapsTp(doctp) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const url = `${env.COFF_BACK_URL}/coff/zap/_v/lista/?stm=coff_docstp_v&objid=${doctp}&sl=${selectedLanguage}`
-    console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
+    // console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token
@@ -87,6 +108,52 @@ export class CoffZapService {
       const response = await axios.get(url, { headers });
       return response.data.items;
     } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async getPotpisnikByUsername(username) {
+    const normalizedUsername = String(username || '').trim();
+
+    if (!normalizedUsername) {
+      return null;
+    }
+
+    const url = `${env.COFF_BACK_URL}/coff/zap/potpisnik/${normalizedUsername}`;
+    const tokenLocal = await Token.getTokensLS();
+    const headers = {
+      Authorization: tokenLocal.token
+    };
+
+    try {
+      const response = await axios.get(url, { headers });
+      return extractPayloadItem(response.data);
+    } catch (error) {
+      if (isForbiddenError(error)) {
+        return null;
+      }
+
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async getPotpisnici() {
+    const url = `${env.COFF_BACK_URL}/coff/zap/potpisnik/`;
+    const tokenLocal = await Token.getTokensLS();
+    const headers = {
+      Authorization: tokenLocal.token
+    };
+
+    try {
+      const response = await axios.get(url, { headers });
+      return extractPayloadItems(response.data);
+    } catch (error) {
+      if (isForbiddenError(error)) {
+        return [];
+      }
+
       console.error(error);
       throw error;
     }

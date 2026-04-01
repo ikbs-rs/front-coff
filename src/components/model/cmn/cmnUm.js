@@ -8,8 +8,10 @@ import { Dropdown } from 'primereact/dropdown';
 import { Toast } from "primereact/toast";
 import DeleteDialog from '../../dialog/DeleteDialog';
 import { translations } from "../../../configs/translations";
+import { useCrudActionPermissions } from '../../../security/interceptors';
 
 const CmnUm = (props) => {
+    const { canCreate, canUpdate, canDelete } = useCrudActionPermissions('cmn_um');
     const selectedLanguage = localStorage.getItem('sl')||'en'
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
     const [dropdownItem, setDropdownItem] = useState(null);
@@ -169,7 +171,7 @@ const CmnUm = (props) => {
                         ) : null}
                         <div className="flex-grow-1"></div>
                         <div className="flex flex-wrap gap-1">
-                            {(props.umTip === 'CREATE') ? (
+                            {(props.umTip === 'CREATE' && canCreate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Create}
                                     icon="pi pi-check"
@@ -178,7 +180,7 @@ const CmnUm = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {(props.umTip !== 'CREATE') ? (
+                            {(props.umTip !== 'CREATE' && canDelete) ? (
                                 <Button
                                     label={translations[selectedLanguage].Delete}
                                     icon="pi pi-trash"
@@ -187,7 +189,7 @@ const CmnUm = (props) => {
                                     outlined
                                 />
                             ) : null}                            
-                            {(props.umTip !== 'CREATE') ? (
+                            {(props.umTip !== 'CREATE' && canUpdate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Save}
                                     icon="pi pi-check"
@@ -212,3 +214,5 @@ const CmnUm = (props) => {
 };
 
 export default CmnUm;
+
+

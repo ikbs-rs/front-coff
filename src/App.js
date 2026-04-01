@@ -16,13 +16,13 @@ import DocW from './components/model/coffDocW';
 import Coff from './components/model/coffee';
 import DocTp from './components/model/ticDoctpL';
 import DocVr from './components/model/ticDocvrL';
-import EventAtttp from './components/model/ticEventatttpL';
-import EventAtt from './components/model/ticEventattL';
-import EventCtg from './components/model/ticEventctgL';
-import EventTP from './components/model/ticEventtpL';
-import AgendaTp from './components/model/ticAgendatpL';
-import Agenda from './components/model/ticAgendaL';
-import Season from './components/model/ticSeasonL';
+// import EventAtttp from './components/model/ticEventatttpL';
+// import EventAtt from './components/model/ticEventattL';
+// import EventCtg from './components/model/ticEventctgL';
+// import EventTP from './components/model/ticEventtpL';
+// import AgendaTp from './components/model/ticAgendatpL';
+// import Agenda from './components/model/ticAgendaL';
+// import Season from './components/model/ticSeasonL';
 import Art from './components/model/ticArtL';
 import ArtGrp from './components/model/ticArtgrpL';
 import ArtTp from './components/model/ticArttpL';
@@ -35,7 +35,7 @@ import Stanje from './components/model/coffIzv01StanjeL';
 import Kartica from './components/model/coffIzv01Kartica';
 
 import Atest from './components/model/1test';
-import Sal from './components/model/ticSal';
+// import Sal from './components/model/ticSal';
 
 import EmptyPage from './pages/EmptyPage';
 import ObjW from './components/model/ticCmnW';
@@ -50,6 +50,7 @@ import { useDispatch } from 'react-redux';
 import { setLanguage } from './store/actions';
 import { translations } from "./configs/translations";
 import WsComponent from './components/model/wsComponent';
+import { checkPermissions } from './security/interceptors';
 // import WebSocketService from './utilities/WebSocketService';
 // import WebSocketManager from './utilities/WebSocketManager';
 import { WebSocketProvider } from './utilities/WebSocketContext';
@@ -73,6 +74,7 @@ const App = () => {
     const ripple = false;
     const copyTooltipRef = useRef();
     const location = useLocation();
+    const [menuPermissions, setMenuPermissions] = useState({});
 
     let menuClick;
     let rightMenuClick;
@@ -120,6 +122,28 @@ const App = () => {
         return null;
     }, []);
 
+    const applyVisibilityToMenu = useCallback((menuItems) => {
+        return menuItems.map((item) => ({
+            ...item,
+            visible: item.permission ? menuPermissions[item.permission] === true : true,
+            items: item.items ? applyVisibilityToMenu(item.items) : item.items
+        }));
+    }, [menuPermissions]);
+
+    const collectPermissions = useCallback((menuItems) => {
+        return menuItems.reduce((acc, item) => {
+            if (item.permission) {
+                acc.push(item.permission);
+            }
+
+            if (item.items?.length) {
+                acc.push(...collectPermissions(item.items));
+            }
+
+            return acc;
+        }, []);
+    }, []);
+
     // useEffect(() => {
     //     WebSocketService.connect();
 
@@ -149,60 +173,76 @@ const App = () => {
 
     const handleLogout = useCallback(() => {
         localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("user");
         sessionStorage.removeItem("isLoggedIn");
         navigate('/login');
     }, [navigate]);
 
-    const menuModel = useMemo(() => ([
-        { label: translations[selectedLanguage].Home, icon: 'pi pi-fw pi-home', to: `/` },
+    const baseMenuModel = useMemo(() => ([
+        {
+            label: translations[selectedLanguage].Home,
+            icon: 'pi pi-fw pi-home',
+            to: `/`,
+            // permission: 'ACTIONCOFF',
+            command: () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
         {
             label: translations[selectedLanguage].HR_books,
             icon: 'pi pi-fw pi-database',
+            permission: 'coffHR_books',
             items: [
-                { label: translations[selectedLanguage].Zap_type, icon: 'pi pi-fw pi-calendar', to: '/zaptp' },
-                { label: translations[selectedLanguage].Zap, icon: 'pi pi-fw pi-calendar', to: '/zap' },
-                { label: translations[selectedLanguage].SAP_ORG, icon: 'pi pi-fw pi-calendar', to: '/saporg' },
-                { label: translations[selectedLanguage].SAP_ZAP, icon: 'pi pi-fw pi-calendar', to: '/zapcoff' },
+                { label: translations[selectedLanguage].Zap_type, icon: 'pi pi-fw pi-calendar', to: '/zaptp', permission: 'coffZap_type' },
+                { label: translations[selectedLanguage].Zap, icon: 'pi pi-fw pi-calendar', to: '/zap', permission: 'coffZap' },
+                { label: translations[selectedLanguage].SAP_ORG, icon: 'pi pi-fw pi-calendar', to: '/saporg', permission: 'coffSAP_ORG' },
+                { label: translations[selectedLanguage].SAP_ZAP, icon: 'pi pi-fw pi-calendar', to: '/zapcoff', permission: 'coffSAP_ZAP' },
             ]
         },
         {
             label: translations[selectedLanguage].Administration_elements,
             icon: 'pi pi-wrench',
+            permission: 'coffAdmin_elements',
             items: [
-                { label: translations[selectedLanguage].Um, icon: 'pi pi-database', to: '/um' },
-                { label: translations[selectedLanguage].Item_type, icon: 'pi pi-database', to: '/arttp' },
-                { label: translations[selectedLanguage].Groups_of_items, icon: 'pi pi-fw pi-clone', to: '/artgrp' },
-                { label: translations[selectedLanguage].Item, icon: 'pi pi-fw pi-clone', to: '/art' },
-                { label: translations[selectedLanguage].Price_types, icon: 'pi pi-fw pi-clone', to: '/cenatp' },
-                { label: translations[selectedLanguage].Price, icon: 'pi pi-fw pi-exclamation-triangle', to: '/cena' },
-                { label: translations[selectedLanguage].Document_types, icon: 'pi pi-fw pi-calendar', to: '/doctp' },
-                { label: translations[selectedLanguage].Species_documents, icon: 'pi pi-fw pi-calendar', to: '/docvr' },
+                { label: translations[selectedLanguage].Um, icon: 'pi pi-database', to: '/um', permission: 'coffUm' },
+                { label: translations[selectedLanguage].Item_type, icon: 'pi pi-database', to: '/arttp', permission: 'coffItem_type' },
+                { label: translations[selectedLanguage].Groups_of_items, icon: 'pi pi-fw pi-clone', to: '/artgrp', permission: 'coffGroups_of_items' },
+                { label: translations[selectedLanguage].Item, icon: 'pi pi-fw pi-clone', to: '/art', permission: 'coffItem' },
+                { label: translations[selectedLanguage].Price_types, icon: 'pi pi-fw pi-clone', to: '/cenatp', permission: 'coffPrice_types' },
+                { label: translations[selectedLanguage].Price, icon: 'pi pi-fw pi-exclamation-triangle', to: '/cena', permission: 'coffPrice' },
+                { label: translations[selectedLanguage].Document_types, icon: 'pi pi-fw pi-calendar', to: '/doctp', permission: 'coffDocument_types' },
+                { label: translations[selectedLanguage].Species_documents, icon: 'pi pi-fw pi-calendar', to: '/docvr', permission: 'coffSpecies_documents' },
             ]
         },
         {
             label: translations[selectedLanguage].Processing,
             icon: 'pi pi-cog',
+            permission: 'ACTIONCOFF',
             items: [
-                { label: translations[selectedLanguage].Prijem_dokumenta, icon: 'pi pi-fw pi-clone', to: '/doc/2?docVr=ZAD' },
-                { label: translations[selectedLanguage].Porudzbine, icon: 'pi pi-fw pi-clone', to: '/doc/1?docVr=ORD' },
-                { label: translations[selectedLanguage].Rashod, icon: 'pi pi-fw pi-clone', to: '/doc/1754623618111115264?docVr=RH' },
-                { label: translations[selectedLanguage].Pocetno_stanje, icon: 'pi pi-fw pi-clone', to: '/doc/1754623246252511232?docVr=PS' },
-                { label: translations[selectedLanguage].Prenos, icon: 'pi pi-fw pi-clone', to: '/doc/2037973410487078912?docVr=PRN' },
-                { label: translations[selectedLanguage].Visak, icon: 'pi pi-fw pi-clone', to: '/doc/1754623711912529920?docVr=VI' },
-                { label: translations[selectedLanguage].Manjak, icon: 'pi pi-fw pi-clone', to: '/doc/1754623869450588160?docVr=MNJ' },
-                { label: translations[selectedLanguage].Rezervacija, icon: 'pi pi-fw pi-clone', to: '/doc/1683550132932841472?docVr=RZ' },               
+                { label: translations[selectedLanguage].Prijem_dokumenta, icon: 'pi pi-fw pi-clone', to: '/doc/2?docVr=ZAD', permission: 'ACTIONCOFF' },
+                { label: translations[selectedLanguage].Porudzbine, icon: 'pi pi-fw pi-clone', to: '/doc/1?docVr=ORD', permission: 'ACTIONCOFF' },
+                { label: translations[selectedLanguage].Rashod, icon: 'pi pi-fw pi-clone', to: '/doc/1754623618111115264?docVr=RH', permission: 'ACTIONCOFF' },
+                { label: translations[selectedLanguage].Pocetno_stanje, icon: 'pi pi-fw pi-clone', to: '/doc/1754623246252511232?docVr=PS', permission: 'ACTIONCOFF' },
+                { label: translations[selectedLanguage].Prenos, icon: 'pi pi-fw pi-clone', to: '/doc/2037973410487078912?docVr=PRN', permission: 'ACTIONCOFF' },
+                { label: translations[selectedLanguage].Visak, icon: 'pi pi-fw pi-clone', to: '/doc/1754623711912529920?docVr=VI', permission: 'ACTIONCOFF' },
+                { label: translations[selectedLanguage].Manjak, icon: 'pi pi-fw pi-clone', to: '/doc/1754623869450588160?docVr=MNJ', permission: 'ACTIONCOFF' },
+                { label: translations[selectedLanguage].Rezervacija, icon: 'pi pi-fw pi-clone', to: '/doc/1683550132932841472?docVr=RZ', permission: 'ACTIONCOFF' },               
             ]
         },
         {
             label: translations[selectedLanguage].Reporting,
             icon: 'pi pi-fw pi-print',
+            permission: 'ACTIONCOFF',
             items: [
                 {
                     label: translations[selectedLanguage].Reports,
                     icon: 'pi pi-file-pdf',
+                    permission: 'ACTIONCOFF',
                     items: [
-                        { label: translations[selectedLanguage].Pregled, icon: 'pi pi-database', to: '/izv01' },
-                        { label: translations[selectedLanguage].Stanje, icon: 'pi pi-database', to: '/stanje' },
+                        { label: translations[selectedLanguage].Pregled, icon: 'pi pi-database', to: '/izv01', permission: 'ACTIONCOFF' },
+                        { label: translations[selectedLanguage].Stanje, icon: 'pi pi-database', to: '/stanje', permission: 'ACTIONCOFF' },
                     ]
                 }
             ]
@@ -210,11 +250,30 @@ const App = () => {
         {
             label: translations[selectedLanguage].Logout,
             icon: 'pi pi-fw pi-power-off',
+            // permission: 'ACTIONCOFF',
             command: () => {
                 handleLogout();
             }
         }
     ]), [selectedLanguage, handleLogout]);
+
+    useEffect(() => {
+        const loadPermissions = async () => {
+            const permissionKeys = [...new Set(collectPermissions(baseMenuModel))];
+            const entries = await Promise.all(
+                permissionKeys.map(async (permission) => {
+                    const allowed = await checkPermissions(permission);
+                    return [permission, allowed];
+                })
+            );
+
+            setMenuPermissions(Object.fromEntries(entries));
+        };
+
+        loadPermissions();
+    }, [baseMenuModel, collectPermissions]);
+
+    const menuModel = useMemo(() => applyVisibilityToMenu(baseMenuModel), [baseMenuModel, applyVisibilityToMenu]);
 
     const currentDocMenuLabel = useMemo(() => {
         return findMenuLabelByRoute(menuModel, `${location.pathname}${location.search}`) || findMenuLabelByRoute(menuModel, location.pathname);
@@ -410,8 +469,8 @@ const App = () => {
                             <Route path="/objatt" element={<ObjW endpoint="objattend" />} />
                             <Route path="/objatttp" element={<ObjW endpoint="objatttpend" />} />
 
-                            <Route path="/usergrp" element={<EventAtt />} />
-                            <Route path="/action" element={<EventAtt />} />
+                            {/* <Route path="/usergrp" element={<EventAtt />} />
+                            <Route path="/action" element={<EventAtt />} /> */}
 
                             {/* <Route path="/doc1" element={<Doc1 doctp={1} />} />
                         <Route path="/doc2" element={<Doc2 doctp={2} />} /> */}
@@ -420,13 +479,13 @@ const App = () => {
 
                             <Route path="/coff" element={<Coff />} />
                             <Route path="/doctp" element={<DocTp />} />
-                            <Route path="/eventtp" element={<EventTP />} />
+                            {/* <Route path="/eventtp" element={<EventTP />} />
                             <Route path="/eventctg" element={<EventCtg />} />
                             <Route path="/eventatttp" element={<EventAtttp />} />
                             <Route path="/eventatt" element={<EventAtt />} />
                             <Route path="/agendatp" element={<AgendaTp />} />
                             <Route path="/agenda" element={<Agenda />} />
-                            <Route path="/season" element={<Season />} />
+                            <Route path="/season" element={<Season />} /> */}
                             <Route path="/artgrp" element={<ArtGrp />} />
                             <Route path="/arttp" element={<ArtTp />} />
                             <Route path="/art" element={<Art />} />
@@ -436,8 +495,8 @@ const App = () => {
                             <Route path="/um" element={<Um />} />
 
                             <Route path="/atest" element={<Atest />} />
-                            <Route path="/sal" element={<Sal />} />
-                            <Route path="/public/assets/img/" element={<Sal />} />
+                            {/* <Route path="/sal" element={<Sal />} />
+                            <Route path="/public/assets/img/" element={<Sal />} /> */}
 
                         </Routes>
                     </div>

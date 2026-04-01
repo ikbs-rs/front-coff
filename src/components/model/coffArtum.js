@@ -8,6 +8,7 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from '../../configs/translations';
+import { useCrudActionPermissions } from '../../security/interceptors';
 import { Dropdown } from 'primereact/dropdown';
 import env from "../../configs/env"
 import axios from 'axios';
@@ -16,6 +17,7 @@ import { Calendar } from 'primereact/calendar';
 import DateFunction from '../../utilities/DateFunction';
 
 const CoffArtum = (props) => {
+    const { canCreate, canUpdate, canDelete } = useCrudActionPermissions('coff_artum');
     console.log(props, '===================CoffArtum======================');
     const selectedLanguage = localStorage.getItem('sl') || 'en';
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -212,9 +214,12 @@ const CoffArtum = (props) => {
                         {props.dialog ? <Button label={translations[selectedLanguage].Cancel} icon="pi pi-times" className="p-button-outlined p-button-secondary" onClick={handleCancelClick} outlined /> : null}
                         <div className="flex-grow-1"></div>
                         <div className="flex flex-wrap gap-1">
-                            {props.artumTip === 'CREATE' ? <Button label={translations[selectedLanguage].Create} icon="pi pi-check" onClick={handleCreateClick} severity="success" outlined /> : null}
-                            {props.artumTip !== 'CREATE' ? <Button label={translations[selectedLanguage].Delete} icon="pi pi-trash" onClick={showDeleteDialog} className="p-button-outlined p-button-danger" outlined /> : null}
-                            {props.artumTip !== 'CREATE' ? <Button label={translations[selectedLanguage].Save} icon="pi pi-check" onClick={handleSaveClick} severity="success" outlined /> : null}
+                            {props.artumTip === 'CREATE' && canCreate ? <Button label={translations[selectedLanguage].Create}
+                                    icon="pi pi-check" onClick={handleCreateClick} severity="success" outlined /> : null}
+                            {props.artumTip !== 'CREATE' && canDelete ? <Button label={translations[selectedLanguage].Delete}
+                                    icon="pi pi-trash" onClick={showDeleteDialog} className="p-button-outlined p-button-danger" outlined /> : null}
+                            {props.artumTip !== 'CREATE' && canUpdate ? <Button label={translations[selectedLanguage].Save}
+                                    icon="pi pi-check" onClick={handleSaveClick} severity="success" outlined /> : null}
                         </div>
                     </div>
                 </div>
@@ -225,3 +230,5 @@ const CoffArtum = (props) => {
 };
 
 export default CoffArtum;
+
+

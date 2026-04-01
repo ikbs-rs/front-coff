@@ -50,12 +50,24 @@ const usePermission = (objId, par1, par2) => {
   return hasPermission;
 };
 
+const useCrudActionPermissions = (objId) => {
+  const canCreate = usePermission(objId, 'C');
+  const canUpdate = usePermission(objId, 'U');
+  const canDelete = usePermission(objId, 'D');
+
+  return {
+    canCreate,
+    canUpdate,
+    canDelete,
+  };
+};
+
 const checkPermissions = async (objId, par1, par2) => {
-  //return true
   const token = localStorage.getItem('token');
+  const url = `${env.JWT_BACK_URL}/adm/services/checkPermissions`;
 
   const data = {
-    objId: objId,
+    objId,
     par1: par1 || '1',
     par2: par2 || '1',
   };
@@ -67,10 +79,25 @@ const checkPermissions = async (objId, par1, par2) => {
   };
 
   try {
-    const response = await axios.post(`${env.JWT_BACK_URL}/adm/services/checkPermissions`, data, config);
-    return response.data;
+    const response = await axios.post(url, data, config);
+    if (typeof response.data === 'boolean') {
+      return response.data;
+    }
+
+    return response.data?.allowed === true;
   } catch (error) {
-    console.error(error);
+    if (error.response?.status === 403) {
+      return false;
+    }
+
+    console.error('[checkPermissions] error', {
+      objId,
+      par1: par1 || '1',
+      par2: par2 || '1',
+      message: error.message,
+      responseStatus: error.response?.status,
+      responseData: error.response?.data,
+    });
     return false;
   }
 };
@@ -78,5 +105,6 @@ const checkPermissions = async (objId, par1, par2) => {
 export  {
   useTokenValidation,
   usePermission,
+  useCrudActionPermissions,
   checkPermissions,
 }

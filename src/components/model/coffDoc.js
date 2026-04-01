@@ -10,15 +10,28 @@ import { Dropdown } from 'primereact/dropdown';
 import { Toast } from "primereact/toast";
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from "../../configs/translations";
+import { useCrudActionPermissions, usePermission } from '../../security/interceptors';
 import DateFunction from "../../utilities/DateFunction"
 import CoffDocsL from './coffDocsL';
-import { useWebSocket } from '../../utilities/WebSocketContext';
+import { buildOrderChangedMessage, useWebSocket } from '../../utilities/WebSocketContext';
 
 const CoffDoc = (props) => {
-    // console.log(props, "!!@@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDoc @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!")
+    const { canCreate, canUpdate, canDelete } = useCrudActionPermissions('coff_doc');
+    const canSeeAllRequesters = usePermission('coffCOFF');
+    const canChooseKitchen = usePermission('coffNarucilac');
+    console.log(props, "!!@@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDoc @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!")
 
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const userId = localStorage.getItem('userId')
+    const getStoredUser = () => {
+        try {
+            return JSON.parse(localStorage.getItem('user') || 'null');
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    };
+    const storedUser = getStoredUser();
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
     const [dropdownItem, setDropdownItem] = useState(null);
     const [dropdownItems, setDropdownItems] = useState(null);
@@ -36,16 +49,19 @@ const CoffDoc = (props) => {
     ];
 
     const [ddCoffCoffItem, setDdCoffCoffItem] = useState(null);
-    const [ddCoffCoffItems, setDdCoffCoffItems] = useState(null);
+    const [ddCoffCoffItems, setDdCoffCoffItems] = useState([]);
     const [coffCoffItem, setCoffCoffItem] = useState(null);
-    const [coffCoffItems, setCoffCoffItems] = useState(null);
+    const [coffCoffItems, setCoffCoffItems] = useState([]);
 
     const [ddCoffZapItem, setDdCoffZapItem] = useState(null);
-    const [ddCoffZapItems, setDdCoffZapItems] = useState(null);
+    const [ddCoffZapItems, setDdCoffZapItems] = useState([]);
     const [coffZapItem, setCoffZapItem] = useState(null);
-    const [coffZapItems, setCoffZapItems] = useState(null);
+    const [coffZapItems, setCoffZapItems] = useState([]);
+    const [defaultPotpisnik, setDefaultPotpisnik] = useState(null);
+    const [assignedKitchen, setAssignedKitchen] = useState(null);
     const [coffDocVisible, setCoffDocVisible] = useState(true);
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(storedUser);
+    const canSelectRequester = canSeeAllRequesters;
     const [userCoff, setUserCoff] = useState(null);
     const normalizeEntity = (value) => Array.isArray(value) ? value[0] || null : value || null;
     const normalizeItems = (value) => Array.isArray(value) ? value : [];
@@ -60,6 +76,71 @@ const CoffDoc = (props) => {
         const normalizedValue = normalizeEntity(value);
         return normalizedValue?.coff ?? normalizedValue?.id ?? null;
     };
+	    const resolveUserIdentifier = (value) => {
+	        const normalizedValue = normalizeEntity(value);
+	        return (
+	            normalizedValue?.username ??
+	            normalizedValue?.USERNAME ??
+	            null
+	        );
+	    };
+    const buildPersonDisplayName = (value, fallbackIdentifier = '') => {
+        const normalizedValue = normalizeEntity(value);
+        const explicitDisplayName =
+            normalizedValue?.nzap1 ??
+            normalizedValue?.N2ZAP1 ??
+            normalizedValue?.NZAP1 ??
+            normalizedValue?.nzap ??
+            normalizedValue?.N2ZAP ??
+            normalizedValue?.NZAP ??
+            normalizedValue?.name ??
+            normalizedValue?.nazap1;
+
+        if (explicitDisplayName) {
+            return explicitDisplayName;
+        }
+
+        const identifier = resolveUserIdentifier(normalizedValue) ?? fallbackIdentifier;
+        const firstName =
+            normalizedValue?.firstname ??
+            normalizedValue?.FIRSTNAME ??
+            normalizedValue?.firstName ??
+            normalizedValue?.IME ??
+            normalizedValue?.ime ??
+            '';
+        const secondName =
+            normalizedValue?.secondname ??
+            normalizedValue?.SECONDNAME ??
+            normalizedValue?.lastname ??
+            normalizedValue?.LASTNAME ??
+            normalizedValue?.lastName ??
+            normalizedValue?.PREZIME ??
+            normalizedValue?.prezime ??
+            '';
+
+        return [identifier, firstName, secondName].filter(Boolean).join(' ').trim();
+    };
+	    const resolveDocUserId = (value) => {
+	        const normalizedValue = normalizeEntity(value);
+	        return (
+	            normalizeId(normalizedValue?.usr) ||
+	            normalizeId(normalizedValue?.userId) ||
+	            normalizeId(normalizedValue?.userid) ||
+	            normalizeId(normalizedValue?.user) ||
+	            null
+	        );
+	    };
+	    const resolveDocObjId = (value) => {
+	        const normalizedValue = normalizeEntity(value);
+	        return normalizedValue?.obj ?? normalizedValue?.coff ?? normalizedValue?.id ?? null;
+	    };
+	    const defaultUserIdentifier = resolveUserIdentifier(user) ?? resolveUserIdentifier(storedUser);
+	    const defaultUserId =
+	        normalizeId(user?.id) ||
+	        normalizeId(storedUser?.id) ||
+	        normalizeId(localStorage.getItem('userId')) ||
+	        null;
+	    const defaultUserDisplayName = buildPersonDisplayName(user) || buildPersonDisplayName(storedUser) || defaultUserIdentifier || '';
 
 
     useEffect(() => {
@@ -69,10 +150,10 @@ const CoffDoc = (props) => {
                 const data = await coffDocService.getCoffDocsUser(userId);
                 const normalizedUser = normalizeEntity(data);
 
-                setUser(normalizedUser)
+                setUser(normalizedUser || storedUser)
                 const dataCoff = await coffDocService.getCoffDocsUserCoff(userId, 'COFFLOC');
                 const normalizedUserCoff = normalizeEntity(dataCoff);
-                console.log(normalizedUser, "00-USRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSR", normalizedUserCoff)
+                // console.log(normalizedUser, "00-USRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSR", normalizedUserCoff)
                 setUserCoff(normalizedUserCoff)
             } catch (error) {
                 console.error(error);
@@ -83,132 +164,120 @@ const CoffDoc = (props) => {
     }, [userId]);
 
     useEffect(() => {
+        // Pozivaj backend samo kad su svi parametri spremni
+        const memoUser = getStoredUser();
+        const username = resolveUserIdentifier(memoUser);
+        const loggedUserId = normalizeId(memoUser?.id) || normalizeId(localStorage.getItem('userId'));
+        if (!userId || (!canSeeAllRequesters && !username) || !selectedLanguage) return;
         async function fetchData() {
             try {
                 const coffZapService = new CoffZapService();
-                const data = await coffZapService.getLista('/zap');
-                const _potpisnik = props.coffDoc.potpisnik ? props.coffDoc.potpisnik : user?.sapuser
-                console.log(_potpisnik, user?.sapuser, "101-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH", user)
-                if (_potpisnik && data && user) {
-                    setCoffZapItems(data)
-                    const foundItem = data.find((item) => normalizeId(item.id) === normalizeId(_potpisnik));
-                    console.log(data, _potpisnik, "101-USRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSR", foundItem)
-
-                    if (foundItem?.potpisnik) {
-                        foundItem.potpisnik = foundItem?.id
-                    }
-                    setCoffZapItem(foundItem);
-                    const dataDD = data.map(({ N2ZAP, id }) => ({ name: N2ZAP, code: id }));
-                    console.log(data, "************ coffZapService ************ 11***", dataDD, props.coffDoc.potpisnik || user?.sapuser)
-                    setDdCoffZapItems(dataDD);
-
-                    const _ddCoffZapItem = dataDD.find((item) => normalizeId(item.code) === normalizeId(_potpisnik))
-                    console.log(_ddCoffZapItem, "01-USRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSRUSR", user)
-                    setDdCoffZapItem(_ddCoffZapItem);
-                    setCoffDoc((prevState) => {
-                        const nextCoffDoc = { ...prevState };
-
-                        if (!nextCoffDoc.potpisnik) {
-                            nextCoffDoc.potpisnik = _potpisnik;
-                        }
-
-                        if (!nextCoffDoc.nzap) {
-                            nextCoffDoc.nzap = foundItem?.N2ZAP || _ddCoffZapItem?.name || nextCoffDoc.nzap;
-                        }
-
-                        if (!nextCoffDoc.nzap2) {
-                            nextCoffDoc.nzap2 = foundItem?.N2ZAP || _ddCoffZapItem?.name || nextCoffDoc.nzap2;
-                        }
-
-                        return nextCoffDoc;
-                    });
-                }
-
-            } catch (error) {
-                console.error(error);
-                // Obrada greške ako je potrebna
-            }
-        }
-        fetchData();
-    }, [user]);
-
-    useEffect(() => {
-        async function fetchData() {
-            try {
                 const coffDocService = new CoffDocService();
-                const data = normalizeItems(await coffDocService.getCmnObjListaLL('COFFLOC'));
-                const _coff = props.coffDoc.coff ? props.coffDoc.coff : resolveUserCoffId(userCoff)
-                setCoffCoffItems(data)
-                console.log(data, "************ coffCoffService ************ 11***")
-                const dataDD = data.map(({ text, id }) => ({ name: text, code: id }));
-                console.log(data, "************ coffCoffService ************", dataDD)  
-                setDdCoffCoffItems(dataDD);
-                setDdCoffCoffItem(dataDD.find((item) => normalizeId(item.code) === normalizeId(_coff)) || null);
+                const [zapData, coffData, defaultPotpisnikData, assignedKitchenData] = await Promise.all([
+                    canSeeAllRequesters ? coffZapService.getPotpisnici() : [],
+                    coffDocService.getCmnObjListaLL('COFFLOC'),
+                    username ? coffZapService.getPotpisnikByUsername(username) : null,
+                    loggedUserId ? coffDocService.getCoffDocsUserCoff(loggedUserId, 'COFFLOC') : null
+                ]);
 
-                if (_coff) {
-                    const foundItem = data.find((item) => normalizeId(item.id) === normalizeId(_coff));
-                    console.log(props.coffDoc.coff, "---------------foundItem----coffCoffService-------------", foundItem)
-                    setCoffCoffItem(foundItem || null);
-                    if (foundItem) {
-                        setCoffDoc((prevState) => ({
-                            ...prevState,
-                            coff: foundItem.id,
-                            ncoff: foundItem.text,
-                            mesto: prevState.mesto || foundItem.text,
-                            obj: foundItem.obj ?? prevState.obj
-                        }));
-                    }
-                }
+                const normalizedZapData = Array.isArray(zapData) ? zapData : [];
+                const normalizedCoffData = Array.isArray(coffData) ? coffData : [];
+                const defaultZap = defaultPotpisnikData || null;
+                const normalizedAssignedKitchen = Array.isArray(assignedKitchenData) ? assignedKitchenData[0] || null : assignedKitchenData || null;
+                const coffDropdownOptions = normalizedCoffData.map(({ text, id }) => ({ name: text, code: normalizeId(id) }));
+
+                setCoffZapItems(normalizedZapData);
+                setDdCoffZapItems(normalizedZapData.map((item) => ({ name: buildPersonDisplayName(item), code: item.id })));
+                setCoffCoffItems(normalizedCoffData);
+                setDdCoffCoffItems(coffDropdownOptions);
+                setDefaultPotpisnik(defaultZap);
+                setAssignedKitchen(normalizedAssignedKitchen);
             } catch (error) {
                 console.error(error);
-                // Obrada greške ako je potrebna
             }
         }
         fetchData();
-    }, [userCoff, props.coffDoc.coff]);
+    }, [userId, canChooseKitchen, canSeeAllRequesters, selectedLanguage]);
 
-    useEffect(() => {
-        setDropdownItem(findDropdownItemByCode(props.coffDoc.status));
-    }, []);
-
-    const findDropdownItemByCode = (code) => {
-        return items.find((item) => item.code === code) || null;
-    };
-
+    // Uklonjeno, sada se sve radi u gornjem useEffect-u
 
     useEffect(() => {
         setDropdownItems(items);
     }, []);
 
     useEffect(() => {
-        setCoffDoc(props.coffDoc);
+        // Inicijalizacija kao u CoffDocPorudzbina
+        const isCreateMode = props.docTip === 'CREATE';
+        const statusCode = (props.coffDoc?.status && String(props.coffDoc.status)) || (isCreateMode ? '1' : '0');
+        const selectedStatus = items.find((item) => item.code === statusCode) || null;
+
+        // Pronađi potpisnika i kuhinju
+        const defaultZap = defaultPotpisnik;
+        const defaultObjId = assignedKitchen?.coff || assignedKitchen?.id || null;
+        const selectedPotpisnikId = isCreateMode
+            ? (defaultZap?.username || defaultZap?.id || props.coffDoc?.potpisnik)
+            : (props.coffDoc?.potpisnik || defaultZap?.username || defaultZap?.id);
+        const selectedCoffId = isCreateMode
+            ? (defaultObjId || props.coffDoc?.coff || props.coffDoc?.obj)
+            : (props.coffDoc?.coff || props.coffDoc?.obj || defaultObjId);
+
+        const selectedZapOption = ddCoffZapItems.find((item) => item.code === selectedPotpisnikId) || null;
+        const selectedCoffOption = ddCoffCoffItems.find((item) => item.code === selectedCoffId) || null;
+        const selectedZap = coffZapItems.find((item) => (item.username || item.id) === selectedPotpisnikId) || defaultZap || null;
+        const selectedCoff = coffCoffItems.find((item) => String(item.id) === String(selectedCoffId)) || null;
+
+        setDropdownItem(selectedStatus);
+        setCoffDoc((prevState) => ({
+            ...props.coffDoc,
+            status: statusCode,
+            potpisnik: selectedPotpisnikId,
+            coff: selectedCoffId,
+            obj: selectedCoffId,
+            nzap: selectedZap?.nzap1 || selectedZap?.nzap || prevState.nzap,
+            nzap1: selectedZap?.nzap1 || selectedZap?.nzap || prevState.nzap1,
+            mesto: selectedCoff?.text || prevState.mesto,
+            ncoff: selectedCoff?.text || prevState.ncoff,
+        }));
+        setDdCoffZapItem(selectedZapOption);
+        setCoffZapItem(selectedZap);
+        setDdCoffCoffItem(selectedCoffOption);
+        setCoffCoffItem(selectedCoff);
         setDocTip(props.docTip);
         setSubmitted(false);
-    }, [props.coffDoc, props.docTip]);
+    }, [props.coffDoc, props.docTip, ddCoffZapItems, ddCoffCoffItems, coffZapItems, coffCoffItems, defaultPotpisnik, assignedKitchen]);
 
     const handleCancelClick = () => {
         props.setCoffDocVisible(false);
     };
 
-	    const buildCoffDocPayload = () => {
-	        const currentPotpisnik = ddCoffZapItem?.code ?? coffDoc.potpisnik ?? user?.sapuser ?? null;
-	        const currentNzap = coffZapItem?.N2ZAP ?? ddCoffZapItem?.name ?? coffDoc.nzap ?? user?.N2ZAP ?? user?.nzap ?? "";
-	        const currentCoff = ddCoffCoffItem?.code ?? coffDoc.coff ?? resolveUserCoffId(userCoff) ?? null;
-	        const currentMesto = coffDoc.mesto ?? coffCoffItem?.text ?? coffDoc.ncoff ?? "";
-	        const currentStatus = dropdownItem?.code ?? coffDoc.status ?? "0";
-
-	        return {
-	            ...coffDoc,
-	            id: normalizeId(coffDoc.id) || coffDoc.id,
-	            potpisnik: currentPotpisnik,
-	            nzap: currentNzap,
-	            nzap2: currentNzap,
-	            coff: normalizeId(currentCoff) || currentCoff,
-	            mesto: currentMesto,
-	            status: String(currentStatus),
-	            vreme: DateFunction.formatDatetimeR(DateFunction.currDatetime()),
-	            ndoctp: normalizeId(props.ndoctp) || props.ndoctp
-	        };
+		    const buildCoffDocPayload = () => {
+			        const baseCoffDoc = { ...coffDoc };
+		        const currentPotpisnik = ddCoffZapItem?.code ?? coffDoc.potpisnik ?? (canSeeAllRequesters ? null : defaultUserIdentifier) ?? null;
+		        const currentNzap =
+		            buildPersonDisplayName(coffZapItem) ||
+		            ddCoffZapItem?.name ||
+		            coffDoc.nzap ||
+		            defaultUserDisplayName ||
+		            "";
+		        const currentCoff = ddCoffCoffItem?.code ?? coffDoc.coff ?? resolveUserCoffId(userCoff) ?? null;
+		        const currentMesto = coffDoc.mesto ?? coffCoffItem?.text ?? coffDoc.ncoff ?? "";
+			        const currentObj = coffDoc.obj ?? normalizeId(currentCoff) ?? currentCoff;
+		        const currentStatus = dropdownItem?.code ?? coffDoc.status ?? "0";
+	
+				        return {
+				            ...baseCoffDoc,
+				            id: normalizeId(coffDoc.id) || coffDoc.id,
+				            usr: normalizeId(coffDoc.usr) ?? coffDoc.usr ?? defaultUserId,
+				            potpisnik: currentPotpisnik ?? defaultUserIdentifier,
+				            nzap: currentNzap,
+				            nzap1: currentNzap,
+			            coff: normalizeId(currentCoff) || currentCoff,
+		            obj: normalizeId(currentObj) || currentObj,
+		            mesto: currentMesto,
+		            status: String(currentStatus),
+		            vreme: DateFunction.formatDatetimeR(DateFunction.currDatetime()),
+		            ndoctp: normalizeId(props.ndoctp) || props.ndoctp
+		        };
 	    };
 
     const handleCreateClick = async () => {
@@ -292,7 +361,14 @@ const CoffDoc = (props) => {
             props.handleDialogClose({ obj: preparedCoffDoc, docTip: props.docTip, docC: "Z" });
             props.setCoffDocVisible(false);
             if (websocket && websocket.readyState === WebSocket.OPEN) {
-                websocket.send('{"data":[{"id":"TRECA"}]}');
+                websocket.send(buildOrderChangedMessage({
+                    source: 'CoffDoc.handleSaveClick',
+                    docId: preparedCoffDoc?.id ?? null,
+                    status: String(preparedCoffDoc?.status ?? ''),
+                    objId: preparedCoffDoc?.obj ?? preparedCoffDoc?.coff ?? null,
+                    userId: preparedCoffDoc?.usr ?? null,
+                    notify: String(preparedCoffDoc?.status ?? '') === '1'
+                }));
             }
             return;
             coffDoc.nzap = coffZapItem.N2ZAP
@@ -303,33 +379,70 @@ const CoffDoc = (props) => {
             props.handleDialogClose({ obj: coffDoc, docTip: props.docTip, docC: "Z" });
             props.setCoffDocVisible(false);
             if (websocket && websocket.readyState === WebSocket.OPEN) {
-                websocket.send('{"data":[{"id":"TRECA"}]}');
+                websocket.send(buildOrderChangedMessage({
+                    source: 'CoffDoc.handleSaveClickLegacy',
+                    docId: coffDoc?.id ?? null,
+                    status: String(coffDoc?.status ?? ''),
+                    objId: coffDoc?.obj ?? coffDoc?.coff ?? null,
+                    userId: coffDoc?.usr ?? null,
+                    notify: String(coffDoc?.status ?? '') === '1'
+                }));
             }
         } catch (err) {
+            let msg = "An error occurred";
+            if (err?.response?.data?.error) {
+                msg = err.response.data.error;
+            } else if (err?.message) {
+                msg = err.message;
+            }
             toast.current.show({
                 severity: "error",
                 summary: "Action ",
-                detail: `${err.response.data.error}`,
+                detail: msg,
                 life: 5000,
             });
         }
     };
 
-    const handleNextClick = async (event) => {
-        try {
-            setSubmitted(true);
-            const preparedCoffDoc = { ...buildCoffDocPayload(), obj: -1 }
-            const coffDocServiceNext = new CoffDocService();
-            if (event == 'CREATE') {
-                const createdDocId = await coffDocServiceNext.postCoffDoc(preparedCoffDoc);
-                preparedCoffDoc.id = createdDocId
-                console.log(preparedCoffDoc, createdDocId, "#############handleNextClick##############", event)
-                setCoffDoc({ ...preparedCoffDoc })
-                props.handleDialogClose({ obj: preparedCoffDoc, docTip: props.docTip, docId: createdDocId });
-            } else {
-                await coffDocServiceNext.putCoffDoc(preparedCoffDoc);
-            }
-            setDocTip('UPDATE');
+	    const handleNextClick = async (event) => {
+	        try {
+	            setSubmitted(true);
+	            const preparedCoffDoc = { ...buildCoffDocPayload() }
+	            if (!preparedCoffDoc.potpisnik || !preparedCoffDoc.coff) {
+	                toast.current.show({
+	                    severity: "warn",
+	                    summary: "Action",
+	                    detail: `${translations[selectedLanguage].Requiredfield}`,
+	                    life: 3000,
+	                });
+	                return;
+	            }
+	            const coffDocServiceNext = new CoffDocService();
+	            if (event == 'CREATE') {
+	                const createdDocId = await coffDocServiceNext.postCoffDoc(preparedCoffDoc);
+	                preparedCoffDoc.id = createdDocId
+	                preparedCoffDoc.nzap1 = preparedCoffDoc.nzap
+	                setCoffDoc({ ...preparedCoffDoc })
+	                props.handleDialogClose({
+	                    obj: preparedCoffDoc,
+	                    docTip: 'CREATE',
+	                    stayOpen: true,
+	                    nextDocTip: 'UPDATE',
+	                    docId: createdDocId
+	                });
+	            } else {
+	                preparedCoffDoc.nzap1 = preparedCoffDoc.nzap
+	                await coffDocServiceNext.putCoffDoc(preparedCoffDoc);
+	                setCoffDoc({ ...preparedCoffDoc })
+	                props.handleDialogClose({
+	                    obj: preparedCoffDoc,
+	                    docTip: 'UPDATE',
+	                    stayOpen: true,
+	                    nextDocTip: 'UPDATE',
+	                    docId: preparedCoffDoc.id
+	                });
+	            }
+	            setDocTip('UPDATE');
             return;
             const _coffDoc = { ...coffDoc }
             coffDoc.nzap = coffZapItem.N2ZAP
@@ -380,44 +493,70 @@ const CoffDoc = (props) => {
     };
 
     const onInputChange = (e, type, name) => {
-        let val = ''
         if (type === "options") {
-            val = (e.value && e.value.code) || '';
-            if (name == "potpisnik") {
-                setDdCoffZapItem(e.value);
-                const foundItem = coffZapItems.find((item) => normalizeId(item.id) === normalizeId(val));
-                console.log(foundItem, "-*-*-*-*-***-**-*-*-*-*-*-*-*-*--onInputChange000*-*-*-*-*-*-*-*-*--**--*-*-*-*-*-*-*-*-*-*-*-")
+            if (name === "potpisnik") {
+                const selectedOption = e.value;
+                const selectedValue = normalizeId(selectedOption?.code);
+                const foundItem =
+                    coffZapItems.find((item) => normalizeId(item.id) === selectedValue || resolveUserIdentifier(item) === selectedValue) || null;
+                const selectedUsrId = resolveDocUserId(foundItem);
+                const selectedCoffId = resolveDocObjId(foundItem);
+                const foundCoffItem = coffCoffItems.find((item) => normalizeId(item.id) === selectedCoffId) || null;
+
+                setDdCoffZapItem(selectedOption);
                 setCoffZapItem(foundItem || null);
-            } else if (name == "coff") {
-                setDdCoffCoffItem(e.value);
-                const foundItem = coffCoffItems.find((item) => normalizeId(item.id) === normalizeId(val));
-                console.log(foundItem, "-*-*-*-*-***-**-*-*-*-*-*-*-*-*--onInputChange000*-*-*-*-*-*-*-*-*--**--*-*-*-*-*-*-*-*-*-*-*-")
-                setCoffCoffItem(foundItem || null);
-            } else {
-                setDropdownItem(e.value);
+
+                if (canChooseKitchen && selectedCoffId) {
+                    setDdCoffCoffItem(ddCoffCoffItems?.find((item) => normalizeId(item.code) === selectedCoffId) || null);
+                    setCoffCoffItem(foundCoffItem || null);
+                }
+
+                setCoffDoc((prevState) => ({
+                    ...prevState,
+                    usr: selectedUsrId ?? prevState.usr,
+                    potpisnik: selectedValue,
+                    nzap: buildPersonDisplayName(foundItem) || prevState.nzap,
+                    nzap1: foundItem?.nzap1 || buildPersonDisplayName(foundItem) || prevState.nzap1,
+                    coff: canChooseKitchen ? (selectedCoffId ?? prevState.coff) : prevState.coff,
+                    obj: canChooseKitchen ? (selectedCoffId ?? prevState.obj) : prevState.obj,
+                    mesto: canChooseKitchen ? (foundCoffItem?.text || prevState.mesto) : prevState.mesto,
+                    ncoff: canChooseKitchen ? (foundCoffItem?.text || prevState.ncoff) : prevState.ncoff,
+                }));
+                return;
             }
-        } else {
-            val = (e.target && e.target.value) || '';
+
+            if (name === "coff") {
+                const selectedValue = normalizeId(e.value?.code ?? e.value);
+                const foundItem = coffCoffItems.find((item) => normalizeId(item.id) === selectedValue);
+
+                setDdCoffCoffItem(e.value);
+                setCoffCoffItem(foundItem || null);
+                setCoffDoc((prevState) => ({
+                    ...prevState,
+                    coff: selectedValue,
+                    obj: selectedValue,
+                    mesto: foundItem?.text || prevState.mesto,
+                    ncoff: foundItem?.text || prevState.ncoff,
+                }));
+                return;
+            }
+            if (name === "status") {
+                const selectedOption = e.value;
+                const selectedValue = selectedOption?.code;
+                setDropdownItem(selectedOption);
+                setCoffDoc((prevState) => ({
+                    ...prevState,
+                    status: selectedValue,
+                }));
+                return;
+            }
         }
 
-        let _coffDoc = { ...coffDoc };
-        console.log(_coffDoc, "-*-*-*-*-***-**-*-*-*-*-*-*-*-*--onInputChange111aaa*-*-*-*-*-*-*-*-*--**--*-*-*-*-*-*-*-*-*-*-*-")
-        _coffDoc[`${name}`] = val;
-        if (name === `textx`) _coffDoc[`text`] = val
-        if (name === "potpisnik") {
-            const foundItem = coffZapItems?.find((item) => normalizeId(item.id) === normalizeId(val));
-            _coffDoc.nzap = foundItem?.N2ZAP || _coffDoc.nzap;
-            _coffDoc.nzap2 = foundItem?.N2ZAP || _coffDoc.nzap2;
-            _coffDoc.obj = foundItem?.obj ?? _coffDoc.obj;
-        }
-        if (name === "coff") {
-            const foundItem = coffCoffItems?.find((item) => normalizeId(item.id) === normalizeId(val));
-            _coffDoc.ncoff = foundItem?.text || _coffDoc.ncoff;
-            _coffDoc.mesto = foundItem?.text || _coffDoc.mesto;
-            _coffDoc.obj = foundItem?.obj ?? _coffDoc.obj;
-        }
-
-        setCoffDoc(_coffDoc);
+        const val = (e.target && e.target.value) || '';
+        setCoffDoc((prevState) => ({
+            ...prevState,
+            [name]: val,
+        }));
     };
     const handleDialogClose = (newObj) => {
         const localObj = { newObj };
@@ -432,7 +571,7 @@ const CoffDoc = (props) => {
             <div className="col-12 doc-entry-dialog-main">
                 <div className="card glass-card">
                     <div className="p-fluid formgrid grid">
-                        {(user?.tip=='1') ?
+                        {canSelectRequester ?
                             <div className="field col-12 md:col-6">
                                 <label htmlFor="potpisnik">{translations[selectedLanguage].potpisnik} *</label>
                                 <Dropdown id="potpisnik"
@@ -441,24 +580,30 @@ const CoffDoc = (props) => {
                                     onChange={(e) => onInputChange(e, "options", 'potpisnik')}
                                     required
                                     optionLabel="name"
+                                    filter
+                                    filterBy="name,code"
                                     placeholder="Select One"
                                     className={classNames({ 'p-invalid': submitted && !coffDoc.potpisnik })}
                                 />
                                 {submitted && !coffDoc.potpisnik && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
                             </div> : null}
-                        <div className="field col-12 md:col-4">
-                            <label htmlFor="coff">{translations[selectedLanguage].Coff} *</label>
-                            <Dropdown id="coff"
-                                value={ddCoffCoffItem}
-                                options={ddCoffCoffItems}
-                                onChange={(e) => onInputChange(e, "options", 'coff')}
-                                required
-                                optionLabel="name"
-                                placeholder="Select One"
-                                className={classNames({ 'p-invalid': submitted && !coffDoc.coff })}
-                            />
-                            {submitted && !coffDoc.coff && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
-                        </div>
+                        {canChooseKitchen ? (
+                            <div className="field col-12 md:col-4">
+                                <label htmlFor="coff">{translations[selectedLanguage].Coff} *</label>
+                                <Dropdown id="coff"
+                                    value={ddCoffCoffItem}
+                                    options={ddCoffCoffItems}
+                                    onChange={(e) => onInputChange(e, "options", 'coff')}
+                                    required
+                                    optionLabel="name"
+                                    filter
+                                    filterBy="name,code"
+                                    placeholder="Select One"
+                                    className={classNames({ 'p-invalid': submitted && !coffDoc.coff })}
+                                />
+                                {submitted && !coffDoc.coff && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
+                            </div>
+                        ) : null}
                         <div className="field col-12 md:col-6">
                             <label htmlFor="mesto">{translations[selectedLanguage].Loc}</label>
                             <InputText
@@ -509,7 +654,7 @@ const CoffDoc = (props) => {
                         ) : null}
                         <div className="flex-grow-1"></div>
                         <div className="flex flex-wrap gap-1">
-                            {(props.docTip === 'CREATE') ? (
+                            {(props.docTip === 'CREATE' && canCreate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Create}
                                     icon="pi pi-check"
@@ -518,7 +663,7 @@ const CoffDoc = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {(props.docTip !== 'CREATE') ? (
+                            {(props.docTip !== 'CREATE' && canDelete) ? (
                                 <Button
                                     label={translations[selectedLanguage].Delete}
                                     icon="pi pi-trash"
@@ -527,7 +672,7 @@ const CoffDoc = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {(props.docTip !== 'CREATE') ? (
+                            {(props.docTip !== 'CREATE' && canUpdate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Save}
                                     icon="pi pi-check"
@@ -538,21 +683,25 @@ const CoffDoc = (props) => {
                             ) : null}
                             {(props.standard) ? (
                                 (props.docTip == 'CREATE') ? (
-                                    <Button
-                                        label={translations[selectedLanguage].CreateSt}
-                                        icon="pi pi-check"
-                                        onClick={() => handleNextClick('CREATE')}
-                                        severity="success"
-                                        outlined
-                                    />
+                                    canCreate ? (
+                                        <Button
+                                            label={translations[selectedLanguage].CreateSt}
+                                            icon="pi pi-check"
+                                            onClick={() => handleNextClick('CREATE')}
+                                            severity="success"
+                                            outlined
+                                        />
+                                    ) : null
                                 ) : (
-                                    <Button
-                                        label={translations[selectedLanguage].SaveSt}
-                                        icon="pi pi-check"
-                                        onClick={() => handleNextClick('UPDATE')}
-                                        severity="success"
-                                        outlined
-                                    />
+                                    canUpdate ? (
+                                        <Button
+                                            label={translations[selectedLanguage].SaveSt}
+                                            icon="pi pi-check"
+                                            onClick={() => handleNextClick('UPDATE')}
+                                            severity="success"
+                                            outlined
+                                        />
+                                    ) : null
                                 )
                             ) : (null)
                             }
@@ -586,3 +735,5 @@ const CoffDoc = (props) => {
 };
 
 export default CoffDoc;
+
+

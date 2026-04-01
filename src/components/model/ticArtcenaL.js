@@ -23,6 +23,9 @@ export default function TicArtcenaL(props) {
   const emptyTicArtcena = EmptyEntities[objName]
   emptyTicArtcena.art = props.ticArt.id
   emptyTicArtcena.event = props.ticArt.event
+  emptyTicArtcena.um = props.ticArt.um
+  emptyTicArtcena.num = props.ticArt.num
+  emptyTicArtcena.cum = props.ticArt.cum
   const [showMyComponent, setShowMyComponent] = useState(true);
   const [ticArtcenas, setTicArtcenas] = useState([]);
   const [ticArtcena, setTicArtcena] = useState(emptyTicArtcena);

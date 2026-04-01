@@ -18,14 +18,14 @@ export const defaultValue = {
         curr: "1",
         terr: "1682866515650940928",
         lang: "sr_cyr",
-        cena: "1"
+        cena: "1683472665803100160"
     },
     def: {
         site: "ikbs",
         curr: "1",
         terr: "1682866515650940928",
         lang: "sr_cyr",
-        cena: "1"
+        cena: "1683472665803100160"
     }
   };
   

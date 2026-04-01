@@ -3,15 +3,16 @@ import { translations } from '../configs/translations';
 import Header from '../components/Header';
 import HeroSection from '../components/HeroSection';
 import About from '../components/About';
-import Carousel from '../components/Carousel';
+// import Carousel from '../components/Carousel';
 import AboutDoc from '../components/AboutDoc';
-import Menu from '../components/Menu';
+// import Menu from '../components/Menu';
 import Tab from '../components/Tab';
-import Footer from '../components/Footer';
+// import Footer from '../components/Footer';
 import TopBar from '../components/TopBar';
-import OrderL from '../components/model/ticEventattsgrpL';
+// import OrderL from '../components/model/ticEventattsgrpL';
 import Ordermenu from '../components/Ordermenu';
 import StatsCounter from '../components/StatsCounter'
+import { usePermission } from '../security/interceptors';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -29,6 +30,15 @@ const EmptyPage = () => {
     const location = useLocation();
     const [dataTab, setDataTab] = useState('1');
     const [tabKey, setTabKey] = useState(0);
+    const canViewAboutSection = usePermission('coffAboutSection');
+    const canViewOrderSection = usePermission('coffOrderSection');
+    const canViewStatusSection = usePermission('coffStatusSection');
+    const canViewDocSectionByRole = usePermission('coffDocSection');
+    const canViewDocAction = usePermission('coffDocs');
+    const canViewDocObject = usePermission('coff_docs');
+    const canViewRequesterDocs = usePermission('coffNarucilac');
+    const canViewKitchenDocs = usePermission('coffCOFF');
+    const canViewDocSection = canViewDocSectionByRole || canViewDocAction || canViewDocObject || canViewRequesterDocs || canViewKitchenDocs;
 
     useEffect(() => {
         // Postavljanje atributa na <body> tag
@@ -63,19 +73,25 @@ const EmptyPage = () => {
             <TopBar />
             <Header scrollToSection={scrollToSection} heroSectionRef={heroSectionRef} aboutRef={aboutRef} menuRef={menuRef} orderRef={orderRef} statusRef={statusRef} docRef={docRef} carouselRef={carouselRef} />
             <div ref={heroSectionRef}><HeroSection scrollToSection={scrollToSection} menuRef={menuRef} orderedRef={orderRef} carouselRef={carouselRef} /></div>
-            <div ref={aboutRef}><About /></div>
+            {canViewAboutSection ? (
+                <div ref={aboutRef}><About /></div>
+            ) : null}
 
-            <div ref={orderRef} className="menuheight">
-                <div className="row " data-aos="fade-up" data-aos-delay="100" >
-                    <div className={`col-lg-8 menu-item `}>
-                        <Ordermenu onDataUpdate={handleDataUpdate} />
-                    </div>
-                    <div className={`col-lg-4 menu-item `}>
-                        <Tab key={tabKey} dataTab={dataTab} onDataUpdate={handleDataUpdate} handleRefreshTab={handleRefreshTab}/>
+            {canViewOrderSection ? (
+                <div ref={orderRef} className="menuheight">
+                    <div className="row " data-aos="fade-up" data-aos-delay="100" >
+                        <div className={`col-lg-8 menu-item `}>
+                            <Ordermenu onDataUpdate={handleDataUpdate} />
+                        </div>
+                        <div className={`col-lg-4 menu-item `}>
+                            <Tab key={tabKey} dataTab={dataTab} onDataUpdate={handleDataUpdate} handleRefreshTab={handleRefreshTab}/>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div ref={statusRef} className=""><StatsCounter /> </div>
+            ) : null}
+            {canViewStatusSection ? (
+                <div ref={statusRef} className=""><StatsCounter /> </div>
+            ) : null}
 {/* Nema slika pa sklanjam */}
             {/* <div ref={carouselRef} className="menuheight">
                 <div className="row " data-aos="fade-up" data-aos-delay="100" >                    
@@ -109,7 +125,9 @@ const EmptyPage = () => {
                 </div>
             </div> */}
 
-            <div ref={docRef} ><AboutDoc dataTab={dataTab} onDataUpdate={handleDataUpdate} scrollToSection={scrollToSection} orderRef={orderRef}/></div>
+            {canViewDocSection ? (
+                <div ref={docRef} ><AboutDoc dataTab={dataTab} onDataUpdate={handleDataUpdate} scrollToSection={scrollToSection} orderRef={orderRef}/></div>
+            ) : null}
             {/* <div ref={menuRef} className="menuheight"><Menu /></div>     */}
 
         </div>

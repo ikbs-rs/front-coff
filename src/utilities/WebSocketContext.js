@@ -1,10 +1,117 @@
   import React, { createContext, useContext, useEffect, useState } from 'react';
   import notificationSound from './bup.mp3';
 
-  const audioContext = new AudioContext();
+  const AudioContextCtor =
+      typeof window !== 'undefined'
+          ? window.AudioContext || window.webkitAudioContext
+          : null;
+  const audioContext = AudioContextCtor ? new AudioContextCtor() : null;
   let audioBuffer;
 
+  const ORDER_CHANGED_EVENT_IDS = new Set(['TRECA', 'TRECA22', 'COFF_ORDER_CHANGED']);
+
+  const normalizeWsPayload = (messageOrPayload) => {
+      if (!messageOrPayload) {
+          return null;
+      }
+
+      if (typeof messageOrPayload === 'string') {
+          try {
+              return JSON.parse(messageOrPayload);
+          } catch {
+              return null;
+          }
+      }
+
+      if (typeof messageOrPayload?.data === 'string') {
+          try {
+              return JSON.parse(messageOrPayload.data);
+          } catch {
+              return null;
+          }
+      }
+
+      return messageOrPayload;
+  };
+
+  const getFirstWsEvent = (messageOrPayload) => {
+      const payload = normalizeWsPayload(messageOrPayload);
+
+      if (!payload) {
+          return null;
+      }
+
+      return Array.isArray(payload?.data) ? payload.data[0] || null : payload;
+  };
+
+  export const isOrderChangedMessage = (messageOrPayload) => {
+      const first = getFirstWsEvent(messageOrPayload);
+      const eventId = String(first?.id ?? first?.type ?? '').trim().toUpperCase();
+      const legacyId = String(first?.legacyId ?? '').trim().toUpperCase();
+
+      return ORDER_CHANGED_EVENT_IDS.has(eventId) || ORDER_CHANGED_EVENT_IDS.has(legacyId);
+  };
+
+  export const shouldPlayOrderSound = (messageOrPayload) => {
+      const first = getFirstWsEvent(messageOrPayload);
+
+      if (!first || !isOrderChangedMessage(first)) {
+          return false;
+      }
+
+      const normalizedStatus = String(first?.status ?? '').trim();
+      return normalizedStatus === '1' || first?.notify === true || String(first?.id ?? '').trim().toUpperCase() === 'TRECA22';
+  };
+
+  export const buildOrderChangedMessage = (payload = {}) => {
+      const kitchenRoom = buildKitchenRoomKey(
+          payload.objId ?? payload.obj ?? payload.coff,
+          payload.objTp ?? 'COFFLOC'
+      );
+      const userRoom = buildKitchenRoomKey(payload.userId ?? payload.usr, 'USER');
+      const rooms = [
+          ...(Array.isArray(payload.rooms) ? payload.rooms : []),
+          kitchenRoom,
+          userRoom,
+      ].filter(Boolean);
+
+      return JSON.stringify({
+          type: 'COFF_ORDER_CHANGED',
+          data: [
+              {
+                  id: 'COFF_ORDER_CHANGED',
+                  legacyId: payload.notify ? 'TRECA22' : 'TRECA',
+                  objTp: payload.objTp ?? 'COFFLOC',
+                  ...payload,
+                  rooms: [...new Set(rooms)]
+              }
+          ]
+      });
+  };
+
+  export const buildKitchenRoomKey = (objId, objTp = 'COFFLOC') => {
+      const normalizedObjId = String(objId ?? '').trim();
+
+      if (!normalizedObjId) {
+          return null;
+      }
+
+      return `${String(objTp || 'COFFLOC').trim().toUpperCase()}:${normalizedObjId}`;
+  };
+
+  export const buildKitchenSubscriptionMessage = ({ objId, objTp = 'COFFLOC', userId = null, username = null } = {}) =>
+      JSON.stringify({
+          type: 'subscribe',
+          objId,
+          objTp,
+          userId,
+          username,
+          room: buildKitchenRoomKey(objId, objTp)
+      });
+
   const fetchSound = async () => {
+      if (!audioContext) return;
+
       const response = await fetch(notificationSound);
       const arrayBuffer = await response.arrayBuffer();
       audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
@@ -12,18 +119,21 @@
 
   fetchSound();
 
-  const playNotificationSound = () => {
-      if (!audioBuffer) return; // Provera da li je zvuk učitan
+  const playNotificationSound = async () => {
+      if (!audioContext || !audioBuffer) return;
 
-      // Kreiranje audio izvora
-      const source = audioContext.createBufferSource();
-      source.buffer = audioBuffer;
+      try {
+          if (audioContext.state === 'suspended') {
+              await audioContext.resume();
+          }
 
-      // Povezivanje izvora sa izlazom audio konteksta
-      source.connect(audioContext.destination);
-
-      // Pokretanje reprodukcije
-      source.start();
+          const source = audioContext.createBufferSource();
+          source.buffer = audioBuffer;
+          source.connect(audioContext.destination);
+          source.start();
+      } catch (error) {
+          console.warn('WS sound error:', error);
+      }
   };
 
   /******************************************************************************* */
@@ -57,18 +167,18 @@
         });
   
         ws.addEventListener('message', (message) => {
-          let obj;
-          try {
-            obj = JSON.parse(message.data);
-          } catch {
-            console.warn('WS: nije JSON:', message.data);
+          const payload = normalizeWsPayload(message);
+
+          if (!payload) {
+            console.warn('WS: nije JSON:', message?.data ?? message);
             return;
           }
-          const first = Array.isArray(obj?.data) ? obj.data[0] : null;
-          if (first?.id === 'TRECA22') {
-            playNotificationSound();
+
+          if (shouldPlayOrderSound(payload)) {
+            void playNotificationSound();
           }
-          console.log('WS payload:', obj);
+
+          console.log('WS payload:', payload);
         });
   
         ws.addEventListener('error', (e) => {
@@ -92,17 +202,17 @@
         }
       }, HEARTBEAT_MS);
   
-      // demo: šalje test poruku na 10s
-      const demo = setInterval(() => {
-        const ws = wsRef.current;
-        if (ws && ws.readyState === WebSocket.OPEN) {
-          ws.send('{"data":[{"id":"PRVA11"}]}');
-        }
-      }, 10000);
+      // Demo/test sender ostaje zakomentarisan za kasnije ručno testiranje.
+      // const demo = setInterval(() => {
+      //   const ws = wsRef.current;
+      //   if (ws && ws.readyState === WebSocket.OPEN) {
+      //     ws.send('{"data":[{"id":"PRVA11"}]}');
+      //   }
+      // }, 10000);
   
       return () => {
         clearInterval(hb);
-        clearInterval(demo);
+        // clearInterval(demo);
         clearTimeout(reconnectTimer.current);
   
         // zatvori baš aktivnu instancu

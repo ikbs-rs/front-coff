@@ -504,3 +504,109 @@ body {
   background: rgba(255, 193, 7, 0.18) !important;
   color: #ffffff !important;
 }
+
+.delete-confirm-dialog.p-dialog {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 22px !important;
+  background: linear-gradient(180deg, rgba(42, 46, 55, 0.96), rgba(18, 20, 27, 0.98)) !important;
+  box-shadow: 0 24px 54px rgba(0, 0, 0, 0.42) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.delete-confirm-dialog .p-dialog-header {
+  background: linear-gradient(180deg, rgba(56, 61, 73, 0.98), rgba(38, 42, 50, 0.96)) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.94) !important;
+  padding: 1.1rem 1.25rem !important;
+}
+
+.delete-confirm-dialog .p-dialog-title {
+  color: rgba(255, 255, 255, 0.96) !important;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.delete-confirm-dialog .p-dialog-content,
+.delete-confirm-dialog .p-dialog-footer {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.86) !important;
+}
+
+.delete-confirm-dialog .p-dialog-content {
+  padding: 1.4rem 1.5rem 1rem !important;
+}
+
+.delete-confirm-dialog .p-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding: 1rem 1.25rem 1.25rem !important;
+}
+
+.delete-confirm-dialog__content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 5rem;
+}
+
+.delete-confirm-dialog__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 193, 7, 0.18), rgba(255, 193, 7, 0.08));
+  color: #ffd56a;
+  box-shadow: inset 0 0 0 1px rgba(255, 193, 7, 0.22);
+  flex: 0 0 auto;
+}
+
+.delete-confirm-dialog__icon .pi {
+  font-size: 1.35rem;
+}
+
+.delete-confirm-dialog__text {
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.55;
+}
+
+.delete-confirm-dialog__text b {
+  color: #ffe08a;
+}
+
+.delete-confirm-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.delete-confirm-dialog .p-button.p-button-outlined.p-button-secondary {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.delete-confirm-dialog .p-button.p-button-outlined.p-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+.delete-confirm-dialog .p-button.p-button-danger {
+  background: linear-gradient(180deg, #ea4f4f, #c93434) !important;
+  border-color: #d43d3d !important;
+  box-shadow: 0 10px 24px rgba(201, 52, 52, 0.24);
+}
+
+.delete-confirm-dialog .p-button.p-button-danger:hover {
+  background: linear-gradient(180deg, #f25d5d, #d63b3b) !important;
+  border-color: #de4949 !important;
+}
+
+.p-input-filled .p-inputtext {
+    background-color: #505252d1;
+}

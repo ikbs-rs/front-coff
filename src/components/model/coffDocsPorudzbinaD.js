@@ -8,18 +8,24 @@ import { Dropdown } from 'primereact/dropdown';
 import { Toast } from "primereact/toast";
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from "../../configs/translations";
+import { useCrudActionPermissions, usePermission } from '../../security/interceptors';
 import { SapDataService } from "../../service/model/SapDataService";
 import { AutoComplete } from "primereact/autocomplete";
 import { TicArtService } from '../../service/model/TicArtService';
 import { CoffArtumService } from "../../service/model/CoffArtumService";
-import env from "../../configs/env"
-import axios from 'axios';
-import Token from "../../utilities/Token";
 import { Dialog } from 'primereact/dialog';
 import TicArtL from './ticArtL';
+import { TicArtcenaService } from '../../service/model/TicArtcenaService';
+import { defaultValue } from '../../configs/defaultValue';
 
 const CoffDocsPorudzbina = (props) => {
-    console.log(props, "BMVBMV @@@@@@@@@@@@@@@@@@@@@ CoffDocPorudzbina @@@@@@@@@@@@@@@@@@@@@@@@@@!!!@")
+    const docsCrudPermissions = useCrudActionPermissions('coff_docs');
+    const canUseDocsAction = usePermission('coffDocs');
+    const canRequesterManageDocs = usePermission('coffNarucilac');
+    const canCreate = docsCrudPermissions.canCreate || canUseDocsAction || canRequesterManageDocs;
+    const canUpdate = docsCrudPermissions.canUpdate || canUseDocsAction || canRequesterManageDocs;
+    const canDelete = docsCrudPermissions.canDelete || canUseDocsAction || canRequesterManageDocs;
+    // console.log(props, "BMVBMV @@@@@@@@@@@@@@@@@@@@@ CoffDocPorudzbina @@@@@@@@@@@@@@@@@@@@@@@@@@!!!@")
 
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -54,10 +60,95 @@ const CoffDocsPorudzbina = (props) => {
     /************************AUTOCOMPLIT**************************** */
 
     const toast = useRef(null);
+    const priceLookupConfig = defaultValue.ems ?? defaultValue.tic ?? defaultValue.def;
     const items = [
         { name: `${translations[selectedLanguage].Yes}`, code: '1' },
         { name: `${translations[selectedLanguage].No}`, code: '0' }
     ];
+
+    const normalizeId = (value) => {
+        if (value === null || value === undefined) {
+            return null;
+        }
+
+        const normalizedValue = String(value).trim();
+        return normalizedValue === '' ? null : normalizedValue;
+    };
+    const parseDecimal = (value) => {
+        if (value === null || value === undefined) {
+            return 0;
+        }
+
+        const normalizedValue = String(value).replace(',', '.').trim();
+
+        if (!normalizedValue) {
+            return 0;
+        }
+
+        const parsedValue = Number(normalizedValue);
+        return Number.isFinite(parsedValue) ? parsedValue : 0;
+    };
+    const formatToOneDecimal = (value) => {
+        if (value === null || value === undefined || String(value).trim() === '') {
+            return '';
+        }
+
+        return parseDecimal(value).toFixed(1);
+    };
+
+    const resolveCurrentDocId = () =>
+        normalizeId(props.coffDoc?.id) ??
+        normalizeId(coffDocs?.doc) ??
+        normalizeId(localStorage.getItem('currCoffOrder'));
+
+    const resolveCurrentObjId = () =>
+        normalizeId(props.coffDoc?.obj) ??
+        normalizeId(coffDocs?.obj);
+
+    const buildCoffDocsPayload = () => ({
+        ...coffDocs,
+        doc: resolveCurrentDocId(),
+        obj: resolveCurrentObjId(),
+        cena: formatToOneDecimal(coffDocs?.cena),
+    });
+    const validatePayload = (payload) =>
+        Boolean(
+            payload.doc &&
+            payload.art &&
+            payload.cart &&
+            payload.nart &&
+            payload.um &&
+            payload.izlaz &&
+            payload.cena !== null &&
+            payload.cena !== undefined &&
+            `${payload.cena}`.trim() !== ''
+        );
+    const applyArtSelection = (art) => {
+        if (!art) {
+            return;
+        }
+
+        setSelectedArt(art.code || art.id || null);
+        setArtValue(art.code || art.text || '');
+        setCoffArt(art);
+        setCoffDocs((prevState) => ({
+            ...prevState,
+            art: art.id,
+            nart: art.text,
+            cart: art.code,
+            um: art.um ?? prevState.um,
+        }));
+    };
+
+    useEffect(() => {
+        setCoffDocs((prevState) => ({
+            ...prevState,
+            ...props.coffDocs,
+            doc: props.coffDocs?.doc ?? props.coffDoc?.id ?? prevState?.doc ?? null,
+            obj: props.coffDocs?.obj ?? props.coffDoc?.obj ?? prevState?.obj ?? null,
+            cena: props.coffDocs?.cena ?? prevState?.cena ?? '',
+        }));
+    }, [props.coffDocs, props.coffDoc?.id, props.coffDoc?.obj]);
 
     useEffect(() => {
         async function fetchData() {
@@ -68,13 +159,19 @@ const CoffDocsPorudzbina = (props) => {
                 console.log(data, "*******$$$$$$$$$$$$$$$$$$$$ coffArtumService $$$$$$$$$$$$$$$$$$$$$$**************", coffDocs.art)
                 setCmnUmItems(data)
                 const dataDD = data.map(({ num, um }) => ({ name: num, code: um }));
+                const selectedUm = coffDocs?.um ?? props.coffDocs?.um;
                 setDdCmnUmItems(dataDD);
-                setDdCmnUmItem(dataDD.find((item) => item.code === props.coffDocs.um) || null);
-                if (props.coffDocs.um) {
-                    const foundItem = data.find((item) => item.id === props.coffDocs.um);
+                setDdCmnUmItem(dataDD.find((item) => item.code === selectedUm) || null);
+                if (selectedUm) {
+                    const foundItem = data.find((item) => item.id === selectedUm || item.um === selectedUm);
                     setCmnUmItem(foundItem || null);
-                    coffDocs.cum = foundItem.code
-                    coffDocs.num = foundItem.textx
+                    if (foundItem) {
+                        setCoffDocs((prevState) => ({
+                            ...prevState,
+                            cum: foundItem.code ?? prevState.cum,
+                            num: foundItem.textx ?? foundItem.num ?? prevState.num,
+                        }));
+                    }
                 }
             } catch (error) {
                 console.error(error);
@@ -83,6 +180,61 @@ const CoffDocsPorudzbina = (props) => {
         }
         fetchData();
     }, [coffDocs.art]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function fetchPrice() {
+            const artId = normalizeId(coffDocs?.art);
+            const umId = normalizeId(coffDocs?.um);
+
+            if (!artId || !umId) {
+                setCoffDocs((prevState) => ({ ...prevState, cena: '' }));
+                return;
+            }
+
+            try {
+                const ticArtcenaService = new TicArtcenaService();
+                const priceItem = await ticArtcenaService.getValue(
+                    artId,
+                    umId,
+                    priceLookupConfig.curr,
+                    priceLookupConfig.cena
+                );
+
+                if (cancelled) {
+                    return;
+                }
+
+                setCoffDocs((prevState) => {
+                    if (
+                        normalizeId(prevState?.art) !== artId ||
+                        normalizeId(prevState?.um) !== umId
+                    ) {
+                        return prevState;
+                    }
+
+                    return {
+                        ...prevState,
+                        cena:
+                            priceItem?.value === null || priceItem?.value === undefined
+                                ? ''
+                                : formatToOneDecimal(priceItem.value),
+                    };
+                });
+            } catch (error) {
+                if (!cancelled) {
+                    console.error(error);
+                }
+            }
+        }
+
+        fetchPrice();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [coffDocs?.art, coffDocs?.um, priceLookupConfig.cena, priceLookupConfig.curr]);
 
     // useEffect(() => {
     //     setDropdownItem(findDropdownItemByCode(props.coffDoc.valid));
@@ -105,9 +257,22 @@ const CoffDocsPorudzbina = (props) => {
         try {
             setSubmitted(true);
             const coffDocsService = new CoffDocsService();
-            const data = await coffDocsService.postCoffDocs(coffDocs);
-            coffDocs.id = data
-            props.handleDialogClose({ obj: coffDocs, docsTip: props.docsTip });
+            const payload = buildCoffDocsPayload();
+
+            if (!validatePayload(payload)) {
+                toast.current.show({
+                    severity: "warn",
+                    summary: "Action ",
+                    detail: `${translations[selectedLanguage].Requiredfield}`,
+                    life: 5000,
+                });
+                return;
+            }
+
+            const data = await coffDocsService.postCoffDocs(payload);
+            const nextCoffDocs = { ...payload, id: data }
+            setCoffDocs(nextCoffDocs)
+            props.handleDialogClose({ obj: nextCoffDocs, docsTip: props.docsTip });
             props.setVisible(false);
         } catch (err) {
             toast.current.show({
@@ -123,8 +288,21 @@ const CoffDocsPorudzbina = (props) => {
         try {
             setSubmitted(true);
             const coffDocsService = new CoffDocsService();
-            await coffDocsService.putCoffDocs(coffDocs);
-            props.handleDialogClose({ obj: coffDocs, docsTip: props.docsTip });
+            const payload = buildCoffDocsPayload();
+
+            if (!validatePayload(payload)) {
+                toast.current.show({
+                    severity: "warn",
+                    summary: "Action ",
+                    detail: `${translations[selectedLanguage].Requiredfield}`,
+                    life: 5000,
+                });
+                return;
+            }
+
+            await coffDocsService.putCoffDocs(payload);
+            setCoffDocs(payload)
+            props.handleDialogClose({ obj: payload, docsTip: props.docsTip });
             props.setVisibleCoffDocsmenu(false)
             props.setVisible(false);
         } catch (err) {
@@ -167,16 +345,18 @@ const CoffDocsPorudzbina = (props) => {
             if (name == "um") {
                 setDdCmnUmItem(e.value);
                 const foundItem = cmnUmItems.find((item) => item.um === val);
-                console.log(foundItem, "###########################-um-###########################setDebouncedSearch###", val)
                 setCmnUmItem(foundItem || null);
-                coffDocs.num = val
-                coffDocs.num = e.value.name
-                coffDocs.cum = foundItem.cum
+                setCoffDocs((prevState) => ({
+                    ...prevState,
+                    um: val,
+                    num: e.value?.name ?? prevState.num,
+                    cum: foundItem?.cum ?? prevState.cum
+                }));
+                return;
             } else {
                 setDropdownItem(e.value);
             }
         } else if (type === "auto") {
-            console.log(e.target, "###########################-auto-###########################setDebouncedSearch###", e.target.value)
             let timeout = null
             switch (name) {
                 case "art":
@@ -257,8 +437,7 @@ const CoffDocsPorudzbina = (props) => {
 
     const handleSelect = (e) => {
         // Postavite izabrani element i automatski popunite polje za unos sa vrednošću "code"
-        setSelectedArt(e.value.code);
-        setArtValue(e.value.code);
+        applyArtSelection(e.value);
     };
     /************************** */
     const handleArtClick = async (e, destination) => {
@@ -285,19 +464,7 @@ const CoffDocsPorudzbina = (props) => {
     };
     /************************** */
     const handleTicArtLDialogClose = (newObj) => {
-        console.log(newObj, "11111111111111111111111111111111qqq1111111111111111111111111111111", newObj)
-        setCoffArt(newObj);
-        let _coffDocs = { ...coffDocs }
-        _coffDocs.art = newObj.id;
-        _coffDocs.nart = newObj.text;
-        _coffDocs.cart = newObj.code;
-        setArtValue(newObj.code)
-        setDdCmnUmItem(newObj.um)
-        _coffDocs.um = newObj.um;
-        //coffDocs.price = newObj.price;
-        //coffDocs.loc = newObj.loc1;
-        setCoffDocs(_coffDocs)
-        //coffDocs.potrazuje = newObj.cena * coffDocs.output;
+        applyArtSelection(newObj);
         setTicArtLVisible(false);
     };
     /**************************AUTOCOMPLIT************************************************ */
@@ -381,7 +548,7 @@ const CoffDocsPorudzbina = (props) => {
                                 className={classNames({ 'p-invalid': submitted && !coffDocs.izlaz })} />
                             {submitted && !coffDocs.izlaz && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
                         </div>
-                        {/* <div className="field col-12 md:col-5">
+                        <div className="field col-12 md:col-5">
                             <label htmlFor="cena">{translations[selectedLanguage].Cena}</label>
                             <InputText
                                 id="cena"
@@ -390,7 +557,7 @@ const CoffDocsPorudzbina = (props) => {
                                 className={classNames({ 'p-invalid': submitted && !coffDocs.cena })}
                             />
                             {submitted && !coffDocs.cena && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
-                        </div> */}
+                        </div>
                     </div>
 
                     <div className="flex flex-wrap gap-1">
@@ -405,7 +572,7 @@ const CoffDocsPorudzbina = (props) => {
                         ) : null}
                         <div className="flex-grow-1"></div>
                         <div className="flex flex-wrap gap-1">
-                            {(props.docsTip == 'CREATE') ? (
+                            {(props.docsTip == 'CREATE' && canCreate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Create}
                                     icon="pi pi-check"
@@ -414,7 +581,7 @@ const CoffDocsPorudzbina = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {(props.docsTip !== 'CREATE') ? (
+                            {(props.docsTip !== 'CREATE' && canDelete) ? (
                                 <Button
                                     label={translations[selectedLanguage].Delete}
                                     icon="pi pi-trash"
@@ -423,7 +590,7 @@ const CoffDocsPorudzbina = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {(props.docsTip !== 'CREATE') ? (
+                            {(props.docsTip !== 'CREATE' && canUpdate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Save}
                                     icon="pi pi-check"
@@ -468,3 +635,5 @@ const CoffDocsPorudzbina = (props) => {
 };
 
 export default CoffDocsPorudzbina;
+
+

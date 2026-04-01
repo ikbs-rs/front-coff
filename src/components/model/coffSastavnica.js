@@ -8,6 +8,7 @@ import { Button } from 'primereact/button';
 import { Toast } from "primereact/toast";
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from "../../configs/translations";
+import { useCrudActionPermissions } from '../../security/interceptors';
 import { Dropdown } from 'primereact/dropdown';
 
 import env from "../../configs/env"
@@ -15,6 +16,7 @@ import axios from 'axios';
 import Token from "../../utilities/Token";
 
 const CoffSastavnica = (props) => {
+    const { canCreate, canUpdate, canDelete } = useCrudActionPermissions('coff_sastavnica');
 
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -222,7 +224,7 @@ const CoffSastavnica = (props) => {
                         ) : null}
                         <div className="flex-grow-1"></div>
                         <div className="flex flex-wrap gap-1">
-                            {(props.sastavnicaTip === 'CREATE') ? (
+                            {(props.sastavnicaTip === 'CREATE' && canCreate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Create}
                                     icon="pi pi-check"
@@ -231,7 +233,7 @@ const CoffSastavnica = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {(props.sastavnicaTip !== 'CREATE') ? (
+                            {(props.sastavnicaTip !== 'CREATE' && canDelete) ? (
                                 <Button
                                     label={translations[selectedLanguage].Delete}
                                     icon="pi pi-trash"
@@ -240,7 +242,7 @@ const CoffSastavnica = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {(props.sastavnicaTip !== 'CREATE') ? (
+                            {(props.sastavnicaTip !== 'CREATE' && canUpdate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Save}
                                     icon="pi pi-check"
@@ -265,3 +267,5 @@ const CoffSastavnica = (props) => {
 };
 
 export default CoffSastavnica;
+
+

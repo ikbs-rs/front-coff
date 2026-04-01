@@ -26,7 +26,9 @@ const AppSubmenu = forwardRef((props, ref) => {
         //execute command
         if (item.command) {
             item.command({ originalEvent: event, item: item });
-            event.preventDefault();
+            if (!item.to && !item.url && !item.items) {
+                event.preventDefault();
+            }
         }
         if (item.items) {
             event.preventDefault();

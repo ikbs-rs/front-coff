@@ -4,6 +4,33 @@ import Token from "../../utilities/Token";
 
 export class TicArtcenaService {
 
+    async getValue(artId, um, curr = '1', cena = '1683472665803100160') {
+        const normalizedArtId = String(artId || '').trim();
+        const normalizedUm = String(um || '').trim();
+
+        if (!normalizedArtId || !normalizedUm) {
+            return null;
+        }
+
+        const url = `${env.TIC_BACK_URL}/tic/artcena/value/${normalizedArtId}?um=${normalizedUm}&curr=${curr}&cena=${cena}`;
+        const tokenLocal = await Token.getTokensLS();
+        const headers = {
+            Authorization: tokenLocal.token
+        };
+
+        try {
+            const response = await axios.get(url, { headers });
+            return response.data?.item ?? null;
+        } catch (error) {
+            if (error.response?.status === 404) {
+                return null;
+            }
+
+            console.error(error);
+            throw error;
+        }
+    }
+
     async getLista(objId) {
         const selectedLanguage = localStorage.getItem('sl') || 'en'
         const url = `${env.TIC_BACK_URL}/tic/artcena/_v/lista/?stm=tic_artcena_v&objid=${objId}&sl=${selectedLanguage}`;

@@ -8,11 +8,18 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from "../../configs/translations";
+import { useCrudActionPermissions, usePermission } from '../../security/interceptors';
 import { InputNumber } from "primereact/inputnumber";
 import { Dropdown } from 'primereact/dropdown';
 import { ColorPicker } from 'primereact/colorpicker';
 
 const Order = (props) => {
+    const docsCrudPermissions = useCrudActionPermissions('coff_docs');
+    const canUseDocsAction = usePermission('coffDocs');
+    const canRequesterManageDocs = usePermission('coffNarucilac');
+    const canCreate = docsCrudPermissions.canCreate || canUseDocsAction || canRequesterManageDocs;
+    const canUpdate = docsCrudPermissions.canUpdate || canUseDocsAction || canRequesterManageDocs;
+    const canDelete = docsCrudPermissions.canDelete || canUseDocsAction || canRequesterManageDocs;
     console.log(props, "##################### CoffDocmenu ###############################")
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     // const currCoffOrder = localStorage.getItem('currCoffOrder')
@@ -56,7 +63,7 @@ const Order = (props) => {
                     const data = await coffDocsService.getDocsorder(props.artCurr.id, props.docId);
                     await setCoffValues(data);
 
-                    console.log("coffDocService.getMenu !!!!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!!!!!", data)
+                    // console.log("coffDocService.getMenu !!!!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!!!!!", data)
                     //initFilters(); 
                 }
             } catch (error) {
@@ -267,35 +274,6 @@ const Order = (props) => {
                             />
                         ) : null}
                         <div className="flex-grow-1"></div>
-                        {/* <div className="flex flex-wrap gap-1">
-                            {(props.cenaTip === 'CREATE') ? (
-                                <Button
-                                    label={translations[selectedLanguage].Create}
-                                    icon="pi pi-check"
-                                    onClick={handleCreateClick}
-                                    severity="success"
-                                    outlined
-                                />
-                            ) : null}
-                            {(props.cenaTip !== 'CREATE') ? (
-                                <Button
-                                    label={translations[selectedLanguage].Delete}
-                                    icon="pi pi-trash"
-                                    onClick={showDeleteDialog}
-                                    className="p-button-outlined p-button-danger"
-                                    outlined
-                                />
-                            ) : null}
-                            {(props.cenaTip !== 'CREATE') ? (
-                                <Button
-                                    label={translations[selectedLanguage].Save}
-                                    icon="pi pi-check"
-                                    onClick={handleSaveClick}
-                                    severity="success"
-                                    outlined
-                                />
-                            ) : null}
-                        </div> */}
                     </div>
                 </div>
             </div>
@@ -311,3 +289,5 @@ const Order = (props) => {
 };
 
 export default Order;
+
+

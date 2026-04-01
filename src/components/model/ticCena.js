@@ -8,10 +8,12 @@ import { Button } from 'primereact/button';
 import { Toast } from "primereact/toast";
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from "../../configs/translations";
+import { useCrudActionPermissions } from '../../security/interceptors';
 import { Dropdown } from 'primereact/dropdown';
 import { ColorPicker } from 'primereact/colorpicker';
 
 const TicCena = (props) => {
+    const { canCreate, canUpdate, canDelete } = useCrudActionPermissions('tic_cena');
 
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -233,7 +235,7 @@ const TicCena = (props) => {
                         ) : null}
                         <div className="flex-grow-1"></div>
                         <div className="flex flex-wrap gap-1">
-                            {(props.cenaTip === 'CREATE') ? (
+                            {(props.cenaTip === 'CREATE' && canCreate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Create}
                                     icon="pi pi-check"
@@ -242,7 +244,7 @@ const TicCena = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {(props.cenaTip !== 'CREATE') ? (
+                            {(props.cenaTip !== 'CREATE' && canDelete) ? (
                                 <Button
                                     label={translations[selectedLanguage].Delete}
                                     icon="pi pi-trash"
@@ -251,7 +253,7 @@ const TicCena = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {(props.cenaTip !== 'CREATE') ? (
+                            {(props.cenaTip !== 'CREATE' && canUpdate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Save}
                                     icon="pi pi-check"
@@ -276,3 +278,5 @@ const TicCena = (props) => {
 };
 
 export default TicCena;
+
+

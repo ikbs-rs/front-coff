@@ -175,47 +175,6 @@ const Order = (props) => {
                             {submitted && !ticCena.valid && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
                         </div>
                     </div>
-                    <div className="flex flex-wrap gap-1">
-                        {props.dialog ? (
-                            <Button
-                                label={translations[selectedLanguage].Cancel}
-                                icon="pi pi-times"
-                                className="p-button-outlined p-button-secondary"
-                                onClick={handleCancelClick}
-                                outlined
-                            />
-                        ) : null}
-                        <div className="flex-grow-1"></div>
-                        <div className="flex flex-wrap gap-1">
-                            {(props.cenaTip === 'CREATE') ? (
-                                <Button
-                                    label={translations[selectedLanguage].Create}
-                                    icon="pi pi-check"
-                                    onClick={handleCreateClick}
-                                    severity="success"
-                                    outlined
-                                />
-                            ) : null}
-                            {(props.cenaTip !== 'CREATE') ? (
-                                <Button
-                                    label={translations[selectedLanguage].Delete}
-                                    icon="pi pi-trash"
-                                    onClick={showDeleteDialog}
-                                    className="p-button-outlined p-button-danger"
-                                    outlined
-                                />
-                            ) : null}
-                            {(props.cenaTip !== 'CREATE') ? (
-                                <Button
-                                    label={translations[selectedLanguage].Save}
-                                    icon="pi pi-check"
-                                    onClick={handleSaveClick}
-                                    severity="success"
-                                    outlined
-                                />
-                            ) : null}
-                        </div>
-                    </div>
                 </div>
             </div>
             <DeleteDialog

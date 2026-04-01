@@ -66,10 +66,42 @@ const getLoginCopy = (language) => LOGIN_COPY[language] || LOGIN_COPY.sr_cyr;
 
 const isSuccessfulLoginResponse = (response) => response?.status === 200;
 
+const decodeJwtSection = (value) => {
+    if (!value) {
+        return null;
+    }
+
+    try {
+        const normalizedValue = value.replace(/-/g, '+').replace(/_/g, '/');
+        const paddedValue = normalizedValue.padEnd(normalizedValue.length + ((4 - normalizedValue.length % 4) % 4), '=');
+        return JSON.parse(window.atob(paddedValue));
+    } catch (error) {
+        console.error('JWT decode failed', error);
+        return null;
+    }
+};
+
+const logJwtDetails = (token) => {
+    if (!token) {
+        console.warn('JWT token is missing in login response');
+        return;
+    }
+
+    const [header, payload] = token.split('.');
+
+    console.log('JWT header:', decodeJwtSection(header));
+    console.log('JWT payload:', decodeJwtSection(payload));
+};
+
 const persistLoginSession = (responseData, selectedLanguage) => {
     localStorage.setItem('token', responseData.token);
     localStorage.setItem('refreshToken', responseData.refreshToken);
     localStorage.setItem('userId', responseData.userId);
+    if (responseData.user) {
+        localStorage.setItem('user', JSON.stringify(responseData.user));
+    } else {
+        localStorage.removeItem('user');
+    }
     localStorage.setItem('sl', selectedLanguage || DEFAULT_LANGUAGE);
     sessionStorage.setItem('isLoggedIn', 'true');
 };
@@ -132,6 +164,7 @@ export const Login = () => {
                 return;
             }
 
+            logJwtDetails(response.data.token);
             persistLoginSession(response.data, selectedLanguage);
             navigate('/');
         } catch (error) {

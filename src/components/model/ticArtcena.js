@@ -8,15 +8,23 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from '../../configs/translations';
+import { useCrudActionPermissions } from '../../security/interceptors';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import DateFunction from '../../utilities/DateFunction';
+import { CmnUmService } from '../../service/model/cmn/CmnUmService';
+import { defaultValue } from '../../configs/defaultValue';
 
 const TicArtcena = (props) => {
+    const { canCreate, canUpdate, canDelete } = useCrudActionPermissions('tic_artcena');
     console.log(props, '===================TicArtcena======================');
     const selectedLanguage = localStorage.getItem('sl') || 'en';
+    const initialUm = props.ticArtcena.um || props.ticArt.um || null;
+    const initialCena = props.ticArtcena.cena || defaultValue.tic?.cena || defaultValue.def?.cena || null;
+    const initialCurr = props.ticArtcena.curr || defaultValue.tic?.curr || defaultValue.def?.curr || '1';
+    const initialTerr = props.ticArtcena.terr || defaultValue.tic?.terr || defaultValue.def?.terr || null;
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
-    const [ticArtcena, setTicArtcena] = useState(props.ticArtcena);
+    const [ticArtcena, setTicArtcena] = useState({ ...props.ticArtcena, um: initialUm, cena: initialCena, curr: initialCurr, terr: initialTerr });
     const [submitted, setSubmitted] = useState(false);
 
     const [ddTicCena, setDdTicCenaItem] = useState(null);
@@ -34,6 +42,11 @@ const TicArtcena = (props) => {
     const [cmnTerrItem, setCmnTerrItem] = useState(null);
     const [cmnTerrItems, setCmnTerrItems] = useState(null);
 
+    const [ddCmnUm, setDdCmnUmItem] = useState(null);
+    const [ddCmnUms, setDdCmnUmItems] = useState(null);
+    const [cmnUmItem, setCmnUmItem] = useState(null);
+    const [cmnUmItems, setCmnUmItems] = useState(null);
+
     const [begda, setBegda] = useState(new Date(DateFunction.formatJsDate(props.ticArtcena.begda || DateFunction.currDate())));
     const [endda, setEndda] = useState(new Date(DateFunction.formatJsDate(props.ticArtcena.endda || '99991231')));
 
@@ -46,15 +59,22 @@ const TicArtcena = (props) => {
             try {
                 const ticCenaService = new TicCenaService();
                 const data = await ticCenaService.getTicCenas();
+                const selectedCena = props.ticArtcena.cena || initialCena;
+                const foundItem = data.find((item) => `${item.id}` === `${selectedCena}`) || data.find((item) => `${item.code || ''}`.toUpperCase() === 'EMS');
+
                 setTicCenaItems(data);
                 const dataDD = data.map(({ textx, id }) => ({ name: textx, code: id }));
                 setDdTicCenaItems(dataDD);
-                setDdTicCenaItem(dataDD.find((item) => item.code === props.ticArtcena.cena) || null);
-                if (props.ticArtcena.cena) {
-                    const foundItem = data.find((item) => item.id === props.ticArtcena.cena);
+                setDdTicCenaItem(dataDD.find((item) => `${item.code}` === `${selectedCena}`) || (foundItem ? { name: foundItem.textx, code: foundItem.id } : null));
+
+                if (foundItem) {
                     setTicCenaItem(foundItem || null);
-                    ticArtcena.ccena = foundItem.code;
-                    ticArtcena.ncena = foundItem.textx;
+                    setTicArtcena((prevState) => ({
+                        ...prevState,
+                        cena: foundItem.id,
+                        ccena: foundItem.code,
+                        ncena: foundItem.textx
+                    }));
                 }
             } catch (error) {
                 console.error(error);
@@ -69,15 +89,22 @@ const TicArtcena = (props) => {
             try {
                 const ticCenaService = new TicCenaService();
                 const data = await ticCenaService.getCmnCurrs();
+                const selectedCurr = props.ticArtcena.curr || initialCurr;
+                const foundItem = data.find((item) => `${item.id}` === `${selectedCurr}`) || data.find((item) => `${item.code}` === `${selectedCurr}` || `${item.textx || ''}`.toUpperCase().includes('RSD'));
+
                 setCmnCurrItems(data);
                 const dataDD = data.map(({ textx, id }) => ({ name: textx, code: id }));
                 setDdCmnCurrItems(dataDD);
-                setDdCmnCurrItem(dataDD.find((item) => item.code === props.ticArtcena.curr) || null);
-                if (props.ticArtcena.curr) {
-                    const foundItem = data.find((item) => item.id === props.ticArtcena.curr);
+                setDdCmnCurrItem(dataDD.find((item) => `${item.code}` === `${selectedCurr}`) || (foundItem ? { name: foundItem.textx, code: foundItem.id } : null));
+
+                if (foundItem) {
                     setCmnCurrItem(foundItem || null);
-                    ticArtcena.ccurr = foundItem.code;
-                    ticArtcena.ncurr = foundItem.textx;
+                    setTicArtcena((prevState) => ({
+                        ...prevState,
+                        curr: foundItem.id,
+                        ncurr: foundItem.textx,
+                        ccurr: foundItem.code
+                    }));
                 }
             } catch (error) {
                 console.error(error);
@@ -92,19 +119,56 @@ const TicArtcena = (props) => {
             try {
                 const ticCenaService = new TicCenaService();
                 const data = await ticCenaService.getCmnTerrs();
+                const selectedTerr = props.ticArtcena.terr || initialTerr;
+                const foundItem = data.find((item) => `${item.id}` === `${selectedTerr}`) || data.find((item) => `${item.code}` === `${selectedTerr}` || `${item.textx || ''}`.toLowerCase().includes('srb'));
+
                 setCmnTerrItems(data);
                 const dataDD = data.map(({ textx, id }) => ({ name: textx, code: id }));
                 setDdCmnTerrItems(dataDD);
-                setDdCmnTerrItem(dataDD.find((item) => item.code === props.ticArtcena.terr) || null);
-                if (props.ticArtcena.terr) {
-                    const foundItem = data.find((item) => item.id === props.ticArtcena.terr);
+                setDdCmnTerrItem(dataDD.find((item) => `${item.code}` === `${selectedTerr}`) || (foundItem ? { name: foundItem.textx, code: foundItem.id } : null));
+
+                if (foundItem) {
                     setCmnTerrItem(foundItem || null);
-                    ticArtcena.cterr = foundItem.code;
-                    ticArtcena.nterr = foundItem.textx;
+                    setTicArtcena((prevState) => ({
+                        ...prevState,
+                        terr: foundItem.id,
+                        nterr: foundItem.textx,
+                        cterr: foundItem.code
+                    }));
                 }
             } catch (error) {
                 console.error(error);
                 // Obrada greške ako je potrebna
+            }
+        }
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const cmnUmService = new CmnUmService();
+                const data = await cmnUmService.getCmnUms();
+                setCmnUmItems(data);
+                const dataDD = data.map(({ textx, id }) => ({ name: textx, code: id }));
+                setDdCmnUmItems(dataDD);
+                setDdCmnUmItem(dataDD.find((item) => `${item.code}` === `${initialUm}`) || null);
+
+                if (initialUm) {
+                    const foundItem = data.find((item) => `${item.id}` === `${initialUm}`);
+                    setCmnUmItem(foundItem || null);
+
+                    if (foundItem) {
+                        setTicArtcena((prevState) => ({
+                            ...prevState,
+                            um: foundItem.id,
+                            num: foundItem.textx,
+                            cum: foundItem.code
+                        }));
+                    }
+                }
+            } catch (error) {
+                console.error(error);
             }
         }
         fetchData();
@@ -203,6 +267,12 @@ const TicArtcena = (props) => {
                     setCmnTerrItem(foundItem || null);
                     ticArtcena.nterr = e.value.name;
                     ticArtcena.cterr = foundItem.code;
+                } else if (name == 'um') {
+                    setDdCmnUmItem(e.value);
+                    const foundItem = cmnUmItems.find((item) => item.id === val);
+                    setCmnUmItem(foundItem || null);
+                    ticArtcena.num = e.value.name;
+                    ticArtcena.cum = foundItem ? foundItem.code : null;
                 }
             }
         } else if (type === 'Calendar') {
@@ -275,7 +345,7 @@ const TicArtcena = (props) => {
                             <InputText id="value" value={ticArtcena.value} onChange={(e) => onInputChange(e, 'text', 'value')} required className={classNames({ 'p-invalid': submitted && !ticArtcena.value })} />
                             {submitted && !ticArtcena.value && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
                         </div>
-                        <div className="field col-12 md:col-4">
+                        <div className="field col-12 md:col-3">
                             <label htmlFor="curr">{translations[selectedLanguage].Curr} *</label>
                             <Dropdown
                                 id="curr"
@@ -289,11 +359,7 @@ const TicArtcena = (props) => {
                             />
                             {submitted && !ticArtcena.curr && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
                         </div>
-    {/*
-                    </div>
-                    <div className="p-fluid formgrid grid">
-    */}
-                        <div className="field col-12 md:col-5">
+                        <div className="field col-12 md:col-3">
                             <label htmlFor="terr">{translations[selectedLanguage].Terr} *</label>
                             <Dropdown
                                 id="terr"
@@ -306,6 +372,20 @@ const TicArtcena = (props) => {
                                 className={classNames({ 'p-invalid': submitted && !ticArtcena.terr })}
                             />
                             {submitted && !ticArtcena.terr && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
+                        </div>
+                        <div className="field col-12 md:col-3">
+                            <label htmlFor="um">{translations[selectedLanguage].Um} *</label>
+                            <Dropdown
+                                id="um"
+                                value={ddCmnUm}
+                                options={ddCmnUms}
+                                onChange={(e) => onInputChange(e, 'options', 'um')}
+                                required
+                                optionLabel="name"
+                                placeholder="Select One"
+                                className={classNames({ 'p-invalid': submitted && !ticArtcena.um })}
+                            />
+                            {submitted && !ticArtcena.um && <small className="p-error">{translations[selectedLanguage].Requiredfield}</small>}
                         </div>
                     </div>
                     <div className="p-fluid formgrid grid">
@@ -324,9 +404,12 @@ const TicArtcena = (props) => {
                         {props.dialog ? <Button label={translations[selectedLanguage].Cancel} icon="pi pi-times" className="p-button-outlined p-button-secondary" onClick={handleCancelClick} outlined /> : null}
                         <div className="flex-grow-1"></div>
                         <div className="flex flex-wrap gap-1">
-                            {props.artcenaTip === 'CREATE' ? <Button label={translations[selectedLanguage].Create} icon="pi pi-check" onClick={handleCreateClick} severity="success" outlined /> : null}
-                            {props.artcenaTip !== 'CREATE' ? <Button label={translations[selectedLanguage].Delete} icon="pi pi-trash" onClick={showDeleteDialog} className="p-button-outlined p-button-danger" outlined /> : null}
-                            {props.artcenaTip !== 'CREATE' ? <Button label={translations[selectedLanguage].Save} icon="pi pi-check" onClick={handleSaveClick} severity="success" outlined /> : null}
+                            {props.artcenaTip === 'CREATE' && canCreate ? <Button label={translations[selectedLanguage].Create}
+                                    icon="pi pi-check" onClick={handleCreateClick} severity="success" outlined /> : null}
+                            {props.artcenaTip !== 'CREATE' && canDelete ? <Button label={translations[selectedLanguage].Delete}
+                                    icon="pi pi-trash" onClick={showDeleteDialog} className="p-button-outlined p-button-danger" outlined /> : null}
+                            {props.artcenaTip !== 'CREATE' && canUpdate ? <Button label={translations[selectedLanguage].Save}
+                                    icon="pi pi-check" onClick={handleSaveClick} severity="success" outlined /> : null}
                         </div>
                     </div>
                 </div>
@@ -337,3 +420,5 @@ const TicArtcena = (props) => {
 };
 
 export default TicArtcena;
+
+

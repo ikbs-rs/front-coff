@@ -92,7 +92,7 @@ export class SapDataService {
   async getSapDatasTp(doctp) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const url = `${env.COFF_BACK_URL}/ems/sap/_v/lista/?stm=coff_docstp_v&objid=${doctp}&sl=${selectedLanguage}`
-    console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
+    // console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token

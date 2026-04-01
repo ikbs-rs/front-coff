@@ -16,20 +16,24 @@ import { translations } from "../../configs/translations";
 import env from '../../configs/env';
 
 export default function CoffDocsPorudzbinaL(props) {
-  console.log(props, "BMVBMVBMV@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDocsL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!!!!@")
+  // console.log(props, "BMVBMVBMV@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDocsL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!!!!@")
   let i = 0
   const dialogGridClassName = classNames("card", "model-grid-page", {
     "model-grid-page-dialog-list": props.dialog
   });
   const dialogGridScrollHeight = props.dialog ? "18rem" : "flex";
-  const objName = "coff_doc"
+  const objName = "coff_docs"
   const selectedLanguage = localStorage.getItem('sl') || 'en'
-  const emptyCoffDocs = EmptyEntities[objName]
-  emptyCoffDocs.doctp = props.doctp
-  emptyCoffDocs.doc = props.coffDoc.id
+  const createEmptyCoffDocs = () => ({
+    ...EmptyEntities[objName],
+    doctp: props.doctp,
+    doc: props.coffDoc?.id ?? null,
+    obj: props.coffDoc?.obj ?? null
+  })
+  const emptyCoffDocs = createEmptyCoffDocs()
   const [showMyComponent, setShowMyComponent] = useState(true);
   const [coffDocss, setCoffDocss] = useState([]);
-  const [coffDocs, setCoffDocs] = useState(emptyCoffDocs);
+  const [coffDocs, setCoffDocs] = useState(createEmptyCoffDocs);
   const [filters, setFilters] = useState('');
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [loading, setLoading] = useState(false);
@@ -92,7 +96,7 @@ export default function CoffDocsPorudzbinaL(props) {
     }
     toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.docsTip}`, life: 3000 });
     setCoffDocss(_coffDocss);
-    setCoffDocs(emptyCoffDocs);
+    setCoffDocs(createEmptyCoffDocs());
   };
 
   const findIndexById = (id) => {
@@ -109,7 +113,7 @@ export default function CoffDocsPorudzbinaL(props) {
   };
 
   const openNew = () => {
-    setCoffDocsDialog(emptyCoffDocs);
+    setCoffDocsDialog(createEmptyCoffDocs());
   };
 
   const onRowSelect = (event) => {
@@ -231,7 +235,12 @@ export default function CoffDocsPorudzbinaL(props) {
     setVisibleCoffDocsmenu(true)
     setVisible(true)
     setDocsTip("CREATE")
-    setCoffDocs({ ...coffDocs });
+    setCoffDocs({
+      ...createEmptyCoffDocs(),
+      ...coffDocs,
+      doc: coffDocs?.doc ?? props.coffDoc?.id ?? null,
+      obj: coffDocs?.obj ?? props.coffDoc?.obj ?? null
+    });
   }
   //  Dialog --->
 

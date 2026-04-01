@@ -8,9 +8,11 @@ import { Dropdown } from 'primereact/dropdown';
 import { Toast } from "primereact/toast";
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from "../../configs/translations";
+import { useCrudActionPermissions } from '../../security/interceptors';
 import { useFetchObjData, useDropdown } from "./customHook";
 
 const TicArttp = (props) => {
+    const { canCreate, canUpdate, canDelete } = useCrudActionPermissions('tic_arttp');
     const data = useFetchObjData("tic", "arttp", "1683417767216549888");
     console.log(data.ddItems, "*******************useFetchObjData**********************")
     const data1 = useDropdown(1);
@@ -175,7 +177,7 @@ const TicArttp = (props) => {
                         ) : null}
                         <div className="flex-grow-1"></div>
                         <div className="flex flex-wrap gap-1">
-                            {(props.arttpTip === 'CREATE') ? (
+                            {(props.arttpTip === 'CREATE' && canCreate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Create}
                                     icon="pi pi-check"
@@ -184,7 +186,7 @@ const TicArttp = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {(props.arttpTip !== 'CREATE') ? (
+                            {(props.arttpTip !== 'CREATE' && canDelete) ? (
                                 <Button
                                     label={translations[selectedLanguage].Delete}
                                     icon="pi pi-trash"
@@ -193,7 +195,7 @@ const TicArttp = (props) => {
                                     outlined
                                 />
                             ) : null}                            
-                            {(props.arttpTip !== 'CREATE') ? (
+                            {(props.arttpTip !== 'CREATE' && canUpdate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Save}
                                     icon="pi pi-check"
@@ -218,3 +220,5 @@ const TicArttp = (props) => {
 };
 
 export default TicArttp;
+
+

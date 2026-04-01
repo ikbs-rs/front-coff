@@ -9,10 +9,20 @@ import { Checkbox } from 'primereact/checkbox';
 import { Toast } from "primereact/toast";
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from "../../configs/translations";
+import { useCrudActionPermissions } from '../../security/interceptors';
 import { SapDataService } from "../../service/model/SapDataService";
 
 const CoffZap = (props) => {
+    const { canCreate, canUpdate, canDelete } = useCrudActionPermissions('coff_zap');
     const selectedLanguage = localStorage.getItem('sl') || 'en';
+    const normalizeId = (value) => {
+        if (value === null || value === undefined) {
+            return null;
+        }
+
+        const normalizedValue = String(value).trim();
+        return normalizedValue === '' ? null : normalizedValue;
+    };
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
     const [coffZap, setCoffZap] = useState({ ...props.coffZap });
     const [submitted, setSubmitted] = useState(false);
@@ -46,10 +56,10 @@ const CoffZap = (props) => {
         async function fetchData() {
             try {
                 const cmnObjService = new CoffZapService();
-                const data = await cmnObjService.getListObjaLL("COFF");
+                const data = await cmnObjService.getCoffLocLista();
 
                 setObjDDItems(data || []);
-                setDdObjDDItems((data || []).map(({ text, id }) => ({ name: text, code: id })));
+                setDdObjDDItems((data || []).map(({ text, id }) => ({ name: text, code: normalizeId(id) })));
             } catch (error) {
                 console.error(error);
             }
@@ -154,9 +164,10 @@ const CoffZap = (props) => {
                 nextCoffZap.email = foundItem?.email || foundItem?.EMAIL || "";
                 nextCoffZap.adkorisnik = foundItem?.adkorisnik || foundItem?.ADKORISNIK || foundItem?.ADKORISNK || "";
             } else if (name === "obj") {
-                const foundItem = objDDItems.find((item) => `${item.id}` === `${val}`);
+                const normalizedValue = normalizeId(val);
+                const foundItem = objDDItems.find((item) => normalizeId(item.id) === normalizedValue);
 
-                nextCoffZap.obj = val;
+                nextCoffZap.obj = normalizedValue;
                 nextCoffZap.nobj = foundItem?.text || "";
             }
         } else if (type === "checkbox") {
@@ -292,7 +303,7 @@ const CoffZap = (props) => {
                         ) : null}
                         <div className="flex-grow-1"></div>
                         <div className="flex flex-wrap gap-1">
-                            {props.zapTip === 'CREATE' ? (
+                            {props.zapTip === 'CREATE' && canCreate ? (
                                 <Button
                                     label={translations[selectedLanguage].Create}
                                     icon="pi pi-check"
@@ -301,7 +312,7 @@ const CoffZap = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {props.zapTip !== 'CREATE' ? (
+                            {props.zapTip !== 'CREATE' && canDelete ? (
                                 <Button
                                     label={translations[selectedLanguage].Delete}
                                     icon="pi pi-trash"
@@ -310,7 +321,7 @@ const CoffZap = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {props.zapTip !== 'CREATE' ? (
+                            {props.zapTip !== 'CREATE' && canUpdate ? (
                                 <Button
                                     label={translations[selectedLanguage].Save}
                                     icon="pi pi-check"
@@ -335,3 +346,5 @@ const CoffZap = (props) => {
 };
 
 export default CoffZap;
+
+

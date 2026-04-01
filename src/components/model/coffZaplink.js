@@ -8,37 +8,101 @@ import { Button } from 'primereact/button';
 import { Toast } from "primereact/toast";
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from "../../configs/translations";
+import { useCrudActionPermissions } from '../../security/interceptors';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from "primereact/calendar";
 import DateFunction from "../../utilities/DateFunction.js";
 import { SapDataService } from "../../service/model/SapDataService";
 
 const CoffZaplink = (props) => {
+    const { canCreate, canUpdate, canDelete } = useCrudActionPermissions('coff_zaplink');
     const selectedLanguage = localStorage.getItem('sl') || 'en';
+    const getStoredUser = () => {
+        try {
+            return JSON.parse(localStorage.getItem('user') || 'null');
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    };
+    const normalizeEntity = (value) => Array.isArray(value) ? value[0] || null : value || null;
+    const normalizeId = (value) => {
+        if (value === null || value === undefined) {
+            return null;
+        }
+
+        const normalizedValue = String(value).trim();
+        return normalizedValue === '' ? null : normalizedValue;
+    };
+	    const resolveUserIdentifier = (value) => {
+	        const normalizedValue = normalizeEntity(value);
+	        return (
+	            normalizedValue?.username ||
+	            normalizedValue?.USERNAME ||
+	            null
+	        );
+	    };
+    const buildPersonDisplayName = (value, fallbackIdentifier = '') => {
+        const normalizedValue = normalizeEntity(value);
+        const explicitDisplayName =
+            normalizedValue?.nzap1 ||
+            normalizedValue?.NZAP1 ||
+            normalizedValue?.N2ZAP1 ||
+            normalizedValue?.n2zap1 ||
+            normalizedValue?.nzap ||
+            normalizedValue?.NZAP ||
+            normalizedValue?.N2ZAP ||
+            normalizedValue?.n2zap ||
+            normalizedValue?.name ||
+            normalizedValue?.nazap1;
+
+        if (explicitDisplayName) {
+            return explicitDisplayName;
+        }
+
+        const identifier = resolveUserIdentifier(normalizedValue) || fallbackIdentifier;
+        const firstName =
+            normalizedValue?.firstname ||
+            normalizedValue?.FIRSTNAME ||
+            normalizedValue?.firstName ||
+            normalizedValue?.IME ||
+            normalizedValue?.ime ||
+            '';
+        const secondName =
+            normalizedValue?.secondname ||
+            normalizedValue?.SECONDNAME ||
+            normalizedValue?.lastname ||
+            normalizedValue?.LASTNAME ||
+            normalizedValue?.lastName ||
+            normalizedValue?.PREZIME ||
+            normalizedValue?.prezime ||
+            '';
+
+        return [identifier, firstName, secondName].filter(Boolean).join(' ').trim();
+    };
+    const storedUser = getStoredUser();
     const toast = useRef(null);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [ownerZap, setOwnerZap] = useState(props.coffZap || props.userZap || null);
-    const selectedZapKey = ownerZap?.zap || ownerZap?.ZAP || props.user?.sapuser || null;
-    const selectedZapCode = ownerZap?.zap || ownerZap?.ZAP || props.user?.sapuser || '';
-    const selectedZapText =
-        ownerZap?.nzap ||
-        ownerZap?.N2ZAP ||
-        [ownerZap?.IME, ownerZap?.PREZIME].filter(Boolean).join(' ');
+    const selectedZapKey = ownerZap?.zap || ownerZap?.ZAP || resolveUserIdentifier(props.user) || resolveUserIdentifier(storedUser) || null;
+    const selectedZapCode = ownerZap?.zap || ownerZap?.ZAP || resolveUserIdentifier(props.user) || resolveUserIdentifier(storedUser) || '';
+    const selectedZapText = buildPersonDisplayName(ownerZap) || buildPersonDisplayName(props.user) || buildPersonDisplayName(storedUser) || '';
     const selectedObjId = ownerZap?.obj ?? props.coffZap?.obj ?? null;
     const selectedObjText =
         ownerZap?.nobj ||
         ownerZap?.LOK ||
         ownerZap?.lok ||
         "";
-    const [coffZaplink, setCoffZaplink] = useState({
-        ...props.coffZaplink,
-        zap1: `${props.coffZaplink?.zap1 ?? ''}`,
-        zap2: props.coffZaplink?.zap2 || selectedZapKey,
-        obj: props.coffZaplink?.obj ?? selectedObjId,
-        nazap1: props.coffZaplink?.nazap1 || selectedZapText || '',
-        nobj: props.coffZaplink?.nobj || selectedObjText || '',
-        email: props.coffZaplink?.email || '',
+	    const [coffZaplink, setCoffZaplink] = useState({
+	        ...props.coffZaplink,
+	        zap1: `${props.coffZaplink?.zap1 ?? ''}`,
+	        zap2: props.coffZaplink?.zap2 || selectedZapKey,
+	        obj: props.coffZaplink?.obj ?? selectedObjId,
+	        nzap1: props.coffZaplink?.nzap1 || props.coffZaplink?.nazap1 || selectedZapText || '',
+	        nazap1: props.coffZaplink?.nazap1 || selectedZapText || '',
+	        nobj: props.coffZaplink?.nobj || selectedObjText || '',
+	        email: props.coffZaplink?.email || '',
         adkorisnik: props.coffZaplink?.adkorisnik || ''
     });
     const [begda, setBegda] = useState(new Date(DateFunction.formatJsDate(props.coffZaplink.begda || DateFunction.currDate())));
@@ -48,10 +112,7 @@ const CoffZaplink = (props) => {
     const [ddObjDDItems, setDdObjDDItems] = useState([]);
     const [objDDItems, setObjDDItems] = useState([]);
 
-    const getZapText = (item) =>
-        item?.N2ZAP ||
-        item?.NZAP ||
-        [item?.IME, item?.PREZIME].filter(Boolean).join(' ');
+    const getZapText = (item) => buildPersonDisplayName(item);
 
     const getZapEmail = (item) => item?.email || item?.EMAIL || '';
 
@@ -61,11 +122,11 @@ const CoffZaplink = (props) => {
         item?.ADKORISNK ||
         '';
 
-    const getObjText = (objId, fallback = '') => {
-        const foundItem = objDDItems.find((item) => `${item.id}` === `${objId}`);
+	    const getObjText = (objId, fallback = '') => {
+	        const foundItem = objDDItems.find((item) => normalizeId(item.id) === normalizeId(objId));
 
-        return foundItem?.text || fallback || '';
-    };
+	        return foundItem?.text || fallback || '';
+	    };
 
     useEffect(() => {
         async function resolveOwnerZap() {
@@ -80,9 +141,11 @@ const CoffZaplink = (props) => {
                     return;
                 }
 
-                if (props.user?.sapuser) {
+                const fallbackIdentifier = resolveUserIdentifier(props.user) || resolveUserIdentifier(storedUser);
+
+                if (fallbackIdentifier) {
                     const coffZaplinkService = new CoffZaplinkService();
-                    const data = await coffZaplinkService.getZapByUser(props.user.sapuser);
+                    const data = await coffZaplinkService.getZapByUser(fallbackIdentifier);
                     const nextOwnerZap = Array.isArray(data) ? data[0] : data;
                     setOwnerZap(nextOwnerZap || null);
                 }
@@ -95,14 +158,15 @@ const CoffZaplink = (props) => {
     }, [props.coffZap, props.userZap, props.user]);
 
     useEffect(() => {
-        const nextCoffZaplink = {
-            ...props.coffZaplink,
-            zap1: `${props.coffZaplink?.zap1 ?? ''}`,
-            zap2: props.coffZaplink?.zap2 || selectedZapKey,
-            obj: props.coffZaplink?.obj ?? selectedObjId,
-            nazap1: props.coffZaplink?.nazap1 || selectedZapText || '',
-            nobj: props.coffZaplink?.nobj || selectedObjText || '',
-            email: props.coffZaplink?.email || '',
+	        const nextCoffZaplink = {
+	            ...props.coffZaplink,
+	            zap1: `${props.coffZaplink?.zap1 ?? ''}`,
+	            zap2: props.coffZaplink?.zap2 || selectedZapKey,
+	            obj: props.coffZaplink?.obj ?? selectedObjId,
+	            nzap1: props.coffZaplink?.nzap1 || props.coffZaplink?.nazap1 || selectedZapText || '',
+	            nazap1: props.coffZaplink?.nazap1 || selectedZapText || '',
+	            nobj: props.coffZaplink?.nobj || selectedObjText || '',
+	            email: props.coffZaplink?.email || '',
             adkorisnik: props.coffZaplink?.adkorisnik || ''
         };
 
@@ -117,14 +181,14 @@ const CoffZaplink = (props) => {
         const resolvedObj = coffZaplink?.obj ?? selectedObjId ?? null;
         const resolvedObjText = getObjText(resolvedObj, resolvedObj === selectedObjId ? selectedObjText : coffZaplink?.nobj || '');
 
-        setCoffZaplink((prev) => ({
-            ...prev,
-            zap2: `${prev?.zap2 || selectedZapKey || ''}`,
-            obj: resolvedObj,
-            nzap1: prev?.nzap1 || resolvedZapText || '',
-            nazap1: prev?.nazap1 || selectedZapText || '',
-            nobj: prev?.nobj || resolvedObjText,
-            email: prev?.email || getZapEmail(selectedItem) || '',
+	        setCoffZaplink((prev) => ({
+	            ...prev,
+	            zap2: `${prev?.zap2 || selectedZapKey || ''}`,
+	            obj: resolvedObj,
+	            nzap1: prev?.nzap1 || prev?.nazap1 || resolvedZapText || selectedZapText || '',
+	            nazap1: prev?.nazap1 || selectedZapText || '',
+	            nobj: prev?.nobj || resolvedObjText,
+	            email: prev?.email || getZapEmail(selectedItem) || '',
             adkorisnik: prev?.adkorisnik || getZapAdkorisnik(selectedItem) || '',
         }));
     }, [zapDDItems, objDDItems, selectedZapKey, selectedObjId, selectedObjText, selectedZapText]);
@@ -136,9 +200,9 @@ const CoffZaplink = (props) => {
                 const data = await zapDDService.getZapLista();
 
                 setZapDDItems(data || []);
-                setDdZapDDItems((data || []).map(({ N2ZAP, ZAP }) => ({
-                    name: N2ZAP,
-                    code: ZAP
+                setDdZapDDItems((data || []).map((item) => ({
+                    name: getZapText(item),
+                    code: item.ZAP
                 })));
             } catch (error) {
                 console.error(error);
@@ -148,17 +212,17 @@ const CoffZaplink = (props) => {
         fetchData();
     }, []);
 
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const coffZapService = new CoffZapService();
-                const data = await coffZapService.getListObjaLL("COFF");
+	    useEffect(() => {
+	        async function fetchData() {
+	            try {
+	                const coffZapService = new CoffZapService();
+	                const data = await coffZapService.getCoffLocLista();
 
-                setObjDDItems(data || []);
-                setDdObjDDItems((data || []).map(({ text, id }) => ({ name: text, code: id })));
-            } catch (error) {
-                console.error(error);
-            }
+	                setObjDDItems(data || []);
+	                setDdObjDDItems((data || []).map(({ text, id }) => ({ name: text, code: normalizeId(id) })));
+	            } catch (error) {
+	                console.error(error);
+	            }
         }
 
         fetchData();
@@ -168,15 +232,15 @@ const CoffZaplink = (props) => {
         const selectedItem = zapDDItems.find((item) => `${item.ZAP}` === `${coffZaplink?.zap1 ?? ''}`);
         const resolvedObj = coffZaplink.obj ?? selectedObjId ?? null;
 
-        return {
-            ...coffZaplink,
-            zap1: `${coffZaplink.zap1 ?? ''}`,
-            zap2: `${coffZaplink.zap2 || selectedZapKey || ''}`,
-            obj: resolvedObj,
-            nzap1: coffZaplink.nzap1 || getZapText(selectedItem) || '',
-            nazap1: coffZaplink.nazap1 || selectedZapText || '',
-            nobj: coffZaplink.nobj || getObjText(resolvedObj, selectedObjText),
-            email: coffZaplink.email || getZapEmail(selectedItem) || '',
+	        return {
+	            ...coffZaplink,
+	            zap1: `${coffZaplink.zap1 ?? ''}`,
+	            zap2: `${coffZaplink.zap2 || selectedZapKey || ''}`,
+	            obj: resolvedObj,
+	            nzap1: coffZaplink.nzap1 || coffZaplink.nazap1 || getZapText(selectedItem) || selectedZapText || '',
+	            nazap1: coffZaplink.nazap1 || selectedZapText || '',
+	            nobj: coffZaplink.nobj || getObjText(resolvedObj, selectedObjText),
+	            email: coffZaplink.email || getZapEmail(selectedItem) || '',
             adkorisnik: coffZaplink.adkorisnik || getZapAdkorisnik(selectedItem) || '',
             begda: DateFunction.formatDateToDBFormat(DateFunction.dateGetValue(begda)),
             endda: DateFunction.formatDateToDBFormat(DateFunction.dateGetValue(endda))
@@ -184,12 +248,12 @@ const CoffZaplink = (props) => {
     };
 
     const buildResetLink = () => ({
-        ...props.coffZaplink,
-        id: null,
-        zap1: '',
-        nzap1: '',
-        czap1: '',
-        descript: '',
+	        ...props.coffZaplink,
+	        id: null,
+	        zap1: '',
+	        nzap1: selectedZapText || '',
+	        czap1: '',
+	        descript: '',
         zap2: `${selectedZapKey || ''}`,
         obj: selectedObjId ?? null,
         nazap1: selectedZapText || '',
@@ -307,12 +371,13 @@ const CoffZaplink = (props) => {
                 nextCoffZaplink.czap1 = foundItem?.ZAP || '';
                 nextCoffZaplink.email = getZapEmail(foundItem);
                 nextCoffZaplink.adkorisnik = getZapAdkorisnik(foundItem);
-            } else if (name === "obj") {
-                const foundItem = objDDItems.find((item) => `${item.id}` === `${val}`);
+	            } else if (name === "obj") {
+	                const normalizedValue = normalizeId(val);
+	                const foundItem = objDDItems.find((item) => normalizeId(item.id) === normalizedValue);
 
-                nextCoffZaplink.obj = val;
-                nextCoffZaplink.nobj = foundItem?.text || '';
-            }
+	                nextCoffZaplink.obj = normalizedValue;
+	                nextCoffZaplink.nobj = foundItem?.text || '';
+	            }
         } else if (type === "Calendar") {
             if (name === "begda") {
                 setBegda(e.value);
@@ -419,14 +484,18 @@ const CoffZaplink = (props) => {
                         {props.dialog ? <Button label={translations[selectedLanguage].Cancel} icon="pi pi-times" className="p-button-outlined p-button-secondary" onClick={handleCancelClick} outlined /> : null}
                         <div className="flex-grow-1"></div>
                         <div className="flex flex-wrap gap-1">
-                            {props.zaplinkTip === 'CREATE' ? (
+                            {props.zaplinkTip === 'CREATE' && canCreate ? (
                                 <>
-                                    <Button label={translations[selectedLanguage].Create} icon="pi pi-check" onClick={handleCreateClick} severity="success" outlined />
-                                    <Button label={translations[selectedLanguage].CreateAndAddNew} icon="pi pi-plus" onClick={handleCreateAndAddNewClick} severity="success" outlined />
+                                    <Button label={translations[selectedLanguage].Create}
+                                    icon="pi pi-check" onClick={handleCreateClick} severity="success" outlined />
+                                    <Button label={translations[selectedLanguage].CreateAndAddNew}
+                                        icon="pi pi-plus" onClick={handleCreateAndAddNewClick} severity="success" outlined />
                                 </>
                             ) : null}
-                            {props.zaplinkTip !== 'CREATE' ? <Button label={translations[selectedLanguage].Delete} icon="pi pi-trash" onClick={showDeleteDialog} className="p-button-outlined p-button-danger" outlined /> : null}
-                            {props.zaplinkTip !== 'CREATE' ? <Button label={translations[selectedLanguage].Save} icon="pi pi-check" onClick={handleSaveClick} severity="success" outlined /> : null}
+                            {props.zaplinkTip !== 'CREATE' && canDelete ? <Button label={translations[selectedLanguage].Delete}
+                                    icon="pi pi-trash" onClick={showDeleteDialog} className="p-button-outlined p-button-danger" outlined /> : null}
+                            {props.zaplinkTip !== 'CREATE' && canUpdate ? <Button label={translations[selectedLanguage].Save}
+                                    icon="pi pi-check" onClick={handleSaveClick} severity="success" outlined /> : null}
                         </div>
                     </div>
                 </div>
@@ -437,3 +506,5 @@ const CoffZaplink = (props) => {
 };
 
 export default CoffZaplink;
+
+

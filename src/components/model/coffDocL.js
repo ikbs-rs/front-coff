@@ -20,8 +20,11 @@ export default function CoffDocL(props) {
   const objName = "coff_doc"
   const selectedLanguage = localStorage.getItem('sl')||'en'
   const resolvedDocLabel = props.docLabel || ''
-  const emptyCoffDoc = EmptyEntities[objName]
-  emptyCoffDoc.doctp = props.doctp
+  const createEmptyCoffDoc = () => ({
+    ...EmptyEntities[objName],
+    doctp: props.doctp
+  });
+  const emptyCoffDoc = createEmptyCoffDoc();
   const [showMyComponent, setShowMyComponent] = useState(true);
   const [coffDocs, setCoffDocs] = useState([]);
   const [coffDoc, setCoffDoc] = useState(emptyCoffDoc);
@@ -40,18 +43,21 @@ export default function CoffDocL(props) {
         if (i<2) {  
         const coffDocService = new CoffDocService();
         const data = await coffDocService.getCoffDocsTp(props.doctp);
-        console.log(data, "@@@@@@@@@@@@@@@@@@@@@@@@@@ getCoffDocsTp @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", props.doctp)
-        if (data) {
-          const data0 = data[0]
-          setNdoctp(resolvedDocLabel || data0.ndoctp)
+        // console.log(data, "@@@@@@@@@@@@@@@@@@@@@@@@@@ getCoffDocsTp @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", props.doctp)
+        const normalizedDocs = Array.isArray(data) ? data : data ? [data] : [];
+        if (normalizedDocs.length > 0) {
+          const data0 = normalizedDocs[0]
+          setNdoctp(resolvedDocLabel || data0?.ndoctp || '')
+        } else {
+          setNdoctp(resolvedDocLabel || '')
         }
 
-        const normalizedDocs = (data || []).map((item) => ({
+        const normalizedDocsWithLabel = normalizedDocs.map((item) => ({
           ...item,
           ndoctp: resolvedDocLabel || item.ndoctp
         }));
 
-        setCoffDocs(normalizedDocs);
+        setCoffDocs(normalizedDocsWithLabel);
         initFilters();
         }
       } catch (error) {
@@ -62,29 +68,42 @@ export default function CoffDocL(props) {
     fetchData();
   }, [props.datarefresh, props.doctp, resolvedDocLabel]);
 
-  const handleDialogClose = (newObj) => {
-    console.log(newObj, "%%%%%%%%%%###%%%%%%%%%%%%%%%%%%%%%%%%%%######%%%%%%%%%%%%%%%%%%%%%%%####%%%%%%%%%%%%%%%")
-    const localObj = { newObj };
+	  const handleDialogClose = (newObj) => {
+	    console.log(newObj, "%%%%%%%%%%###%%%%%%%%%%%%%%%%%%%%%%%%%%######%%%%%%%%%%%%%%%%%%%%%%%####%%%%%%%%%%%%%%%")
+	    const localObj = { newObj };
+	    const keepDialogOpen = Boolean(localObj.newObj.stayOpen);
+	    const nextDocTip = localObj.newObj.nextDocTip || (localObj.newObj.docTip === "CREATE" ? "UPDATE" : localObj.newObj.docTip);
 
-    let _coffDocs = [...coffDocs];
-    let _coffDoc = { ...localObj.newObj.obj };
+	    let _coffDocs = [...coffDocs];
+	    let _coffDoc = { ...localObj.newObj.obj };
 
-    //setSubmitted(true);
-    if (localObj.newObj.docTip === "CREATE") {
-      _coffDocs.push(_coffDoc);
-    } else if (localObj.newObj.docTip === "UPDATE") {
-      const index = findIndexById(localObj.newObj.obj.id);
-      _coffDocs[index] = _coffDoc;
-    } else if ((localObj.newObj.docTip === "DELETE")) {
-      _coffDocs = coffDocs.filter((val) => val.id !== localObj.newObj.obj.id);
-      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDoc Delete', life: 3000 });
+	    //setSubmitted(true);
+	    if (localObj.newObj.docTip === "CREATE") {
+	      _coffDocs.push(_coffDoc);
+	    } else if (localObj.newObj.docTip === "UPDATE") {
+	      const index = findIndexById(localObj.newObj.obj.id);
+	      if (index >= 0) {
+	        _coffDocs[index] = _coffDoc;
+	      } else {
+	        _coffDocs.push(_coffDoc);
+	      }
+	    } else if ((localObj.newObj.docTip === "DELETE")) {
+	      _coffDocs = coffDocs.filter((val) => val.id !== localObj.newObj.obj.id);
+	      toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDoc Delete', life: 3000 });
     } else {
       toast.current.show({ severity: 'success', summary: 'Successful', detail: 'CoffDoc ?', life: 3000 });
-    }
-    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.docTip}`, life: 3000 });
-    setCoffDocs(_coffDocs);
-    setCoffDoc(emptyCoffDoc);
-  };
+	    }
+		    toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.docTip}`, life: 3000 });
+		    setCoffDocs(_coffDocs);
+		    if (keepDialogOpen) {
+		      setShowMyComponent(true);
+		      setCoffDoc({ ..._coffDoc });
+	      setDocTip(nextDocTip);
+		      setCoffDocVisible(true);
+		      return;
+		    }
+		    setCoffDoc(createEmptyCoffDoc());
+		  };
 
   const findIndexById = (id) => {
     let index = -1;
@@ -99,9 +118,9 @@ export default function CoffDocL(props) {
     return index;
   };
 
-  const openNew = () => {
-    setCoffDocDialog(emptyCoffDoc);
-  };
+	  const openNew = () => {
+	    setCoffDocDialog(createEmptyCoffDoc());
+	  };
 
   const onRowSelect = (event) => {
     toast.current.show({
@@ -159,7 +178,7 @@ export default function CoffDocL(props) {
         </div>
         <div className="flex-grow-1" />
         {/* <b>{translations[selectedLanguage].DocsList}</b> */}
-        <b>{props.docLabel}</b>
+	        <b>{resolvedDocLabel || ndoctp || translations[selectedLanguage].DocsList}</b>
         <div className="flex-grow-1"></div>
         <div className="flex flex-wrap gap-1">
           <span className="p-input-icon-left">
@@ -211,10 +230,11 @@ export default function CoffDocL(props) {
   };
 
   // <--- Dialog
-  const setCoffDocDialog = (coffDoc) => {
-    setCoffDoc({ ...coffDoc });
-    setCoffDocVisible(true)
-    setDocTip("CREATE")
+	  const setCoffDocDialog = (coffDoc) => {
+	    setShowMyComponent(true)
+	    setCoffDoc({ ...coffDoc });
+	    setCoffDocVisible(true)
+	    setDocTip("CREATE")
 
   }
   //  Dialog --->
@@ -295,7 +315,7 @@ export default function CoffDocL(props) {
           style={{ width: "30%" }}
         ></Column>
         <Column
-          field="nzap"
+          field="nzap1"
           header={translations[selectedLanguage].potpisnik}
           sortable
           filter
@@ -318,7 +338,7 @@ export default function CoffDocL(props) {
       </DataTable>
       <Dialog
         // header={translations[selectedLanguage].Docs}
-        header={props.docLabel}
+        header={resolvedDocLabel || ndoctp || translations[selectedLanguage].Docs}
         visible={coffDocVisible}
         className="doc-entry-dialog"
         style={{ width: '70%', height: '90vh' }}
@@ -328,11 +348,12 @@ export default function CoffDocL(props) {
           setShowMyComponent(false);
         }}
       >
-        {showMyComponent && (
-          <CoffDoc
-            parameter={"inputTextValue"}
-            coffDoc={coffDoc}
-            handleDialogClose={handleDialogClose}
+	        {showMyComponent && (
+	          <CoffDoc
+	            key={`${docTip}-${coffDoc?.id ?? 'new'}`}
+	            parameter={"inputTextValue"}
+	            coffDoc={coffDoc}
+	            handleDialogClose={handleDialogClose}
             setCoffDocVisible={setCoffDocVisible}
             dialog={true}
             docTip={docTip}

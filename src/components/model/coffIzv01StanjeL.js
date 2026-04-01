@@ -9,15 +9,18 @@ import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { Toast } from "primereact/toast";
 import './index.css';
 import { CoffIzvService } from "../../service/model/CoffIzvService";
+import { CoffZapService } from "../../service/model/CoffZapService";
 import { Calendar } from 'primereact/calendar';
 import { translations } from "../../configs/translations";
+import { usePermission } from '../../security/interceptors';
 
-export default function CoffIzv01L(props) {
+export default function CoffIzv01StanjeL(props) {
   console.log(props, "@@@@@@+++++++++++++++++++++++ OrderL ++++++++++++++++++++++++++++++++@@@@@")
   let i = 0
   const objName = "coff_docs"
 
   const selectedLanguage = localStorage.getItem('sl') || 'en'
+  const canSeeAllRequesters = usePermission('coffCOFF');
 
   const [showMyComponent, setShowMyComponent] = useState(true);
 
@@ -35,7 +38,7 @@ export default function CoffIzv01L(props) {
   const [coffIzv01, setCoffIzv01] = useState({});
 
   const [ddCoffZapItem, setDdCoffZapItem] = useState(null);
-  const [ddCoffZapItems, setDdCoffZapItems] = useState(null);
+  const [ddCoffZapItems, setDdCoffZapItems] = useState([]);
   const [coffZapItem, setCoffZapItem] = useState(null);
   const [coffZapItems, setCoffZapItems] = useState(null);
 
@@ -72,6 +75,21 @@ export default function CoffIzv01L(props) {
     }
     fetchData();
   }, [props.datarefresh]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const coffZapService = new CoffZapService();
+        const data = canSeeAllRequesters ? await coffZapService.getPotpisnici() : [];
+        setCoffZapItems(data);
+        const dataDD = data.map((item) => ({ name: item.nzap1 || item.nzap, code: item.id }));
+        setDdCoffZapItems(dataDD);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchData();
+  }, [canSeeAllRequesters]);
 
   // const findIndexById = (id) => {
   //   let index = -1;
@@ -138,7 +156,7 @@ export default function CoffIzv01L(props) {
   const handleClick = async () => {
     try {
       setSubmitted(true);
-      console.log("@@@@@@@@@@@@@@@@@@@@@@@handleCreateClick@@@@@@@@@@@@@@@@@@@@@@@@")
+      // console.log("@@@@@@@@@@@@@@@@@@@@@@@handleCreateClick@@@@@@@@@@@@@@@@@@@@@@@@")
 
     } catch (err) {
       toast.current.show({
@@ -151,13 +169,14 @@ export default function CoffIzv01L(props) {
   };
 
   const onInputChange = (e, type, name) => {
-    let val = ''
+    let val = '';
     if (type === "options") {
       val = (e.target && e.target.value && e.target.value.code) || '';
       if (name == "potpisnik") {
-        setDdCoffZapItem(e.value);
-        const foundItem = coffZapItems.find((item) => item.id === val);
-        console.log(foundItem, "-*-*-*-*-***-**-*-*-*-*-*-*-*-*--onInputChange000*-*-*-*-*-*-*-*-*--**--*-*-*-*-*-*-*-*-*-*-*-", foundItem.NZAP)
+        // Find the reference from ddCoffZapItems
+        const foundDDItem = ddCoffZapItems.find((item) => item.code === val) || null;
+        setDdCoffZapItem(foundDDItem);
+        const foundItem = coffZapItems && coffZapItems.find((item) => item.id === val);
         setCoffZapItem(foundItem || null);
       } else {
         setDropdownItem(e.value);
@@ -165,12 +184,7 @@ export default function CoffIzv01L(props) {
     } else {
       val = (e.target && e.target.value) || '';
     }
-
-    // let _coffDoc = { ...coffDoc };
-    // _coffDoc[`${name}`] = val;
-    // if (name === `textx`) _coffDoc[`text`] = val
-
-    // setCoffDoc(_coffDoc);
+    // ...existing code...
   };
 
   const renderHeader = () => {

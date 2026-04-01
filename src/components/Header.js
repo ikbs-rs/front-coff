@@ -7,9 +7,18 @@ import CoffZamL from './model/coffZaplinkL';
 import { Dialog } from 'primereact/dialog';
 import { AdmUserService } from "../service/model/cmn/AdmUserService";
 import { Avatar } from 'primereact/avatar';
-import { useWebSocket } from '../utilities/WebSocketContext';
+import { buildKitchenSubscriptionMessage, isOrderChangedMessage, useWebSocket } from '../utilities/WebSocketContext';
 import { CoffDocService } from "../service/model/CoffDocService";
 import env from '../configs/env';
+
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user') || 'null') || {};
+  } catch (error) {
+    console.error(error);
+    return {};
+  }
+};
 
 const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef, docRef }) => {
   const selectedLanguage = localStorage.getItem('sl') || 'en'
@@ -18,22 +27,112 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
   const [isScrolled, setIsScrolled] = useState(false);
   const [showMyComponent, setShowMyComponent] = useState(true);
   const [coffZap] = useState({});
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState(getStoredUser);
   const [coffZapVisible, setCoffZaplinkLVisible] = useState(false);
   const [slika, setSlika] = useState('');
   const [brojPoruka, setBrojPoruka] = useState(0);
+  const [userCoffId, setUserCoffId] = useState(undefined);
+  const [userCoffCandidates, setUserCoffCandidates] = useState([]);
   const websocket = useWebSocket();
 
-  const refreshBrojPoruka = async () => {
-    const coffDocService = new CoffDocService();
-    const data = await coffDocService.getCoffDocsCountTp(1);
+  const resolveAssignedCoffCandidates = (value) => {
+    const normalizedValue = Array.isArray(value) ? value[0] || null : value;
+    const candidates = [
+      normalizedValue?.coff,
+      normalizedValue?.obj,
+      normalizedValue?.id,
+      normalizedValue?.code,
+      normalizedValue?.CODE,
+      normalizedValue?.coffcode,
+      normalizedValue?.objcode,
+    ]
+      .map((item) => (item === null || item === undefined ? '' : String(item).trim()))
+      .filter(Boolean);
 
-    setBrojPoruka(data.count);
+    return [...new Set(candidates)];
+  };
+
+  const resolveAssignedCoffId = (value) => resolveAssignedCoffCandidates(value)[0] ?? null;
+
+  const refreshBrojPoruka = async () => {
+    try {
+      if (userId && userId !== '-1' && userCoffId === undefined) {
+        return;
+      }
+
+      if (!userCoffId) {
+        setBrojPoruka(0);
+        return;
+      }
+
+      const coffDocService = new CoffDocService();
+      const data = await coffDocService.getCoffDocsCountTp(1, userCoffId);
+      const count = Number(data?.count ?? data ?? 0);
+
+      setBrojPoruka(Number.isNaN(count) ? 0 : count);
+    } catch (error) {
+      if (error.response?.status === 403) {
+        setBrojPoruka(0);
+        return;
+      }
+
+      console.error('refreshBrojPoruka error', error);
+      setBrojPoruka(0);
+    }
   };
 
   useEffect(() => {
     refreshBrojPoruka();
-  }, []);
+  }, [userCoffId]);
+
+  useEffect(() => {
+    async function fetchUserCoff() {
+      try {
+        const coffDocService = new CoffDocService();
+        const data = await coffDocService.getCoffDocsUserCoff(userId, 'COFFLOC');
+        const nextCandidates = resolveAssignedCoffCandidates(data);
+        setUserCoffCandidates(nextCandidates);
+        setUserCoffId(nextCandidates[0] ?? null);
+      } catch (error) {
+        console.error(error);
+        setUserCoffCandidates([]);
+        setUserCoffId(null);
+      }
+    }
+
+    if (userId && userId !== '-1') {
+      fetchUserCoff();
+    } else {
+      setUserCoffCandidates([]);
+      setUserCoffId(null);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (!websocket || userCoffId === undefined || userCoffCandidates.length === 0) {
+      return undefined;
+    }
+
+    const subscribeToKitchen = () => {
+      if (websocket.readyState === WebSocket.OPEN) {
+        userCoffCandidates.forEach((candidate) => {
+          websocket.send(buildKitchenSubscriptionMessage({
+            objId: candidate,
+            objTp: 'COFFLOC',
+            userId,
+            username: user?.username ?? user?.USERNAME ?? null
+          }));
+        });
+      }
+    };
+
+    subscribeToKitchen();
+    websocket.addEventListener('open', subscribeToKitchen);
+
+    return () => {
+      websocket.removeEventListener('open', subscribeToKitchen);
+    };
+  }, [websocket, userCoffId, userCoffCandidates, userId, user?.username, user?.USERNAME]);
 
   useEffect(() => {
     if (!websocket) {
@@ -42,9 +141,7 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
 
     const handleMessage = async (message) => {
       try {
-        const obj = JSON.parse(message.data);
-
-        if (obj?.data?.[0]?.id === 'TRECA') {
+        if (isOrderChangedMessage(message)) {
           await refreshBrojPoruka();
         }
       } catch (error) {
@@ -57,7 +154,7 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
     return () => {
       websocket.removeEventListener('message', handleMessage);
     };
-  }, [websocket]);
+  }, [websocket, userCoffId, userId]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -81,6 +178,7 @@ const Header = ({ scrollToSection, heroSectionRef, aboutRef, statusRef, orderRef
         const admUserService = new AdmUserService();
         const data = await admUserService.getAdmUser(userId);
         setUser(data);
+        localStorage.setItem('user', JSON.stringify(data));
         setSlika(`${env.COFF_URL}assets/img/zap/${data.id}.jpg`);
       } catch (error) {
         console.error(error);

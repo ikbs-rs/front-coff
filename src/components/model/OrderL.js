@@ -10,12 +10,12 @@ import { Toast } from "primereact/toast";
 import './index.css';
 import { CoffDocsService } from "../../service/model/CoffDocsService";
 import { CoffDocService } from "../../service/model/CoffDocService";
-import CoffDoc from './coffDoc';
+import CoffDocOrder from './coffDocOrder';
 import CoffDocsmenu from './coffDocsmenu';
 import { EmptyEntities } from '../../service/model/EmptyEntities';
 import { Dialog } from 'primereact/dialog';
 import { translations } from "../../configs/translations";
-import { useWebSocket } from '../../utilities/WebSocketContext';
+import { buildOrderChangedMessage, useWebSocket } from '../../utilities/WebSocketContext';
 
 const normalizeOrderId = (value) => {
   if (value === null || value === undefined) {
@@ -190,7 +190,14 @@ export default function OrderL(props) {
     // console.log("##############################################################")
     bumpRefresh()
     if (websocket && websocket.readyState === WebSocket.OPEN) {
-      websocket.send('{"data":[{"id":"TRECA"}]}');
+      websocket.send(buildOrderChangedMessage({
+        source: 'OrderL.handleZavrsi',
+        docId: _coffDoc?.id ?? coffDoc?.id ?? null,
+        status: '1',
+        objId: _coffDoc?.obj ?? _coffDoc?.coff ?? coffDoc?.obj ?? coffDoc?.coff ?? null,
+        userId: _coffDoc?.usr ?? coffDoc?.usr ?? null,
+        notify: true
+      }));
     }
     props.handleRefreshTab()
   };
@@ -324,7 +331,7 @@ export default function OrderL(props) {
           <div className="field col-12 md:col-6">
             <label htmlFor="potpisnik">{translations[selectedLanguage].potpisnik}</label>
             <InputText id="nzap"
-              value={coffDoc.nzap}
+              value={coffDoc.nzap1}
               disabled={true}
             />
           </div>
@@ -423,7 +430,7 @@ export default function OrderL(props) {
         }}
       >
         {showMyComponent && (
-          <CoffDoc
+          <CoffDocOrder
             parameter={"inputTextValue"}
             coffDoc={coffDocI}
             handleDialogClose={handleDialogClose}

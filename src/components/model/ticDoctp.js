@@ -8,8 +8,10 @@ import { Dropdown } from 'primereact/dropdown';
 import { Toast } from "primereact/toast";
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from "../../configs/translations";
+import { useCrudActionPermissions } from '../../security/interceptors';
 
 const TicDoctp = (props) => {
+    const { canCreate, canUpdate, canDelete } = useCrudActionPermissions('tic_doctp');
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
     const [dropdownItem, setDropdownItem] = useState(null);
@@ -210,7 +212,7 @@ const TicDoctp = (props) => {
                         ) : null}
                         <div className="flex-grow-1"></div>
                         <div className="flex flex-wrap gap-1">
-                            {(props.doctpTip === 'CREATE') ? (
+                            {(props.doctpTip === 'CREATE' && canCreate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Create}
                                     icon="pi pi-check"
@@ -219,7 +221,7 @@ const TicDoctp = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {(props.doctpTip !== 'CREATE') ? (
+                            {(props.doctpTip !== 'CREATE' && canDelete) ? (
                                 <Button
                                     label={translations[selectedLanguage].Delete}
                                     icon="pi pi-trash"
@@ -228,7 +230,7 @@ const TicDoctp = (props) => {
                                     outlined
                                 />
                             ) : null}
-                            {(props.doctpTip !== 'CREATE') ? (
+                            {(props.doctpTip !== 'CREATE' && canUpdate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Save}
                                     icon="pi pi-check"
@@ -253,3 +255,5 @@ const TicDoctp = (props) => {
 };
 
 export default TicDoctp;
+
+

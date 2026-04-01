@@ -24,7 +24,7 @@ export class CoffIzvService {
   async getIzv01(objId, objName, par1, par2, par3, par4, lang) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const url = `${env.COFF_BACK_URL}/coff/izv/_v/lista/?stm=coff_izv01_v&objid=${objId}&objName=${objName}&par1=${par1}&par2=${par2}&sl=${selectedLanguage}`
-    console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
+    // console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token
@@ -32,7 +32,7 @@ export class CoffIzvService {
 
     try {
       const response = await axios.get(url, { headers });
-      console.log(response, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ response @@@@@@@@@@@@@@@@@@@@@@@@@############################")
+      // console.log(response, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ response @@@@@@@@@@@@@@@@@@@@@@@@@############################")
       return response.data.item;
     } catch (error) {
       console.error(error);
@@ -43,7 +43,7 @@ export class CoffIzvService {
   async getIzv01stanje(objId, objName, par1, par2, par3, par4, lang) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const url = `${env.COFF_BACK_URL}/coff/izv/_v/lista/?stm=coff_izv01stanje_v&objid=${objId}&objName=${objName}&par1=${par1}&par2=${par2}&sl=${selectedLanguage}`
-    console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
+    // console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token
@@ -51,7 +51,7 @@ export class CoffIzvService {
 
     try {
       const response = await axios.get(url, { headers });
-      console.log(response, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ response @@@@@@@@@@@@@@@@@@@@@@@@@############################")
+      // console.log(response, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ response @@@@@@@@@@@@@@@@@@@@@@@@@############################")
       return response.data.item;
     } catch (error) {
       console.error(error);
@@ -62,7 +62,7 @@ export class CoffIzvService {
   async getIzv01kartica(objId, objName, par1, par2, par3, par4, lang) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const url = `${env.COFF_BACK_URL}/coff/izv/_v/lista/?stm=coff_izv01kartica_v&objid=${objId}&objName=${objName}&par1=${par1}&par2=${par2}&sl=${selectedLanguage}`
-    console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
+    // console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token
@@ -70,7 +70,7 @@ export class CoffIzvService {
 
     try {
       const response = await axios.get(url, { headers });
-      console.log(response, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ response @@@@@@@@@@@@@@@@@@@@@@@@@############################")
+      // console.log(response, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ response @@@@@@@@@@@@@@@@@@@@@@@@@############################")
       return response.data.item;
     } catch (error) {
       console.error(error);

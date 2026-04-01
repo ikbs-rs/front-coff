@@ -9,12 +9,14 @@ import { TabView, TabPanel } from 'primereact/tabview';
 import { Avatar } from 'primereact/avatar';
 import { Badge } from 'primereact/badge';
 import { Button } from 'primereact/button';
+import { useCrudActionPermissions } from '../../security/interceptors';
 
 import { Splitter, SplitterPanel } from 'primereact/splitter';
 import { Divider } from 'primereact/divider';
 
 
 export default function TemplateDemo() {
+    const { canCreate, canUpdate, canDelete } = useCrudActionPermissions('coff_doc');
 
     const [action, setAction] = useState(null);
 
@@ -61,27 +63,33 @@ export default function TemplateDemo() {
             <SplitterPanel className="flex flex-column" size={70} style={{ height: '780px', overflowY: 'auto' }}>
                 <div className="card">
                     <div className="flex flex-wrap gap-1">
-                        <Button
-                            label={translations[selectedLanguage].Create}
-                            icon="pi pi-check"
-                            onClick={() => handleAction('CREATE')}
-                            severity="success"
-                            outlined
-                        />
-                        <Button
-                            label={translations[selectedLanguage].Delete}
-                            icon="pi pi-trash"
-                            onClick={() => f1(2)}
-                            className="p-button-outlined p-button-danger"
-                            outlined
-                        />
-                        <Button
-                            label={translations[selectedLanguage].Save}
-                            icon="pi pi-check"
-                            onClick={() => f1(3)}
-                            severity="success"
-                            outlined
-                        />
+                        {canCreate ? (
+                            <Button
+                                label={translations[selectedLanguage].Create}
+                                icon="pi pi-check"
+                                onClick={() => handleAction('CREATE')}
+                                severity="success"
+                                outlined
+                            />
+                        ) : null}
+                        {canDelete ? (
+                            <Button
+                                label={translations[selectedLanguage].Delete}
+                                icon="pi pi-trash"
+                                onClick={() => f1(2)}
+                                className="p-button-outlined p-button-danger"
+                                outlined
+                            />
+                        ) : null}
+                        {canUpdate ? (
+                            <Button
+                                label={translations[selectedLanguage].Save}
+                                icon="pi pi-check"
+                                onClick={() => f1(3)}
+                                severity="success"
+                                outlined
+                            />
+                        ) : null}
                     </div>
                     <Divider />
                     <TabView>

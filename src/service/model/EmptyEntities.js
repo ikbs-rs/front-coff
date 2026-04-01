@@ -24,12 +24,13 @@ const EmptyEntities =
     "usr": null,
     "status": "0",
     "nzap": "",
-    "nzap2": "",
+    "nzap1": "",
     "coff": null
   },
   "coff_docs": {
     "id": null,
     "doc": null,
+    "obj": null,
     "art": null,
     "um": null,
     "ulaz": null,
@@ -169,6 +170,7 @@ const EmptyEntities =
     "site": null,
     "event": null,
     "art": null,
+    "um": null,
     "cena": null,
     "value": "1",
     "terr": null,

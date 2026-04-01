@@ -11,14 +11,34 @@ const normalizeStringId = (value) => {
   return normalizedValue === '' ? null : normalizedValue;
 };
 
-const normalizeDocPayload = (payload) => ({
-  ...payload,
-  id: normalizeStringId(payload.id) ?? payload.id,
-  potpisnik: normalizeStringId(payload.potpisnik),
-  coff: normalizeStringId(payload.coff),
-  usr: normalizeStringId(payload.usr),
-  ndoctp: normalizeStringId(payload.ndoctp) ?? payload.ndoctp,
-});
+const isForbiddenError = (error) => error?.response?.status === 403;
+
+const resolveCurrentUserId = () => {
+  try {
+    const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+    return normalizeStringId(
+      storedUser?.id ??
+      storedUser?.ID ??
+      localStorage.getItem('userId')
+    );
+  } catch (error) {
+    console.error(error);
+    return normalizeStringId(localStorage.getItem('userId'));
+  }
+};
+
+const normalizeDocPayload = (payload) => {
+  const restPayload = payload || {};
+
+  return {
+    ...restPayload,
+    id: normalizeStringId(restPayload.id) ?? restPayload.id,
+    potpisnik: normalizeStringId(restPayload.potpisnik),
+    coff: normalizeStringId(restPayload.coff),
+    usr: normalizeStringId(restPayload.usr),
+    ndoctp: normalizeStringId(restPayload.ndoctp) ?? restPayload.ndoctp,
+  };
+};
 
 const normalizeDocEntity = (item) => {
   if (!item || typeof item !== 'object' || Array.isArray(item)) {
@@ -33,6 +53,74 @@ const normalizeDocEntity = (item) => {
     usr: normalizeStringId(item.usr) ?? item.usr,
     obj: normalizeStringId(item.obj) ?? item.obj,
   };
+};
+
+const normalizeDocCollection = (items) => {
+  if (Array.isArray(items)) {
+    return items.map((item) => normalizeDocEntity(item));
+  }
+
+  if (!items) {
+    return [];
+  }
+
+  return [normalizeDocEntity(items)];
+};
+
+const resolveDocKitchenId = (item) =>
+  normalizeStringId(
+    item?.coff ??
+    item?.obj ??
+    item?.COFF ??
+    item?.OBJ ??
+    item?.coffid ??
+    item?.coffId ??
+    item?.objid ??
+    item?.objId ??
+    item?.coff_id ??
+    item?.obj_id
+  );
+
+const filterDocsByKitchen = (items, objId) => {
+  const normalizedObjId = normalizeStringId(objId);
+  const normalizedItems = normalizeDocCollection(items);
+
+  if (!normalizedObjId) {
+    return normalizedItems;
+  }
+
+  return normalizedItems.filter((item) => resolveDocKitchenId(item) === normalizedObjId);
+};
+
+const resolveDocCreatorId = (item) =>
+  normalizeStringId(
+    item?.usr ??
+    item?.USR ??
+    item?.user ??
+    item?.USER ??
+    item?.userid ??
+    item?.userId ??
+    item?.createdby ??
+    item?.createdBy
+  );
+
+const filterDocsByCreator = (items, userId) => {
+  const normalizedUserId = normalizeStringId(userId);
+  const normalizedItems = normalizeDocCollection(items);
+
+  if (!normalizedUserId) {
+    return normalizedItems;
+  }
+
+  return normalizedItems.filter((item) => resolveDocCreatorId(item) === normalizedUserId);
+};
+
+const extractPayloadItem = (payload) => {
+  if (!payload) {
+    return null;
+  }
+
+  return normalizeDocEntity(payload.item ?? payload.items ?? payload);
 };
 
 const extractCreatedDocId = (responseData) => {
@@ -93,7 +181,7 @@ export class CoffDocService {
   async getCoffDocsTp(doctp) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const url = `${env.COFF_BACK_URL}/coff/doc/_v/lista/?stm=coff_docstp_v&objid=${doctp}&sl=${selectedLanguage}`
-    console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
+    // console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token
@@ -101,16 +189,24 @@ export class CoffDocService {
 
     try {
       const response = await axios.get(url, { headers });
-      return response.data.item;
+      return normalizeDocCollection(response.data.item ?? response.data.items);
     } catch (error) {
       console.error(error);
       throw error;
     }
   }
-  async getCoffDocsCountTp(doctp) {
+  async getCoffDocsCountTp(doctp, objId = null, userId = null) {
+    const normalizedObjId = normalizeStringId(objId);
+    const normalizedUserId = normalizeStringId(userId);
+
+    if (normalizedObjId || normalizedUserId) {
+      const docs = await this.getCoffDocsPorudzbinaTp(doctp, normalizedObjId, normalizedUserId);
+      return { count: docs.length };
+    }
+
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const url = `${env.COFF_BACK_URL}/coff/doc/_v/lista/?stm=coff_docstpcount_v&objid=${doctp}&sl=${selectedLanguage}`
-    console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
+    // console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token
@@ -118,8 +214,12 @@ export class CoffDocService {
 
     try {
       const response = await axios.get(url, { headers });
-      return response.data.item[0];
+      return response.data.item?.[0] ?? 0;
     } catch (error) {
+      if (error.response?.status === 403) {
+        return 0;
+      }
+
       console.error(error);
       throw error;
     }
@@ -163,10 +263,13 @@ export class CoffDocService {
     }
   }
 
-  async getCoffDocsPorudzbinaTp(doctp) {
+  async getCoffDocsPorudzbinaTp(doctp, objId = null, userId = null) {
     const selectedLanguage = localStorage.getItem('sl') || 'en'
-    const url = `${env.COFF_BACK_URL}/coff/doc/_v/lista/?stm=coff_docstpporudzbina_v&objid=${doctp}&sl=${selectedLanguage}`
-    console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
+    const normalizedObjId = normalizeStringId(objId);
+    const normalizedUserId = normalizeStringId(userId);
+    const kitchenParam = normalizedObjId ? `&par1=${normalizedObjId}&par2=COFFLOC` : '';
+    const url = `${env.COFF_BACK_URL}/coff/doc/_v/lista/?stm=coff_docstpporudzbina_v&objid=${doctp}${kitchenParam}&sl=${selectedLanguage}`
+    // console.log(url, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@############################")
     const tokenLocal = await Token.getTokensLS();
     const headers = {
       Authorization: tokenLocal.token
@@ -174,8 +277,35 @@ export class CoffDocService {
 
     try {
       const response = await axios.get(url, { headers });
-      return response.data.item;
+      const kitchenFilteredDocs = filterDocsByKitchen(response.data.item ?? response.data.items, normalizedObjId);
+      return filterDocsByCreator(kitchenFilteredDocs, normalizedUserId);
     } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async getPotpisnikByUsername(username) {
+    const normalizedUsername = normalizeStringId(username);
+
+    if (!normalizedUsername) {
+      return null;
+    }
+
+    const url = `${env.COFF_BACK_URL}/coff/doc/potpisnik/${normalizedUsername}`;
+    const tokenLocal = await Token.getTokensLS();
+    const headers = {
+      Authorization: tokenLocal.token
+    };
+
+    try {
+      const response = await axios.get(url, { headers });
+      return extractPayloadItem(response.data);
+    } catch (error) {
+      if (isForbiddenError(error)) {
+        return null;
+      }
+
       console.error(error);
       throw error;
     }
@@ -205,7 +335,7 @@ export class CoffDocService {
       const selectedLanguage = localStorage.getItem('sl') || 'en'
       const payload = normalizeDocPayload({
         ...newObj,
-        usr: localStorage.getItem('userId')
+        usr: resolveCurrentUserId() ?? normalizeStringId(newObj?.usr) ?? localStorage.getItem('userId')
       });
 
       if (payload.potpisnik === null) {
@@ -226,9 +356,8 @@ export class CoffDocService {
         headers,
         transformResponse: [(data) => data],
       });
-      console.log("**************"  , response.data, "****************@@@@@@@@@@@@@@@@@@@@@@@@@@@===================================================")
+      // console.log("**************"  , response.data, "****************@@@@@@@@@@@@@@@@@@@@@@@@@@@===================================================")
       const createdDocId = extractCreatedDocId(response.data);
-      localStorage.setItem('currCoffOrder', createdDocId);
       return createdDocId;
     } catch (error) {
       console.error(error);
@@ -239,15 +368,16 @@ export class CoffDocService {
 
   async putCoffDoc(newObj1) {
     try {
-      const newObj = normalizeDocPayload({ ...newObj1, obj: -1 })
+      const newObj = normalizeDocPayload({
+        ...newObj1,
+        usr: resolveCurrentUserId() ?? normalizeStringId(newObj1?.usr) ?? localStorage.getItem('userId')
+      })
       const selectedLanguage = localStorage.getItem('sl') || 'en'
       if (newObj.potpisnik === null) {
         throw new Error(
           "Items must be filled!"
         );
       }
-
-      const currCoffOrder = localStorage.getItem('currCoffOrder')
 
       const url = `${env.COFF_BACK_URL}/coff/doc/?sl=${selectedLanguage}`;
       const tokenLocal = await Token.getTokensLS();
@@ -258,9 +388,6 @@ export class CoffDocService {
       const jsonObj = JSON.stringify(newObj)
       const response = await axios.put(url, jsonObj, { headers });
       //console.log("**************"  , response, "****************")
-      if (normalizeStringId(currCoffOrder) === normalizeStringId(newObj.id) && String(newObj.status) !== "0"){
-        localStorage.setItem('currCoffOrder', "-1");
-      }
       return response.data.items;
     } catch (error) {
       console.error(error);
@@ -271,7 +398,6 @@ export class CoffDocService {
 
   async deleteCoffDoc(newObj) {
     try {
-      const currCoffOrder = localStorage.getItem('currCoffOrder')
       const url = `${env.COFF_BACK_URL}/coff/doc/${newObj.id}`;
       const tokenLocal = await Token.getTokensLS();
       const headers = {
@@ -279,9 +405,6 @@ export class CoffDocService {
       };
 
       const response = await axios.delete(url, { headers });
-      if (normalizeStringId(currCoffOrder) === normalizeStringId(newObj.id) && normalizeStringId(newObj.id) !== "0"){
-        localStorage.setItem('currCoffOrder', "-1");
-      }      
       return response.data.items;
     } catch (error) {
       throw error;
@@ -321,6 +444,10 @@ export class CoffDocService {
       const response = await axios.get(url, { headers });
       return response.data.item;
     } catch (error) {
+      if (isForbiddenError(error)) {
+        return [];
+      }
+
       console.error(error);
       throw error;
     }

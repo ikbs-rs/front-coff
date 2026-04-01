@@ -20,6 +20,7 @@ const clearAuthStorage = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('refreshToken');
   localStorage.removeItem('userId');
+  localStorage.removeItem('user');
   sessionStorage.removeItem('isLoggedIn');
 };
 

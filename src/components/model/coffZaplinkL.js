@@ -17,13 +17,66 @@ export default function CoffZaplinkL(props) {
   console.log("[CoffZaplinkL] Render", { props });
   const objName = "coff_zaplink";
   const selectedLanguage = localStorage.getItem("sl") || "en";
+  const getStoredUser = () => {
+    try {
+      return JSON.parse(localStorage.getItem('user') || 'null');
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  };
+  const normalizeEntity = (value) => Array.isArray(value) ? value[0] || null : value || null;
+	  const resolveUserIdentifier = (value) => {
+	    const normalizedValue = normalizeEntity(value);
+	    return (
+	      normalizedValue?.username ||
+	      normalizedValue?.USERNAME ||
+	      null
+	    );
+	  };
+  const buildPersonDisplayName = (value, fallbackIdentifier = '') => {
+    const normalizedValue = normalizeEntity(value);
+    const explicitDisplayName =
+      normalizedValue?.nzap1 ||
+      normalizedValue?.NZAP1 ||
+      normalizedValue?.N2ZAP1 ||
+      normalizedValue?.n2zap1 ||
+      normalizedValue?.nzap ||
+      normalizedValue?.NZAP ||
+      normalizedValue?.N2ZAP ||
+      normalizedValue?.n2zap ||
+      normalizedValue?.name ||
+      normalizedValue?.nazap1;
+
+    if (explicitDisplayName) {
+      return explicitDisplayName;
+    }
+
+    const identifier = resolveUserIdentifier(normalizedValue) || fallbackIdentifier;
+    const firstName =
+      normalizedValue?.firstname ||
+      normalizedValue?.FIRSTNAME ||
+      normalizedValue?.firstName ||
+      normalizedValue?.IME ||
+      normalizedValue?.ime ||
+      '';
+    const secondName =
+      normalizedValue?.secondname ||
+      normalizedValue?.SECONDNAME ||
+      normalizedValue?.lastname ||
+      normalizedValue?.LASTNAME ||
+      normalizedValue?.lastName ||
+      normalizedValue?.PREZIME ||
+      normalizedValue?.prezime ||
+      '';
+
+    return [identifier, firstName, secondName].filter(Boolean).join(' ').trim();
+  };
+  const storedUser = getStoredUser();
   const [ownerZap, setOwnerZap] = useState(props.coffZap || props.userZap || null);
-  const selectedZapKey = ownerZap?.zap || ownerZap?.ZAP || props.user?.sapuser || null;
-  const selectedZapCode = ownerZap?.zap || ownerZap?.ZAP || props.user?.sapuser || "";
-  const selectedZapText =
-    ownerZap?.nzap ||
-    ownerZap?.N2ZAP ||
-    [ownerZap?.IME, ownerZap?.PREZIME].filter(Boolean).join(" ");
+  const selectedZapKey = ownerZap?.zap || ownerZap?.ZAP || resolveUserIdentifier(props.user) || resolveUserIdentifier(storedUser) || null;
+  const selectedZapCode = ownerZap?.zap || ownerZap?.ZAP || resolveUserIdentifier(props.user) || resolveUserIdentifier(storedUser) || "";
+  const selectedZapText = buildPersonDisplayName(ownerZap) || buildPersonDisplayName(props.user) || buildPersonDisplayName(storedUser) || "";
   const selectedObjId = ownerZap?.obj ?? null;
   const selectedObjText =
     ownerZap?.nobj ||
@@ -31,17 +84,7 @@ export default function CoffZaplinkL(props) {
     ownerZap?.lok ||
     "";
   const getZaplinkText = (item) =>
-    item?.nzap1 ||
-    item?.NZAP1 ||
-    item?.N2ZAP1 ||
-    item?.n2zap1 ||
-    item?.nzap ||
-    item?.NZAP ||
-    item?.N2ZAP ||
-    item?.n2zap ||
-    [item?.IME1 || item?.ime1 || item?.IME || item?.ime, item?.PREZIME1 || item?.prezime1 || item?.PREZIME || item?.prezime]
-      .filter(Boolean)
-      .join(" ");
+    buildPersonDisplayName(item);
   const normalizeZaplink = (item) => ({
     ...item,
     nzap1: getZaplinkText(item) || "",
@@ -50,6 +93,7 @@ export default function CoffZaplinkL(props) {
     ...EmptyEntities[objName],
     zap2: `${selectedZapKey || ''}`,
     obj: selectedObjId ?? null,
+    nzap1: selectedZapText || "",
     nazap1: selectedZapText || "",
     nobj: selectedObjText || "",
   };
@@ -77,9 +121,11 @@ export default function CoffZaplinkL(props) {
           return;
         }
 
-        if (props.user?.sapuser) {
+        const fallbackIdentifier = resolveUserIdentifier(props.user) || resolveUserIdentifier(storedUser);
+
+        if (fallbackIdentifier) {
           const coffZaplinkService = new CoffZaplinkService();
-          const data = await coffZaplinkService.getZapByUser(props.user.sapuser);
+          const data = await coffZaplinkService.getZapByUser(fallbackIdentifier);
           const nextOwnerZap = Array.isArray(data) ? data[0] : data;
 
           setOwnerZap(nextOwnerZap || null);
@@ -133,6 +179,7 @@ export default function CoffZaplinkL(props) {
       ...prev,
       zap2: `${prev?.zap2 || selectedZapKey || ''}`,
       obj: prev?.obj ?? selectedObjId ?? null,
+      nzap1: prev?.nzap1 || prev?.nazap1 || selectedZapText || "",
       nazap1: prev?.nazap1 || selectedZapText || "",
       nobj: prev?.nobj || selectedObjText || "",
     }));
@@ -300,6 +347,7 @@ export default function CoffZaplinkL(props) {
       ...normalizeZaplink(currentCoffZaplink),
       zap2: `${currentCoffZaplink?.zap2 || selectedZapKey || ''}`,
       obj: currentCoffZaplink?.obj ?? selectedObjId ?? null,
+      nzap1: currentCoffZaplink?.nzap1 || currentCoffZaplink?.nazap1 || selectedZapText || "",
       nazap1: currentCoffZaplink?.nazap1 || selectedZapText || "",
       nobj: currentCoffZaplink?.nobj || selectedObjText || "",
     });

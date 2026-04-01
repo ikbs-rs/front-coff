@@ -13,14 +13,17 @@ import { CoffDocService } from "../../service/model/CoffDocService";
 import { EmptyEntities } from '../../service/model/EmptyEntities';
 import { Dialog } from 'primereact/dialog';
 import { translations } from "../../configs/translations";
-import { useWebSocket } from '../../utilities/WebSocketContext';
+import { buildKitchenSubscriptionMessage, buildOrderChangedMessage, isOrderChangedMessage, useWebSocket } from '../../utilities/WebSocketContext';
+import { usePermission } from '../../security/interceptors';
 import CoffDocPorudzbina from "./coffDocPorudzbina";
 
 export default function CoffDocPorudzbineL(props) {
-  console.log(props, "@@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDocPorudzbinaL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+  // console.log(props, "@@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDocPorudzbinaL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
   let i = 0
   const objName = "coff_doc"
   const selectedLanguage = localStorage.getItem('sl') || 'en'
+  const userId = localStorage.getItem('userId') || '-1'
+  const canViewOwnOrders = usePermission('coffNarucilac');
   const emptyCoffDoc = EmptyEntities[objName]
   emptyCoffDoc.doctp = props.doctp
   const [showMyComponent, setShowMyComponent] = useState(true);
@@ -33,23 +36,77 @@ export default function CoffDocPorudzbineL(props) {
   const [coffDocVisible, setCoffDocVisible] = useState(false);
   const [docTip, setDocTip] = useState('');
   const [ndoctp, setNdoctp] = useState('');
+  const [userCoffId, setUserCoffId] = useState(undefined);
+  const [userCoffCandidates, setUserCoffCandidates] = useState([]);
   const websocket = useWebSocket();
   let [refresh, setRefresh] = useState(0);
+
+  const resolveAssignedCoffCandidates = (value) => {
+    const normalizedValue = Array.isArray(value) ? value[0] || null : value;
+    const candidates = [
+      normalizedValue?.coff,
+      normalizedValue?.obj,
+      normalizedValue?.id,
+      normalizedValue?.code,
+      normalizedValue?.CODE,
+      normalizedValue?.coffcode,
+      normalizedValue?.objcode,
+    ]
+      .map((item) => (item === null || item === undefined ? '' : String(item).trim()))
+      .filter(Boolean);
+
+    return [...new Set(candidates)];
+  };
+
+  const resolveAssignedCoffId = (value) => resolveAssignedCoffCandidates(value)[0] ?? null;
+
+  useEffect(() => {
+    async function fetchAssignedKitchen() {
+      try {
+        const coffDocService = new CoffDocService();
+        const data = await coffDocService.getCoffDocsUserCoff(userId, 'COFFLOC');
+        const nextCandidates = resolveAssignedCoffCandidates(data);
+        setUserCoffCandidates(nextCandidates);
+        setUserCoffId(nextCandidates[0] ?? null);
+      } catch (error) {
+        console.error(error);
+        setUserCoffCandidates([]);
+        setUserCoffId(null);
+      }
+    }
+
+    if (userId && userId !== '-1') {
+      fetchAssignedKitchen();
+    } else {
+      setUserCoffCandidates([]);
+      setUserCoffId(null);
+    }
+  }, [userId]);
 
   useEffect(() => {
     async function fetchData() {
       try {
+        if (userId && userId !== '-1' && userCoffId === undefined && !canViewOwnOrders) {
+          return;
+        }
+
         ++i
         if (i < 2) {
           const coffDocService = new CoffDocService();
-          const data = await coffDocService.getCoffDocsPorudzbinaTp(props.doctp);
+          const data = canViewOwnOrders
+            ? await coffDocService.getCoffDocsPorudzbinaTp(props.doctp, null, userId)
+            : userCoffId
+              ? await coffDocService.getCoffDocsPorudzbinaTp(props.doctp, userCoffId)
+              : await coffDocService.getCoffDocsPorudzbinaTp(props.doctp, null, userId);
           // console.log(data, "@@@@@@@@@@@@@@@@@@@@@@@@@@ getCoffDocsTp @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", props.doctp)
-          if (data) {
+          if (data?.length) {
             const data0 = data[0]
             setNdoctp(data0?.ndoctp)
+          } else {
+            setNdoctp('');
           }
 
-          setCoffDocs(data);
+          setCoffDocs(data || []);
           initFilters();
         }
       } catch (error) {
@@ -58,17 +115,61 @@ export default function CoffDocPorudzbineL(props) {
       }
     }
     fetchData();
-  }, [props.datarefresh, refresh]);
+  }, [props.datarefresh, refresh, props.doctp, userCoffId, userId, canViewOwnOrders]);
 
   useEffect(() => {
-    if (websocket) {
-      websocket.addEventListener('message', (message) => {
-        const obj = JSON.parse(message.data)
-        if (obj?.data?.[0]?.id == 'TRECA') {
-          setRefresh(++refresh)
-        }
-      });
+    if (!websocket || (!canViewOwnOrders && (userCoffId === undefined || userCoffCandidates.length === 0))) {
+      return undefined;
     }
+
+    const subscribeToUpdates = () => {
+      if (websocket.readyState === WebSocket.OPEN) {
+        if (canViewOwnOrders && userId && userId !== '-1') {
+          websocket.send(buildKitchenSubscriptionMessage({
+            objId: userId,
+            objTp: 'USER',
+            userId
+          }));
+        }
+
+        userCoffCandidates.forEach((candidate) => {
+          websocket.send(buildKitchenSubscriptionMessage({
+            objId: candidate,
+            objTp: 'COFFLOC',
+            userId
+          }));
+        });
+      }
+    };
+
+    subscribeToUpdates();
+    websocket.addEventListener('open', subscribeToUpdates);
+
+    return () => {
+      websocket.removeEventListener('open', subscribeToUpdates);
+    };
+  }, [websocket, userCoffId, userCoffCandidates, userId, canViewOwnOrders]);
+
+  useEffect(() => {
+    if (!websocket) {
+      return undefined;
+    }
+
+    const handleMessage = (message) => {
+      try {
+        if (isOrderChangedMessage(message)) {
+          setRefresh((prev) => prev + 1);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    websocket.addEventListener('message', handleMessage);
+
+    return () => {
+      websocket.removeEventListener('message', handleMessage);
+    };
   }, [websocket]);
 
   const handleDialogClose = (newObj) => {
@@ -93,9 +194,16 @@ export default function CoffDocPorudzbineL(props) {
     toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.docTip}`, life: 3000 });
     setCoffDocs(_coffDocs);
     setCoffDoc(emptyCoffDoc);
-    setRefresh(++refresh)
+    setRefresh((prev) => prev + 1)
     if (websocket && websocket.readyState === WebSocket.OPEN) {
-      websocket.send('{"data":[{"id":"TRECA"}]}');
+      websocket.send(buildOrderChangedMessage({
+        source: 'CoffDocPorudzbineL.handleDialogClose',
+        docId: _coffDoc?.id ?? null,
+        status: String(_coffDoc?.status ?? ''),
+        objId: _coffDoc?.obj ?? _coffDoc?.coff ?? null,
+        userId: _coffDoc?.usr ?? null,
+        notify: String(_coffDoc?.status ?? '') === '1'
+      }));
     }
   };
 
@@ -266,7 +374,14 @@ export default function CoffDocPorudzbineL(props) {
               await coffDocService.putCoffDoc(_coffDoc);
               console.log(_coffDoc, "22-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
               if (websocket && websocket.readyState === WebSocket.OPEN) {
-                websocket.send('{"data":[{"id":"TRECA"}]}');
+                websocket.send(buildOrderChangedMessage({
+                  source: 'CoffDocPorudzbineL.undoStatus',
+                  docId: _coffDoc?.id ?? null,
+                  status: '0',
+                  objId: _coffDoc?.obj ?? _coffDoc?.coff ?? null,
+                  userId: _coffDoc?.usr ?? null,
+                  notify: false
+                }));
               }
             } else {
               toast.current.show({
@@ -346,7 +461,7 @@ export default function CoffDocPorudzbineL(props) {
           style={{ width: "20%" }}
         ></Column>
         <Column
-          field="nzap"
+          field="nzap1"
           header={translations[selectedLanguage].potpisnik}
           sortable
           // filter

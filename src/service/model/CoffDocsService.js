@@ -10,7 +10,41 @@ const normalizeParamId = (value, fallback = "-1") => {
   const normalizedValue = String(value).trim();
   return normalizedValue === '' ? fallback : normalizedValue;
 };
-	
+
+const parseDecimal = (value) => {
+  if (value === null || value === undefined) {
+    return 0;
+  }
+
+  const normalizedValue = String(value).replace(',', '.').trim();
+
+  if (!normalizedValue) {
+    return 0;
+  }
+
+  const parsedValue = Number(normalizedValue);
+  return Number.isFinite(parsedValue) ? parsedValue : 0;
+};
+
+const formatToOneDecimal = (value) => Number(parseDecimal(value).toFixed(1));
+
+const normalizeDocsPayload = (value) => {
+  const newObj = { ...(value || {}) };
+  const calculatedDuguje = formatToOneDecimal(parseDecimal(newObj.ulaz) * parseDecimal(newObj.cena));
+  const calculatedPotrazuje = formatToOneDecimal(parseDecimal(newObj.izlaz) * parseDecimal(newObj.cena));
+
+  return {
+    ...newObj,
+    org: newObj.org ?? -1,
+    obj: newObj.obj ?? null,
+    cena: newObj.cena === null || newObj.cena === undefined || String(newObj.cena).trim() === ''
+      ? null
+      : formatToOneDecimal(newObj.cena),
+    duguje: newObj.duguje === null || newObj.duguje === undefined ? calculatedDuguje : newObj.duguje,
+    potrazuje: newObj.potrazuje === null || newObj.potrazuje === undefined ? calculatedPotrazuje : newObj.potrazuje,
+  };
+};
+		
 export class CoffDocsService {
 
   // Vraca varijante jedinice mera za unos kolicine KOM/FLASA
@@ -46,7 +80,7 @@ export class CoffDocsService {
 
     try {
       const response = await axios.get(url, { headers });
-      console.log("KKKKKKK@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", url, response.data)
+      // console.log("KKKKKKK@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", url, response.data)
       return response.data.item;
     } catch (error) {
       console.error(error);
@@ -93,10 +127,7 @@ export class CoffDocsService {
   async postCoffDocs(newObj1) {
     try {
       const selectedLanguage = localStorage.getItem('sl') || 'en'
-      const newObj = {...newObj1}
-      newObj.potrazuje = (newObj.izlaz||0)*newObj.cena
-      newObj.org=-1
-      newObj.duguje = (newObj.ulaz||0)*newObj.cena
+      const newObj = normalizeDocsPayload(newObj1)
       // if (newObj.cena.trim() === '' || newObj.text.trim() === '' || newObj.valid === null) {
       //   throw new Error(
       //     "Items must be filled!"
@@ -122,6 +153,7 @@ export class CoffDocsService {
   async putCoffDocs(newObj) {
     try {
       const selectedLanguage = localStorage.getItem('sl') || 'en'
+      const payload = normalizeDocsPayload(newObj)
       // if (newObj.code.trim() === '' || newObj.text.trim() === '' || newObj.valid === null) {
       //   throw new Error(
       //     "Items must be filled!"
@@ -133,7 +165,7 @@ export class CoffDocsService {
         'Content-Type': 'application/json',
         'Authorization': tokenLocal.token
       };
-      const jsonObj = JSON.stringify(newObj)
+      const jsonObj = JSON.stringify(payload)
       const response = await axios.put(url, jsonObj, { headers });
       //console.log("**************"  , response, "****************")
       return response.data.items;

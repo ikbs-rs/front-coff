@@ -9,6 +9,7 @@ import { Button } from 'primereact/button';
 import { Toast } from "primereact/toast";
 import DeleteDialog from '../dialog/DeleteDialog';
 import { translations } from "../../configs/translations";
+import { useCrudActionPermissions } from '../../security/interceptors';
 import { Dropdown } from 'primereact/dropdown';
 import env from "../../configs/env"
 import axios from 'axios';
@@ -16,6 +17,7 @@ import Token from "../../utilities/Token";
 import { ColorPicker } from 'primereact/colorpicker';
 
 const TicArt = (props) => {
+    const { canCreate, canUpdate, canDelete } = useCrudActionPermissions('tic_art');
 console.log(props, "*********************************props**************************************************")
     const selectedLanguage = localStorage.getItem('sl') || 'en'
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -520,7 +522,7 @@ console.log(props, "*********************************props**********************
                         ) : null}
                         <div className="flex-grow-1"></div>
                         <div className="flex flex-wrap gap-1">
-                            {(props.artTip === 'CREATE') ? (
+                            {(props.artTip === 'CREATE' && canCreate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Create}
                                     icon="pi pi-check"
@@ -529,7 +531,7 @@ console.log(props, "*********************************props**********************
                                     outlined
                                 />
                             ) : null}
-                            {(props.artTip !== 'CREATE') ? (
+                            {(props.artTip !== 'CREATE' && canDelete) ? (
                                 <Button
                                     label={translations[selectedLanguage].Delete}
                                     icon="pi pi-trash"
@@ -538,7 +540,7 @@ console.log(props, "*********************************props**********************
                                     outlined
                                 />
                             ) : null}
-                            {(props.artTip !== 'CREATE') ? (
+                            {(props.artTip !== 'CREATE' && canUpdate) ? (
                                 <Button
                                     label={translations[selectedLanguage].Save}
                                     icon="pi pi-check"
@@ -563,3 +565,5 @@ console.log(props, "*********************************props**********************
 };
 
 export default TicArt;
+
+

@@ -15,20 +15,32 @@ import { Dialog } from 'primereact/dialog';
 import { translations } from "../../configs/translations";
 
 export default function CoffDocsL(props) {
-  console.log(props, "@!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDocsL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!!!!@")
+  // console.log(props, "@!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@ CoffDocsL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@!!!!!@")
   let i = 0
   const dialogGridClassName = classNames("card", "model-grid-page", {
     "model-grid-page-dialog-list": props.dialog
   });
   const dialogGridScrollHeight = props.dialog ? "18rem" : "flex";
-  const objName = "coff_doc"
+  const objName = "coff_docs"
   const selectedLanguage = localStorage.getItem('sl')||'en'
-  const emptyCoffDocs = EmptyEntities[objName]
-  emptyCoffDocs.doctp = props.doctp
-  emptyCoffDocs.doc = props.coffDoc.id
+  const formatToOneDecimal = (value) => {
+    if (value === null || value === undefined || String(value).trim() === '') {
+      return '';
+    }
+
+    const parsedValue = Number(String(value).replace(',', '.'));
+    return Number.isFinite(parsedValue) ? parsedValue.toFixed(1) : value;
+  };
+  const createEmptyCoffDocs = () => ({
+    ...EmptyEntities[objName],
+    doctp: props.doctp,
+    doc: props.coffDoc?.id ?? localStorage.getItem('currCoffOrder') ?? null,
+    obj: props.coffDoc?.obj ?? null
+  });
+  const emptyCoffDocs = createEmptyCoffDocs();
   const [showMyComponent, setShowMyComponent] = useState(true);
   const [coffDocss, setCoffDocss] = useState([]);
-  const [coffDocs, setCoffDocs] = useState(emptyCoffDocs);
+  const [coffDocs, setCoffDocs] = useState(createEmptyCoffDocs);
   const [filters, setFilters] = useState('');
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [loading, setLoading] = useState(false);
@@ -39,10 +51,15 @@ export default function CoffDocsL(props) {
   const [cenaTip, setLocTip] = useState('');
   const [visibleCoffDocsmenu, setVisibleCoffDocsmenu] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [formResetKey, setFormResetKey] = useState(0);
 
   useEffect(() => {
     async function fetchData() {
       try {
+        if (!props.coffDoc?.id) {
+          setCoffDocss([]);
+          return;
+        }
         ++i
         if (i<2) {  
           const coffDocsService = new CoffDocsService();
@@ -57,7 +74,7 @@ export default function CoffDocsL(props) {
       }
     }
     fetchData();
-  }, []);
+  }, [props.coffDoc?.id]);
 
   const handleDialogClose = (newObj) => {
     const localObj = { newObj };
@@ -80,7 +97,11 @@ export default function CoffDocsL(props) {
     }
     toast.current.show({ severity: 'success', summary: 'Successful', detail: `{${objName}} ${localObj.newObj.docsTip}`, life: 3000 });
     setCoffDocss(_coffDocss);
-    setCoffDocs(emptyCoffDocs);
+    setCoffDocs(createEmptyCoffDocs());
+    if (localObj.newObj.resetForm) {
+      setDocsTip("CREATE");
+      setFormResetKey((prevState) => prevState + 1);
+    }
   };
 
   const findIndexById = (id) => {
@@ -97,7 +118,7 @@ export default function CoffDocsL(props) {
   };
 
   const openNew = () => {
-    setCoffDocsDialog(emptyCoffDocs);
+    setCoffDocsDialog(createEmptyCoffDocs());
   };
 
   const onRowSelect = (event) => {
@@ -218,8 +239,13 @@ export default function CoffDocsL(props) {
     setArtCurr({ ..._artCurr })
     setVisibleCoffDocsmenu(true)
     setVisible(true)
-    setDocsTip("CREATE")
-    setCoffDocs({ ...coffDocs });
+    setDocsTip(coffDocs?.id ? "UPDATE" : "CREATE")
+    setCoffDocs({
+      ...createEmptyCoffDocs(),
+      ...coffDocs,
+      doc: coffDocs?.doc ?? props.coffDoc?.id ?? localStorage.getItem('currCoffOrder') ?? null,
+      obj: coffDocs?.obj ?? props.coffDoc?.obj ?? null
+    });
   }
   //  Dialog --->
 
@@ -249,6 +275,7 @@ export default function CoffDocsL(props) {
     props.onDataUpdate(updatedTab);
     // setDataTab(updatedTab);
   };
+  const cenaBodyTemplate = (rowData) => formatToOneDecimal(rowData.cena);
   return (
     <div className={dialogGridClassName}>
       <Toast ref={toast} />
@@ -291,30 +318,36 @@ export default function CoffDocsL(props) {
           // filter
           style={{ width: "50%" }}
         ></Column>
-        <Column
-          field="num"
-          header={translations[selectedLanguage].num}
-          // sortable
-          // filter
-          style={{ width: "10%" }}
-        ></Column>
-        {(props.doctp !== '1') ? (
-        <Column
-          field="ulaz"
-          header={translations[selectedLanguage].Kol}
-          // sortable
-          // filter
-          style={{ width: "20%" }}
-        ></Column>
-        ) : (
-          <Column
-          field="izlaz"
-          header={translations[selectedLanguage].Kol}
-          // sortable
-          // filter
-          style={{ width: "20%" }}
-        ></Column>
-        )}
+	        <Column
+	          field="num"
+	          header={translations[selectedLanguage].num}
+	          // sortable
+	          // filter
+	          style={{ width: "10%" }}
+	        ></Column>
+		        <Column
+		          field="cena"
+		          header={translations[selectedLanguage].Cena}
+              body={cenaBodyTemplate}
+		          style={{ width: "12%" }}
+		        ></Column>
+	        {(props.doctp !== '1') ? (
+	        <Column
+	          field="ulaz"
+	          header={translations[selectedLanguage].Kol}
+	          // sortable
+	          // filter
+	          style={{ width: "18%" }}
+	        ></Column>
+	        ) : (
+	          <Column
+	          field="izlaz"
+	          header={translations[selectedLanguage].Kol}
+	          // sortable
+	          // filter
+	          style={{ width: "18%" }}
+	        ></Column>
+	        )}
                     
       </DataTable>
       <Dialog
@@ -329,6 +362,7 @@ export default function CoffDocsL(props) {
       >
         {showMyComponent && (
           <CoffDocsD
+            key={`${docsTip}-${coffDocs?.id ?? 'new'}-${formResetKey}`}
             parameter={"inputTextValue"}
             artCurr={artCurr}
             coffDocs={coffDocs}
