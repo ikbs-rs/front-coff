@@ -67,23 +67,24 @@ const CoffDoc = (props) => {
     const normalizeItems = (value) => Array.isArray(value) ? value : [];
     const normalizeId = (value) => {
         if (value === null || value === undefined) {
-            return '';
+            return null;
         }
 
-        return String(value).trim();
+        const normalizedValue = String(value).trim();
+        return normalizedValue === '' || normalizedValue === 'null' ? null : normalizedValue;
     };
     const resolveUserCoffId = (value) => {
         const normalizedValue = normalizeEntity(value);
         return normalizedValue?.coff ?? normalizedValue?.id ?? null;
     };
-	    const resolveUserIdentifier = (value) => {
-	        const normalizedValue = normalizeEntity(value);
-	        return (
-	            normalizedValue?.username ??
-	            normalizedValue?.USERNAME ??
-	            null
-	        );
-	    };
+    const resolveUserIdentifier = (value) => {
+        const normalizedValue = normalizeEntity(value);
+        return (
+            normalizeId(normalizedValue?.username) ??
+            normalizeId(normalizedValue?.USERNAME) ??
+            null
+        );
+    };
     const buildPersonDisplayName = (value, fallbackIdentifier = '') => {
         const normalizedValue = normalizeEntity(value);
         const explicitDisplayName =
@@ -120,20 +121,34 @@ const CoffDoc = (props) => {
 
         return [identifier, firstName, secondName].filter(Boolean).join(' ').trim();
     };
-	    const resolveDocUserId = (value) => {
-	        const normalizedValue = normalizeEntity(value);
-	        return (
-	            normalizeId(normalizedValue?.usr) ||
-	            normalizeId(normalizedValue?.userId) ||
-	            normalizeId(normalizedValue?.userid) ||
-	            normalizeId(normalizedValue?.user) ||
-	            null
-	        );
-	    };
-	    const resolveDocObjId = (value) => {
-	        const normalizedValue = normalizeEntity(value);
-	        return normalizedValue?.obj ?? normalizedValue?.coff ?? normalizedValue?.id ?? null;
-	    };
+    const resolveZapId = (value) => {
+        const normalizedValue = normalizeEntity(value);
+        return (
+            normalizeId(normalizedValue?.username) ??
+            normalizeId(normalizedValue?.potpisnik) ??
+            normalizeId(normalizedValue?.zap1) ??
+            normalizeId(normalizedValue?.id)
+        );
+    };
+    const resolveDocUserId = (value) => {
+        const normalizedValue = normalizeEntity(value);
+        return (
+            normalizeId(normalizedValue?.usr) ??
+            normalizeId(normalizedValue?.userId) ??
+            normalizeId(normalizedValue?.userid) ??
+            normalizeId(normalizedValue?.user) ??
+            null
+        );
+    };
+    const resolveDocObjId = (value) => {
+        const normalizedValue = normalizeEntity(value);
+        return (
+            normalizeId(normalizedValue?.obj) ??
+            normalizeId(normalizedValue?.coff) ??
+            normalizeId(normalizedValue?.id) ??
+            null
+        );
+    };
 	    const defaultUserIdentifier = resolveUserIdentifier(user) ?? resolveUserIdentifier(storedUser);
 	    const defaultUserId =
 	        normalizeId(user?.id) ||
@@ -186,8 +201,16 @@ const CoffDoc = (props) => {
                 const normalizedAssignedKitchen = Array.isArray(assignedKitchenData) ? assignedKitchenData[0] || null : assignedKitchenData || null;
                 const coffDropdownOptions = normalizedCoffData.map(({ text, id }) => ({ name: text, code: normalizeId(id) }));
 
+                const zapDropdownOptions = normalizedZapData.map((item) => ({
+                    name: buildPersonDisplayName(item),
+                    code: resolveZapId(item)
+                }));
+
+                console.log('[CoffDoc] potpisnici lista', normalizedZapData);
+                console.log('[CoffDoc] potpisnici dropdown opcije', zapDropdownOptions);
+
                 setCoffZapItems(normalizedZapData);
-                setDdCoffZapItems(normalizedZapData.map((item) => ({ name: buildPersonDisplayName(item), code: item.id })));
+                setDdCoffZapItems(zapDropdownOptions);
                 setCoffCoffItems(normalizedCoffData);
                 setDdCoffCoffItems(coffDropdownOptions);
                 setDefaultPotpisnik(defaultZap);
@@ -213,18 +236,21 @@ const CoffDoc = (props) => {
 
         // Pronađi potpisnika i kuhinju
         const defaultZap = defaultPotpisnik;
-        const defaultObjId = assignedKitchen?.coff || assignedKitchen?.id || null;
+        const defaultObjId = normalizeId(assignedKitchen?.coff) ?? normalizeId(assignedKitchen?.id);
         const selectedPotpisnikId = isCreateMode
-            ? (defaultZap?.username || defaultZap?.id || props.coffDoc?.potpisnik)
-            : (props.coffDoc?.potpisnik || defaultZap?.username || defaultZap?.id);
+            ? (resolveZapId(defaultZap) ?? normalizeId(props.coffDoc?.potpisnik))
+            : (normalizeId(props.coffDoc?.potpisnik) ?? resolveZapId(defaultZap));
         const selectedCoffId = isCreateMode
-            ? (defaultObjId || props.coffDoc?.coff || props.coffDoc?.obj)
-            : (props.coffDoc?.coff || props.coffDoc?.obj || defaultObjId);
+            ? (defaultObjId ?? normalizeId(props.coffDoc?.coff) ?? normalizeId(props.coffDoc?.obj))
+            : (normalizeId(props.coffDoc?.coff) ?? normalizeId(props.coffDoc?.obj) ?? defaultObjId);
 
-        const selectedZapOption = ddCoffZapItems.find((item) => item.code === selectedPotpisnikId) || null;
-        const selectedCoffOption = ddCoffCoffItems.find((item) => item.code === selectedCoffId) || null;
-        const selectedZap = coffZapItems.find((item) => (item.username || item.id) === selectedPotpisnikId) || defaultZap || null;
-        const selectedCoff = coffCoffItems.find((item) => String(item.id) === String(selectedCoffId)) || null;
+        const selectedZapOption = ddCoffZapItems.find((item) => normalizeId(item.code) === selectedPotpisnikId) || null;
+        const selectedCoffOption = ddCoffCoffItems.find((item) => normalizeId(item.code) === selectedCoffId) || null;
+        const selectedZap =
+            coffZapItems.find((item) => resolveZapId(item) === selectedPotpisnikId) ||
+            (resolveZapId(defaultZap) === selectedPotpisnikId ? defaultZap : null) ||
+            null;
+        const selectedCoff = coffCoffItems.find((item) => normalizeId(item.id) === selectedCoffId) || null;
 
         setDropdownItem(selectedStatus);
         setCoffDoc((prevState) => ({
@@ -498,7 +524,9 @@ const CoffDoc = (props) => {
                 const selectedOption = e.value;
                 const selectedValue = normalizeId(selectedOption?.code);
                 const foundItem =
-                    coffZapItems.find((item) => normalizeId(item.id) === selectedValue || resolveUserIdentifier(item) === selectedValue) || null;
+                    coffZapItems.find((item) => resolveZapId(item) === selectedValue) ||
+                    (resolveZapId(defaultPotpisnik) === selectedValue ? defaultPotpisnik : null) ||
+                    null;
                 const selectedUsrId = resolveDocUserId(foundItem);
                 const selectedCoffId = resolveDocObjId(foundItem);
                 const foundCoffItem = coffCoffItems.find((item) => normalizeId(item.id) === selectedCoffId) || null;
@@ -735,5 +763,3 @@ const CoffDoc = (props) => {
 };
 
 export default CoffDoc;
-
-

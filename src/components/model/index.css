@@ -610,3 +610,82 @@ body {
 .p-input-filled .p-inputtext {
     background-color: #505252d1;
 }
+
+.coff-izv01-theme-form .field > label {
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-weight: 600;
+}
+
+.coff-izv01-theme-form .coff-izv01-theme-input,
+.coff-izv01-theme-form .coff-izv01-theme-input .p-inputtext,
+.coff-izv01-theme-form .p-calendar .coff-izv01-theme-input,
+.coff-izv01-theme-form .p-dropdown.coff-izv01-theme-input,
+.coff-izv01-theme-form .p-dropdown.coff-izv01-theme-input .p-dropdown-label,
+.coff-izv01-theme-form .p-dropdown.coff-izv01-theme-input .p-dropdown-trigger,
+.coff-izv01-theme-form .p-input-icon-left > .coff-izv01-theme-input {
+  background: rgba(34, 37, 43, 0.92) !important;
+  border: 1px solid rgba(255, 193, 7, 0.28) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  box-shadow: none !important;
+}
+
+.coff-izv01-theme-form .coff-izv01-theme-input::placeholder,
+.coff-izv01-theme-form .coff-izv01-theme-input .p-dropdown-label.p-placeholder {
+  color: rgba(255, 255, 255, 0.58) !important;
+}
+
+.coff-izv01-theme-form .p-input-icon-left > .pi,
+.coff-izv01-theme-form .p-dropdown.coff-izv01-theme-input .p-dropdown-trigger .pi,
+.coff-izv01-theme-form .p-calendar .p-button .pi {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+.coff-izv01-theme-form .coff-izv01-theme-input:hover,
+.coff-izv01-theme-form .coff-izv01-theme-input:focus,
+.coff-izv01-theme-form .coff-izv01-theme-input:enabled:focus,
+.coff-izv01-theme-form .p-dropdown.coff-izv01-theme-input:hover,
+.coff-izv01-theme-form .p-dropdown.coff-izv01-theme-input.p-focus,
+.coff-izv01-theme-form .p-calendar .coff-izv01-theme-input:enabled:focus {
+  border-color: rgba(255, 193, 7, 0.55) !important;
+  box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.18) !important;
+}
+
+.coff-izv01-theme-form .p-calendar .p-button {
+  background: rgba(255, 193, 7, 0.16) !important;
+  border: 1px solid rgba(255, 193, 7, 0.28) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.coff-izv01-theme-form .p-calendar .p-button:hover {
+  background: rgba(255, 193, 7, 0.24) !important;
+  border-color: rgba(255, 193, 7, 0.42) !important;
+}
+
+.coff-izv01-theme-panel.p-datepicker,
+.coff-izv01-theme-panel .p-datepicker-header,
+.coff-izv01-theme-panel .p-datepicker-calendar-container {
+  background: rgba(34, 37, 43, 0.98) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.coff-izv01-theme-panel.p-datepicker {
+  border: 1px solid rgba(255, 193, 7, 0.24) !important;
+}
+
+.coff-izv01-theme-panel .p-datepicker-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.coff-izv01-theme-panel .p-datepicker table td > span,
+.coff-izv01-theme-panel .p-datepicker table th,
+.coff-izv01-theme-panel .p-datepicker-prev,
+.coff-izv01-theme-panel .p-datepicker-next,
+.coff-izv01-theme-panel .p-datepicker-title {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.coff-izv01-theme-panel .p-datepicker table td > span:hover,
+.coff-izv01-theme-panel .p-datepicker table td.p-highlight > span {
+  background: rgba(255, 193, 7, 0.22) !important;
+  color: #fff7d6 !important;
+}

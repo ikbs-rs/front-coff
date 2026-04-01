@@ -55,6 +55,9 @@ import { checkPermissions } from './security/interceptors';
 // import WebSocketManager from './utilities/WebSocketManager';
 import { WebSocketProvider } from './utilities/WebSocketContext';
 
+import AIChatSidebar from './components/common/AIChatSidebar';
+import './components/common/ai-chat.css';
+
 const App = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -527,6 +530,8 @@ const App = () => {
                 </div>
 
                 <div className="layout-content-mask"></div>
+
+                <AIChatSidebar />
 
             </div>
         </WebSocketProvider>

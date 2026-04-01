@@ -12,6 +12,8 @@ import { useCrudActionPermissions, usePermission } from '../../security/intercep
 import { InputNumber } from "primereact/inputnumber";
 import { Dropdown } from 'primereact/dropdown';
 import { ColorPicker } from 'primereact/colorpicker';
+import { TicArtcenaService } from '../../service/model/TicArtcenaService';
+import { defaultValue } from '../../configs/defaultValue';
 
 const Order = (props) => {
     const docsCrudPermissions = useCrudActionPermissions('coff_docs');
@@ -38,6 +40,42 @@ const Order = (props) => {
     const calendarRef = useRef(null);
 
     const toast = useRef(null);
+    const priceLookupConfig = defaultValue.ems ?? defaultValue.tic ?? defaultValue.def;
+    const normalizeId = (value) => {
+        if (value === null || value === undefined) {
+            return null;
+        }
+
+        const normalizedValue = String(value).trim();
+        return normalizedValue === '' || normalizedValue === 'null' ? null : normalizedValue;
+    };
+    const parseDecimal = (value) => {
+        if (value === null || value === undefined) {
+            return 0;
+        }
+
+        const normalizedValue = String(value).replace(',', '.').trim();
+        if (!normalizedValue) {
+            return 0;
+        }
+
+        const parsedValue = Number(normalizedValue);
+        return Number.isFinite(parsedValue) ? parsedValue : 0;
+    };
+    const roundToOneDecimal = (value) => Number(parseDecimal(value).toFixed(1));
+    const formatToOneDecimal = (value) => roundToOneDecimal(value).toFixed(1);
+    const applyCalculatedAmounts = (source) => {
+        const nextState = { ...(source || {}) };
+        const cenaValue = parseDecimal(nextState.cena);
+        const izlazValue = parseDecimal(nextState.izlaz);
+
+        nextState.cena = nextState.cena === null || nextState.cena === undefined || String(nextState.cena).trim() === ''
+            ? null
+            : formatToOneDecimal(nextState.cena);
+        nextState.potrazuje = roundToOneDecimal(izlazValue * cenaValue);
+
+        return nextState;
+    };
     const items = [
         { name: `${translations[selectedLanguage].Yes}`, code: '1' },
         { name: `${translations[selectedLanguage].No}`, code: '0' }
@@ -61,7 +99,8 @@ const Order = (props) => {
                     const coffDocsService = new CoffDocsService();
 
                     const data = await coffDocsService.getDocsorder(props.artCurr.id, props.docId);
-                    await setCoffValues(data);
+                    const normalizedData = Array.isArray(data) ? data.map((item) => applyCalculatedAmounts(item)) : [];
+                    await setCoffValues(normalizedData);
 
                     // console.log("coffDocService.getMenu !!!!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!!!!!", data)
                     //initFilters(); 
@@ -73,6 +112,55 @@ const Order = (props) => {
         }
         fetchData();
     }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function fetchPrice() {
+            const artId = normalizeId(props.artCurr?.id);
+            const umId = normalizeId(props.artCurr?.un ?? props.coffDocs?.um);
+
+            if (!artId || !umId) {
+                return;
+            }
+
+            try {
+                const ticArtcenaService = new TicArtcenaService();
+                const priceItem = await ticArtcenaService.getValue(
+                    artId,
+                    umId,
+                    priceLookupConfig.curr,
+                    priceLookupConfig.cena
+                );
+
+                if (cancelled) {
+                    return;
+                }
+
+                const resolvedPrice = priceItem?.value === null || priceItem?.value === undefined
+                    ? null
+                    : formatToOneDecimal(priceItem.value);
+
+                setCoffValues((prevState) => {
+                    const normalizedValues = Array.isArray(prevState) ? prevState : [];
+                    return normalizedValues.map((item) => applyCalculatedAmounts({
+                        ...item,
+                        cena: resolvedPrice ?? item.cena ?? null
+                    }));
+                });
+            } catch (error) {
+                if (!cancelled) {
+                    console.error(error);
+                }
+            }
+        }
+
+        fetchPrice();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [props.artCurr?.id, props.artCurr?.un, props.coffDocs?.um, priceLookupConfig.cena, priceLookupConfig.curr]);
 
 
     // useEffect(() => {
@@ -173,6 +261,7 @@ const Order = (props) => {
         // console.log(e.value, name, "@@@@@@@@@@@@@@@@!!!!!!!!!!!!!!!!!#####!!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@", updatedtCoffValues[rowIndex] , rowData)
         _coffValue = { ...updatedtCoffValues[rowIndex] };
         _coffValue[`${name}`] = val;
+        _coffValue = applyCalculatedAmounts(_coffValue);
         await setCoffValue(_coffValue);
         updatedtCoffValues[rowIndex] = _coffValue;
         await setCoffValues(updatedtCoffValues);
@@ -289,5 +378,3 @@ const Order = (props) => {
 };
 
 export default Order;
-
-

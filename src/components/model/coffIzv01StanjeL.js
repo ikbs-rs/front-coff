@@ -206,6 +206,7 @@ export default function CoffIzv01StanjeL(props) {
               value={globalFilterValue}
               onChange={onGlobalFilterChange}
               placeholder={translations[selectedLanguage].KeywordSearch}
+              className="coff-izv01-theme-input"
             />
           </span>
           <Button
@@ -278,7 +279,7 @@ export default function CoffIzv01StanjeL(props) {
   };
 
   return (
-    <div className="card model-grid-page">
+    <div className="card model-grid-page coff-izv01-theme-form">
       <Toast ref={toast} />
       {/* <div className="col-12"> */}
       <div >
@@ -292,6 +293,7 @@ export default function CoffIzv01StanjeL(props) {
               required
               optionLabel="name"
               placeholder="Select One"
+              className="coff-izv01-theme-input"
             />
           </div>
 
@@ -301,7 +303,9 @@ export default function CoffIzv01StanjeL(props) {
               id="begda"
               value={date}
               onChange={(e) => setDate(e.value)}
-              showIcon />
+              showIcon
+              inputClassName="coff-izv01-theme-input"
+              panelClassName="coff-izv01-theme-panel" />
           </div>
           <div className="field col-12 md:col-3">
             <label htmlFor="mesto">{translations[selectedLanguage].Endda}</label>
@@ -309,7 +313,9 @@ export default function CoffIzv01StanjeL(props) {
               id="endda"
               value={date}
               onChange={(e) => setDate(e.value)}
-              showIcon />
+              showIcon
+              inputClassName="coff-izv01-theme-input"
+              panelClassName="coff-izv01-theme-panel" />
           </div>
 
         </div>

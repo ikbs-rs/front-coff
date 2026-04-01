@@ -17,6 +17,7 @@ import { Dialog } from 'primereact/dialog';
 import TicArtL from './ticArtL';
 import { TicArtcenaService } from '../../service/model/TicArtcenaService';
 import { defaultValue } from '../../configs/defaultValue';
+import { EmptyEntities } from '../../service/model/EmptyEntities';
 
 const CoffDocsPorudzbina = (props) => {
     const docsCrudPermissions = useCrudActionPermissions('coff_docs');
@@ -111,6 +112,27 @@ const CoffDocsPorudzbina = (props) => {
         obj: resolveCurrentObjId(),
         cena: formatToOneDecimal(coffDocs?.cena),
     });
+    const buildEmptyCoffDocs = () => ({
+        ...EmptyEntities["coff_docs"],
+        doc: resolveCurrentDocId(),
+        obj: resolveCurrentObjId(),
+        imageUrl: props.coffDocs?.imageUrl ?? '',
+    });
+    const resetFormState = () => {
+        setCoffDocs(buildEmptyCoffDocs());
+        setArtValue('');
+        setFilteredArts([]);
+        setSelectedArt(null);
+        setCoffArt(null);
+        setDdCmnUmItem(null);
+        setDdCmnUmItems([]);
+        setCmnUmItem(null);
+        setCmnUmItems([]);
+        setSubmitted(false);
+        setDeleteDialogVisible(false);
+        setTicArtLVisible(false);
+        setShowMyComponent(true);
+    };
     const validatePayload = (payload) =>
         Boolean(
             payload.doc &&
@@ -148,6 +170,7 @@ const CoffDocsPorudzbina = (props) => {
             obj: props.coffDocs?.obj ?? props.coffDoc?.obj ?? prevState?.obj ?? null,
             cena: props.coffDocs?.cena ?? prevState?.cena ?? '',
         }));
+        setSubmitted(false);
     }, [props.coffDocs, props.coffDoc?.id, props.coffDoc?.obj]);
 
     useEffect(() => {
@@ -274,6 +297,37 @@ const CoffDocsPorudzbina = (props) => {
             setCoffDocs(nextCoffDocs)
             props.handleDialogClose({ obj: nextCoffDocs, docsTip: props.docsTip });
             props.setVisible(false);
+        } catch (err) {
+            toast.current.show({
+                severity: "error",
+                summary: "Action ",
+                detail: `${err.response.data.error}`,
+                life: 5000,
+            });
+        }
+    };
+
+    const handleCreateAndAddNewClick = async () => {
+        try {
+            setSubmitted(true);
+            const coffDocsService = new CoffDocsService();
+            const payload = buildCoffDocsPayload();
+
+            if (!validatePayload(payload)) {
+                toast.current.show({
+                    severity: "warn",
+                    summary: "Action ",
+                    detail: `${translations[selectedLanguage].Requiredfield}`,
+                    life: 5000,
+                });
+                return;
+            }
+
+            const data = await coffDocsService.postCoffDocs(payload);
+            const nextCoffDocs = { ...payload, id: data };
+
+            props.handleDialogClose({ obj: nextCoffDocs, docsTip: props.docsTip, resetForm: true });
+            resetFormState();
         } catch (err) {
             toast.current.show({
                 severity: "error",
@@ -573,13 +627,22 @@ const CoffDocsPorudzbina = (props) => {
                         <div className="flex-grow-1"></div>
                         <div className="flex flex-wrap gap-1">
                             {(props.docsTip == 'CREATE' && canCreate) ? (
-                                <Button
-                                    label={translations[selectedLanguage].Create}
-                                    icon="pi pi-check"
-                                    onClick={handleCreateClick}
-                                    severity="success"
-                                    outlined
-                                />
+                                <>
+                                    <Button
+                                        label={translations[selectedLanguage].Create}
+                                        icon="pi pi-check"
+                                        onClick={handleCreateClick}
+                                        severity="success"
+                                        outlined
+                                    />
+                                    <Button
+                                        label={translations[selectedLanguage].CreateAndAddNew}
+                                        icon="pi pi-plus"
+                                        onClick={handleCreateAndAddNewClick}
+                                        severity="success"
+                                        outlined
+                                    />
+                                </>
                             ) : null}
                             {(props.docsTip !== 'CREATE' && canDelete) ? (
                                 <Button
@@ -635,5 +698,3 @@ const CoffDocsPorudzbina = (props) => {
 };
 
 export default CoffDocsPorudzbina;
-
-
